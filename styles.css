@@ -55,7 +55,7 @@
   /* ——— 间距 ——— */
   --space-2xs:4px;   --space-xs:8px;    --space-sm:12px;  --space-md:16px;
   --space-lg:24px;   --space-xl:32px;   --space-2xl:48px; --space-3xl:64px;
-  --space-4xl:88px;  --space-5xl:120px; --space-6xl:152px;
+  --space-4xl:112px; --space-5xl:152px; --space-6xl:192px;
 
   /* ——— 圆角（图片直角，控件小圆角）——— */
   --radius-xs:2px; --radius-sm:4px;  --radius-md:6px;
@@ -73,7 +73,7 @@
   --duration-fast: 150ms;  --duration-base: 280ms;  --duration-slow: 600ms;
 
   /* ——— 布局 ——— */
-  --container: 1240px;  --container-narrow: 820px;  --nav-h: 84px;
+  --container: 1340px;  --container-narrow: 860px;  --nav-h: 88px;
 }
 
 /* ───────────────────────────  2. 基础重置  ─────────────────────────── */
@@ -94,13 +94,13 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 ::selection{ background:var(--brand-100); color:var(--brand-900); }
 
 /* ───────────────────────────  3. 版式  ─────────────────────────── */
-.display-xl{ font-family:var(--font-heading); font-size:clamp(2.6rem,5.6vw,4.6rem); font-weight:600; line-height:1.04; letter-spacing:-.03em; }
-.display{ font-family:var(--font-heading); font-size:clamp(2rem,4.2vw,3.2rem); font-weight:600; line-height:1.1; letter-spacing:-.025em; }
-.h1{ font-family:var(--font-heading); font-size:clamp(1.85rem,3.4vw,2.5rem); font-weight:600; line-height:1.16; letter-spacing:-.02em; }
-.h2{ font-family:var(--font-heading); font-size:clamp(1.6rem,2.8vw,2.05rem); font-weight:600; line-height:1.22; letter-spacing:-.018em; }
-.h3{ font-family:var(--font-heading); font-size:clamp(1.25rem,2vw,1.55rem); font-weight:600; line-height:1.3; letter-spacing:-.012em; }
+.display-xl{ font-family:var(--font-heading); font-size:clamp(2.8rem,6.2vw,5.4rem); font-weight:600; line-height:1.02; letter-spacing:-.035em; }
+.display{ font-family:var(--font-heading); font-size:clamp(2.15rem,4.8vw,3.8rem); font-weight:600; line-height:1.08; letter-spacing:-.03em; }
+.h1{ font-family:var(--font-heading); font-size:clamp(2rem,3.8vw,2.9rem); font-weight:600; line-height:1.14; letter-spacing:-.025em; }
+.h2{ font-family:var(--font-heading); font-size:clamp(1.75rem,3.2vw,2.6rem); font-weight:600; line-height:1.16; letter-spacing:-.024em; }
+.h3{ font-family:var(--font-heading); font-size:clamp(1.3rem,2.2vw,1.7rem); font-weight:600; line-height:1.28; letter-spacing:-.016em; }
 .h4{ font-family:var(--font-heading); font-size:1.0625rem; font-weight:600; line-height:1.4; letter-spacing:-.005em; }
-.body-l{ font-size:1.0625rem; line-height:1.75; }
+.body-l{ font-size:1.1875rem; line-height:1.8; }
 .body-s{ font-size:.9375rem; line-height:1.65; }
 .small{ font-size:.8125rem; line-height:1.6; color:var(--text-secondary); }
 .micro{ font-size:.6875rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
@@ -209,7 +209,7 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .accent-word{ color:var(--brand-500); }
 .num{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
 .unit{ font-family:var(--font-mono); font-size:.8em; color:var(--text-tertiary); margin-left:2px; }
-.measure{ max-width:62ch; }
+.measure{ max-width:58ch; }
 .measure-lg{ max-width:72ch; }
 .text-secondary{ color:var(--text-secondary); }
 .text-tertiary{ color:var(--text-tertiary); }
@@ -407,7 +407,7 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 /* ───────────────────────────  8. Hero  ─────────────────────────── */
 /* 满幅实景图 + 图上叠字 */
 .hero-home{
-  position:relative; min-height:min(88vh,820px);
+  position:relative; min-height:min(94vh,940px);
   display:flex; align-items:flex-end;
   padding-top:var(--nav-h);
   background:var(--ink-950); overflow:hidden;
@@ -429,11 +429,23 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   content:""; position:absolute; inset:0;
   background:linear-gradient(180deg,rgba(11,16,21,.55) 0%,rgba(11,16,21,.35) 40%,rgba(11,16,21,.82) 100%);
 }
+/* 白天外景照：左下角压暗承托文字，右上角留出画面 —— 单层渐变，
+   ⚠️ 不要用两层叠加：alpha 会相乘，很容易把整块压成全黑（实测踩到过）。 */
 .hero-media--soft::after{
-  background:linear-gradient(90deg,rgba(11,16,21,.86) 0%,rgba(11,16,21,.62) 45%,rgba(11,16,21,.20) 100%);
+  background:linear-gradient(100deg,
+    rgba(9,14,20,.92) 0%,
+    rgba(9,14,20,.84) 26%,
+    rgba(9,14,20,.58) 48%,
+    rgba(9,14,20,.24) 72%,
+    rgba(9,14,20,.08) 100%);
 }
+/* 图片本身轻微降饱和，避免彩色照片与品牌蓝打架 */
+.hero-media img{ filter:saturate(.82) contrast(1.04); }
 .hero-home .h1,.hero-home .h2,.hero-home .display,.hero-home .display-xl{ color:#fff; }
-.hero-home .body-l,.hero-home .small,.hero-home .text-secondary{ color:rgba(255,255,255,.82); }
+.hero-home .body-l,.hero-home .small,.hero-home .text-secondary{ color:rgba(255,255,255,.86); }
+/* 底图不可控（白天外景/车间/实验室都可能），文字加一层极轻投影兜底可读性 */
+.hero-home__inner > *{ text-shadow:0 1px 12px rgba(9,14,20,.55); }
+.hero-chip{ text-shadow:none; }
 .hero-home .overline{ color:var(--brand-200); }
 
 /* Hero 信息胶囊（原玻璃拟态，v2 改为半透明白） */
@@ -527,19 +539,26 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .product-card:hover{ border-color:var(--brand-200); box-shadow:var(--shadow-floating); transform:translateY(-3px); }
 .product-card__media{
-  position:relative; aspect-ratio:4/3; background:#fff;
+  position:relative; aspect-ratio:1/1; background:#fff;
   display:flex; align-items:center; justify-content:center;
   border-bottom:1px solid var(--border-subtle); overflow:hidden;
 }
-.product-card__media img{ width:100%; height:100%; object-fit:contain; padding:var(--space-md); }
+.product-card__media img{ width:100%; height:100%; object-fit:contain; padding:var(--space-xl); }
+/* 无图时的占位（原官网未提供该产品图） */
+.product-card__media--empty{
+  display:grid; place-items:center; width:100%; height:100%;
+  color:var(--text-tertiary); font-size:.8125rem; letter-spacing:.04em;
+  background:repeating-linear-gradient(45deg,var(--neutral-50) 0 10px,var(--neutral-100) 10px 20px);
+}
 .product-card__badges{ position:absolute; top:10px; left:10px; display:flex; gap:6px; }
-.product-card__body{ padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-sm); flex:1; }
+.product-card__body{ padding:var(--space-xl) var(--space-lg) var(--space-lg); display:flex; flex-direction:column; gap:var(--space-sm); flex:1; }
 .product-card__cat{
   font-family:var(--font-mono); font-size:.6875rem; font-weight:600;
   letter-spacing:.08em; text-transform:uppercase; color:var(--brand-600);
 }
 .product-card__title{ font-family:var(--font-heading); font-size:1rem; font-weight:600; line-height:1.35; }
-.product-card__specs{ display:flex; flex-wrap:wrap; gap:var(--space-lg); margin-top:auto; padding-top:var(--space-sm); }
+.product-card__specs{ display:flex; flex-wrap:wrap; gap:var(--space-lg); margin-top:var(--space-md); padding-top:var(--space-md); border-top:1px solid var(--border-subtle); }
+.product-card__foot{ margin-top:auto; padding-top:var(--space-md); }
 .product-card--dark{ background:var(--ink-800); border-color:var(--ink-700); color:var(--text-on-dark); }
 .product-card--dark .product-card__media{ background:var(--ink-900); border-bottom-color:var(--ink-700); }
 .product-card--dark .product-card__cat{ color:var(--brand-200); }
@@ -627,8 +646,8 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 
 /* 数据统计 */
 .stat{ display:flex; flex-direction:column; gap:var(--space-2xs); }
-.stat__num{ font-family:var(--font-mono); font-size:clamp(1.9rem,3.4vw,2.6rem); font-weight:600; line-height:1; color:var(--brand-600); letter-spacing:-.02em; }
-.stat__unit{ font-family:var(--font-mono); font-size:1rem; color:var(--text-secondary); margin-left:3px; }
+.stat__num{ font-family:var(--font-mono); font-size:clamp(2.2rem,4.2vw,3.5rem); font-weight:600; line-height:1; color:var(--brand-600); letter-spacing:-.03em; }
+.stat__unit{ font-family:var(--font-mono); font-size:1.15rem; color:var(--text-secondary); margin-left:4px; }
 .stat__label{ font-size:.8125rem; color:var(--text-secondary); }
 .dark .stat__num{ color:var(--brand-200); }
 .dark .stat__label,.dark .stat__unit{ color:var(--text-on-dark-muted); }
