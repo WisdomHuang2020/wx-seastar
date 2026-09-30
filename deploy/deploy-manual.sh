@@ -67,14 +67,23 @@ if [ "$CONFIRM" -eq 1 ]; then
 fi
 
 # ── 部署 ─────────────────────────────────────────────────
-tar czf - $FILES | ssh -i "$KEY" -p "$PORT" -o StrictHostKeyChecking=accept-new "$USER@$HOST" "
+# ⚠️ 不用 `tar czf - | ssh ...` 管道：远端 `tar xzf -` 从 stdin 读数据流，
+#    一旦 EOF 传递异常会永久阻塞在 stdin，导致 chown 与写哨兵都不执行
+#    （CI 上实测踩到两次）。改为本地打包 + scp，再单独 ssh 解包。
+tar czf /tmp/wx-seastar-deploy.tgz $FILES
+scp -i "$KEY" -P "$PORT" -o StrictHostKeyChecking=accept-new \
+    /tmp/wx-seastar-deploy.tgz "$USER@$HOST:/tmp/wx-seastar-deploy.tgz"
+rm -f /tmp/wx-seastar-deploy.tgz
+
+ssh -n -i "$KEY" -p "$PORT" -o StrictHostKeyChecking=accept-new "$USER@$HOST" "
   set -euo pipefail
   WEB_ROOT='$WEB_ROOT'
   VERSION='$VERSION'
   BK=\"\$HOME/webroot-backup-\$(date +%F-%H%M%S).tar.gz\"
   tar czf \"\$BK\" -C \"\$WEB_ROOT\" .
   echo \"已备份: \$BK\"
-  tar xzf - -C \"\$WEB_ROOT\"
+  tar xzf /tmp/wx-seastar-deploy.tgz -C \"\$WEB_ROOT\"
+  rm -f /tmp/wx-seastar-deploy.tgz
   chown -R $OWNER:$OWNER \"\$WEB_ROOT\"
   printf '%s\n' \"\$VERSION\" > \"\$WEB_ROOT/.deployed-version\"
   ls -t \"\$HOME\"/webroot-backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs -r rm -f
