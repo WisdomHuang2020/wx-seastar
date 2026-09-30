@@ -13,3 +13,20 @@
 
 # 2026-09-30 · OG 分享图由 PNG 改为 JPG（体积 650KB → 45KB），旧文件下线
 assets/seastar-og.png
+
+# 2026-09-30 · 产品图改为「按 slug 命名 + 从原官网栏目结构抓取」，
+# 旧的猜测式命名（prod-*.jpg）全部废弃。新产品图在 assets/img/product/<slug>.jpg
+assets/img/prod-bpx6.jpg
+assets/img/prod-cdx2-ble.jpg
+assets/img/prod-cdx8.jpg
+assets/img/prod-eclx.jpg
+assets/img/prod-fmx15-b.jpg
+assets/img/prod-fmx15.jpg
+assets/img/prod-linear-l.jpg
+assets/img/prod-linear-round.jpg
+assets/img/prod-neon-strip-b.jpg
+assets/img/prod-neon-strip.jpg
+assets/img/prod-series-a.jpg
+assets/img/prod-series-b.jpg
+assets/img/prod-vntx2.jpg
+

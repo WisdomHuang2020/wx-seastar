@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * 修复产品封面图错配。
+ * 按 slug 重新绑定全部产品封面图。
  *
- * 问题：seed-products.js 早期按文件名猜测映射，导致图片与产品型号不一致。
- * 本脚本按「图上实际印出的型号」重新绑定 cover_media，并清理 LED 产品线中
- * 所有未经确认的配图。
+ * 背景：早期产品图靠"猜文件名"映射，连续两轮配错。
+ * 现在图片统一以 slug 命名（assets/img/product/<slug>.jpg），
+ * 由 deploy/fetch-product-images.py 从原官网按栏目结构抓取。
+ * 本脚本把数据库里的 cover_media 与这套命名**对齐**，
+ * 并清掉所有对不上号的旧图关联。
  *
- * 用法：
+ * 幂等，可反复执行。
+ *
  *   node src/tools/fix-product-images.js
  */
 const fs = require('node:fs');
@@ -19,80 +22,58 @@ db.migrate();
 
 const IMG_DIR = path.join(cfg.uploadDir, 'img');
 const SRC_CANDIDATES = [
-  path.join(cfg.webRoot, 'assets', 'img'),
-  path.resolve(__dirname, '..', '..', '..', 'assets', 'img'),
+  path.join(cfg.webRoot, 'assets', 'img', 'product'),
+  path.resolve(__dirname, '..', '..', '..', 'assets', 'img', 'product'),
 ].filter(p => fs.existsSync(p));
 
 if (!SRC_CANDIDATES.length) {
-  console.error('❌ 找不到产品图片源目录。');
+  console.error('❌ 找不到 assets/img/product/。请先跑 deploy/fetch-product-images.py。');
   process.exit(1);
 }
 const SRC_DIR = SRC_CANDIDATES[0];
 
-// 经过逐张读图核对后的正确映射：slug → 图片文件名
-// 只保留「图上明确印出产品型号」的图片；无法确认的不配图。
-const CORRECT_MAP = {
-  'cdx2-mesh-ble':     'prod-cdx2-ble.jpg',     // 图上印 CDX2 BLE
-  // cdx8-flood-module：prod-cdx8.jpg 上没有印 CDX8，仅外形无法确认，不配。
-  'cdx11-retrofit-277v':'prod-series-a.jpg',    // 图上印 CDX11
-  'fmx15-slim-surface':'prod-fmx15.jpg',        // 图上印 FMX15
-  'wrpx3-prismatic':   'prod-neon-strip-b.jpg', // 图上印 WRPX3（文件名历史遗留）
-};
-
 function ensureMedia(filename) {
-  if (!filename) return null;
   const src = path.join(SRC_DIR, filename);
-  if (!fs.existsSync(src)) {
-    console.error('⚠️  源图片不存在：' + filename);
-    return null;
-  }
-  const dst = path.join(IMG_DIR, filename);
+  if (!fs.existsSync(src)) return null;
+
   fs.mkdirSync(IMG_DIR, { recursive: true });
+  const dst = path.join(IMG_DIR, filename);
   if (!fs.existsSync(dst)) fs.copyFileSync(src, dst);
 
   const row = db.get('SELECT * FROM media WHERE filename = ?', [filename]);
   if (row) return row.id;
   const r = db.run(
     'INSERT INTO media (filename, original_name, mime, size) VALUES (?,?,?,?)',
-    [filename, filename, 'image/jpeg', fs.statSync(dst).size]
-  );
+    [filename, filename, 'image/jpeg', fs.statSync(dst).size]);
   return r.lastInsertRowid;
 }
 
-let updated = 0, missing = 0, cleared = 0;
+let rebound = 0, cleared = 0, noimg = 0;
+const missing = [];
 
 db.tx(() => {
-  // 1) 先清理 LED 产品线所有产品的封面，把之前错配的图全部卸掉，
-  //    之后只重新绑定确认无误的图片。
-  const pmBefore = db.scalar('SELECT COUNT(*) FROM product_media') || 0;
-  db.run("UPDATE products SET cover_media = NULL WHERE category = 'led-lighting'");
-  db.run("DELETE FROM product_media WHERE product_id IN (SELECT id FROM products WHERE category = 'led-lighting')");
-  const pmAfter = db.scalar('SELECT COUNT(*) FROM product_media') || 0;
-  cleared = pmBefore - pmAfter;
+  // 1) 全部先卸掉（含 product_media 关联），之后按 slug 重新绑定。
+  //    之所以全清：旧图是"猜"出来的，逐条判断对错本身不可靠；
+  //    而新素材是按原官网栏目结构抓的，可以无条件信任。
+  cleared = db.scalar('SELECT COUNT(*) FROM product_media') || 0;
+  db.run('UPDATE products SET cover_media = NULL');
+  db.run('DELETE FROM product_media');
 
-  // 2) 按正确映射重新绑定
-  for (const [slug, filename] of Object.entries(CORRECT_MAP)) {
-    const product = db.get('SELECT id, title_en FROM products WHERE slug = ?', [slug]);
-    if (!product) {
-      console.log('⚠️  产品不存在：' + slug);
-      missing++;
-      continue;
-    }
-    const mid = ensureMedia(filename);
-    if (!mid) {
-      console.log('⚠️  图片无法确保：' + filename);
-      missing++;
-      continue;
-    }
-    db.run('UPDATE products SET cover_media = ? WHERE id = ?', [mid, product.id]);
-    db.run(
-      'INSERT OR REPLACE INTO product_media (product_id, media_id, sort_order) VALUES (?,?,0)',
-      [product.id, mid]
-    );
-    console.log(`✅ ${slug} → ${filename}  (${product.title_en})`);
-    updated++;
+  // 2) 逐个产品按 <slug>.jpg 绑定
+  for (const p of db.all('SELECT id, slug FROM products ORDER BY sort_order, id')) {
+    const mid = ensureMedia(p.slug + '.jpg');
+    if (!mid) { noimg++; missing.push(p.slug); continue; }
+    db.run('UPDATE products SET cover_media = ? WHERE id = ?', [mid, p.id]);
+    db.run('INSERT OR REPLACE INTO product_media (product_id, media_id, sort_order) VALUES (?,?,0)', [p.id, mid]);
+    rebound++;
   }
 });
 
-console.log(`\n修复完成：重新绑定 ${updated} 张，清理 LED 产品线旧配图 ${cleared} 条，缺失 ${missing} 个。`);
-console.log('其余 20 个通用照明型号与全部 ODM 型号仍不配图，前台显示「素材待补充」。');
+const ledN = db.scalar("SELECT COUNT(*) FROM products WHERE category='led-lighting'") || 0;
+const ledI = db.scalar("SELECT COUNT(*) FROM products WHERE category='led-lighting' AND cover_media IS NOT NULL") || 0;
+const odmN = db.scalar("SELECT COUNT(*) FROM products WHERE category='driver-odm'") || 0;
+const odmI = db.scalar("SELECT COUNT(*) FROM products WHERE category='driver-odm' AND cover_media IS NOT NULL") || 0;
+
+console.log(`✅ 重新绑定 ${rebound} 张，清理旧关联 ${cleared} 条，无图 ${noimg} 个。`);
+if (missing.length) console.log('   无图（如实显示「素材待补充」）：' + missing.join(', '));
+console.log(`   通用照明 ${ledI}/${ledN} 有图；ODM 驱动 ${odmI}/${odmN} 有图。`);
