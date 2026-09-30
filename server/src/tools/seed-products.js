@@ -45,11 +45,11 @@ const PRODUCTS = [
   //    无法从图上确认型号的，一律不配图 —— 前台会如实显示「素材待补充」。
   //
   //  [slug, 原官网产品名（原文）, 配图 或 null]
-  ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight', 'prod-series-a.jpg'],     // 图上印 CDX2 BLE
-  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',                'prod-cdx8.jpg'],         // 图上印 CDX8
-  ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight',          'prod-linear-l.jpg'],     // 图上印 CDX11
-  ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount',           'prod-linear-round.jpg'], // 图上印 FMX15
-  ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound',                            'prod-fmx15-b.jpg'],      // 图上印 WRPX3
+  ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight', 'prod-cdx2-ble.jpg'],     // 图上印 CDX2 BLE
+  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',              'prod-cdx8.jpg'],         // 图上印 CDX8
+  ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight',        'prod-series-a.jpg'],     // 图上印 CDX11
+  ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount',      'prod-fmx15.jpg'],        // 图上印 FMX15
+  ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound',                          'prod-neon-strip-b.jpg'], // 图上印 WRPX3（文件名是历史遗留，内容实为 WRPX3）
 
   // ── 以下型号原官网未提供（或无法确认）对应产品图 → 不配图 ──
   ['3d-neon-strip',            '3D Neon Strip',                                        null],
