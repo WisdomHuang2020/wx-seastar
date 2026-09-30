@@ -349,7 +349,7 @@ async function openProductEditor(p) {
         <div class="field">
           <label>URL 标识（slug）</label>
           <input class="inp" id="fSlug" value="${esc(d.slug)}" placeholder="留空自动生成">
-          <span class="hint">前台地址形如 /product.html?p=<b>cdx2-mesh-ble</b>，建议用英文</span>
+          <span class="hint">产品专用的资料地址形如 /docs?p=<b>cdx2-mesh-ble</b>，建议用英文</span>
         </div>
         <div class="field">
           <label>排序（数字越小越靠前）</label>

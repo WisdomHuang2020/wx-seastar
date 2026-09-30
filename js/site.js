@@ -84,7 +84,7 @@
           ? '<div class="product-card__specs">' + specHtml(specs) + '</div>'
           : '') +
         '<div class="product-card__foot">' +
-          '<a class="link-arrow" href="docs.html?p=' + encodeURIComponent(p.slug) + '">技术资料' +
+          '<a class="link-arrow" href="/docs?p=' + encodeURIComponent(p.slug) + '">技术资料' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
           '</a>' +
         '</div>' +
@@ -167,7 +167,7 @@
     var el = typeof container === 'string' ? document.querySelector(container) : container;
     if (!el) return Promise.resolve();
 
-    // 支持从产品卡跳转过来：docs.html?p=<slug> → 只显示该产品的资料
+    // 支持从产品卡跳转过来：/docs?p=<slug> → 只显示该产品的资料
     var qs = new URLSearchParams(window.location.search);
     var slug = qs.get('p');
 
@@ -198,12 +198,12 @@
       ? '<div class="card-lum" style="padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
           '<span class="badge badge--brand">已筛选</span>' +
           '<span class="small">正在显示该产品的技术资料（' + count + ' 份）</span>' +
-          '<a class="link-arrow" style="margin-left:auto" href="docs.html">查看全部资料（' + totalAll + ' 份）</a>' +
+          '<a class="link-arrow" style="margin-left:auto" href="/docs">查看全部资料（' + totalAll + ' 份）</a>' +
         '</div>'
       : '<div class="card-lum" style="padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
           '<span class="badge badge--neutral">暂无</span>' +
           '<span class="small">该产品还没有上传技术资料</span>' +
-          '<a class="link-arrow" style="margin-left:auto" href="contact.html">向我们索取</a>' +
+          '<a class="link-arrow" style="margin-left:auto" href="/contact">向我们索取</a>' +
         '</div>';
   }
 
