@@ -210,3 +210,39 @@ journalctl -u wx-seastar-deploy -n 100 --no-pager   # 自动部署
 - **加留言通知**：在 `public.routes.js` 的留言插入处挂钩子（`config.js` 已预留 `NOTIFY_TO`）。
 - **调整自动部署频率**：改 `/etc/systemd/system/wx-seastar-deploy.timer` 里的
   `OnUnitActiveSec=2min`，然后 `systemctl daemon-reload && systemctl restart wx-seastar-deploy.timer`。
+
+---
+
+## 8. 版本与发布记录
+
+**三个地方必须一致，缺一个都不算发完：**
+
+| 位置 | 作用 |
+|---|---|
+| 根目录 `VERSION` | **版本号的唯一来源**（部署脚本读它，写线上的 `.deployed-version` 哨兵） |
+| `CHANGELOG.md` | 每个版本改了什么 —— 也是 GitHub Release 正文的来源 |
+| GitHub 的 Tags / Releases | 对外可查的发布记录（<https://github.com/WisdomHuang2020/wx-seastar/releases>） |
+
+**发版收尾跑一条命令，退出码非 0 就是没发完：**
+
+```bash
+python3 deploy/release-audit.py
+```
+
+它会四方比对 `CHANGELOG` ↔ `VERSION` ↔ 远端 tag ↔ GitHub Release，
+把缺口直接列出来（例如"CHANGELOG 里的 v0.9.0 没有远端 tag"）。
+
+> ⚠️ **为什么必须有这一步**：`git push` 之后站点会自动上线，
+> 整个过程**不会**因为你漏打 tag 或漏建 Release 而报任何错 —— 那是静默发生的。
+> 另外注意：**推送 tag 不会自动创建 Release**，两件事要分别做。
+
+**日常发版的顺序**（改内容 → 上线不需要走这套；只有改了代码/功能才需要）：
+
+```bash
+① 改代码，同时把 VERSION 和 CHANGELOG.md 顶部条目改成同一个新版本号
+② git commit && git push origin main          # 最多 2 分钟自动上线
+③ git tag -a vX.Y.Z <该提交> -m 'vX.Y.Z · 一句话' -m '正文'
+   git push origin vX.Y.Z
+④ 在 GitHub 网页上 New release 选刚推的 tag（或用 API 建）
+⑤ python3 deploy/release-audit.py             # 必须退 0
+```
