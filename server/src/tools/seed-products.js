@@ -46,7 +46,9 @@ const PRODUCTS = [
   //
   //  [slug, 原官网产品名（原文）, 配图 或 null]
   ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight', 'prod-cdx2-ble.jpg'],     // 图上印 CDX2 BLE
-  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',              'prod-cdx8.jpg'],         // 图上印 CDX8
+  // CDX8：当前素材中无一张图上印有 CDX8 字样；prod-cdx8.jpg 只有灯具外形、无型号。
+  // 按「图上无型号就不配」的纪律，不配图，等拿到明确素材后再绑定。
+  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',              null],
   ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight',        'prod-series-a.jpg'],     // 图上印 CDX11
   ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount',      'prod-fmx15.jpg'],        // 图上印 FMX15
   ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound',                          'prod-neon-strip-b.jpg'], // 图上印 WRPX3（文件名是历史遗留，内容实为 WRPX3）

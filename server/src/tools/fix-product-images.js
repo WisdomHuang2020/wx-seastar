@@ -33,7 +33,7 @@ const SRC_DIR = SRC_CANDIDATES[0];
 // 只保留「图上明确印出产品型号」的图片；无法确认的不配图。
 const CORRECT_MAP = {
   'cdx2-mesh-ble':     'prod-cdx2-ble.jpg',     // 图上印 CDX2 BLE
-  'cdx8-flood-module': 'prod-cdx8.jpg',         // 图上印 CDX8
+  // cdx8-flood-module：prod-cdx8.jpg 上没有印 CDX8，仅外形无法确认，不配。
   'cdx11-retrofit-277v':'prod-series-a.jpg',    // 图上印 CDX11
   'fmx15-slim-surface':'prod-fmx15.jpg',        // 图上印 FMX15
   'wrpx3-prismatic':   'prod-neon-strip-b.jpg', // 图上印 WRPX3（文件名历史遗留）
@@ -59,14 +59,16 @@ function ensureMedia(filename) {
   return r.lastInsertRowid;
 }
 
-let updated = 0, cleared = 0, missing = 0;
+let updated = 0, missing = 0, cleared = 0;
 
 db.tx(() => {
-  // 1) 先清理 LED 产品线所有产品的封面（ products.category = 'led-lighting' ）
-  //    这样能把之前错配的图全部卸掉，之后只重新绑定确认无误的 5 张。
+  // 1) 先清理 LED 产品线所有产品的封面，把之前错配的图全部卸掉，
+  //    之后只重新绑定确认无误的图片。
+  const pmBefore = db.scalar('SELECT COUNT(*) FROM product_media') || 0;
   db.run("UPDATE products SET cover_media = NULL WHERE category = 'led-lighting'");
   db.run("DELETE FROM product_media WHERE product_id IN (SELECT id FROM products WHERE category = 'led-lighting')");
-  cleared = db.get("SELECT changes()").changes;
+  const pmAfter = db.scalar('SELECT COUNT(*) FROM product_media') || 0;
+  cleared = pmBefore - pmAfter;
 
   // 2) 按正确映射重新绑定
   for (const [slug, filename] of Object.entries(CORRECT_MAP)) {
@@ -92,5 +94,5 @@ db.tx(() => {
   }
 });
 
-console.log(`\n修复完成：重新绑定 ${updated} 张，清理 ${cleared} 条旧关联，缺失 ${missing} 个。`);
-console.log('其余 19 个通用照明型号与全部 ODM 型号仍不配图，前台显示「素材待补充」。');
+console.log(`\n修复完成：重新绑定 ${updated} 张，清理 LED 产品线旧配图 ${cleared} 条，缺失 ${missing} 个。`);
+console.log('其余 20 个通用照明型号与全部 ODM 型号仍不配图，前台显示「素材待补充」。');
