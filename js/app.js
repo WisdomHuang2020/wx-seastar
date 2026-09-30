@@ -136,7 +136,12 @@
     });
   });
 
-  /* ---------- 6. 数字滚动统计（滚动进入触发） ---------- */  var counters = document.querySelectorAll('[data-count]');
+  /* ---------- 6. 数字滚动统计（滚动进入触发） ----------
+     ⚠️ HTML 里的初始文本本身就是**目标值**，不是 0 ——
+        因为 IntersectionObserver 只在滚动进入时才触发动画，
+        无 JS、或无头截图、或用户没滚到那里时，必须能看到正确的数字。
+        不要把它改回 0（实测踩到过：线上数据区整片显示 0）。 */
+  var counters = document.querySelectorAll('[data-count]');
   if (counters.length) {
     var animateCount = function (el) {
       var target = parseFloat(el.getAttribute('data-count'));
