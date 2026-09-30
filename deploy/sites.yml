@@ -49,6 +49,7 @@ sites:
       - grow-light.html
       - about.html
       - contact.html
+      - docs.html
       - 404.html
       - styles.css
       - js

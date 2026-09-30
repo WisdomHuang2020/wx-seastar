@@ -1,0 +1,350 @@
+/* ============================================================================
+   SEA☆STAR 前台 · 内容对接层
+   ---------------------------------------------------------------------------
+   职责：把页面上"由后台维护的内容"从写死的 HTML 改为向 /api/public/* 取数。
+
+   设计约束：
+     · 纯原生 JS，无构建、无依赖 —— 与整站保持一致
+     · **渐进增强**：取数失败时页面仍能正常浏览（HTML 里保留了静态兜底内容）
+     · 不阻塞首屏：脚本以 defer 加载，取数失败也不影响其它区块
+   ============================================================================ */
+(function () {
+  'use strict';
+
+  var API = '/api/public';
+
+  /* ───────────  工具  ─────────── */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function get(path) {
+    return fetch(API + path, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (d) {
+        if (!d.ok) throw new Error(d.error || '接口返回失败');
+        return d;
+      });
+  }
+
+  /* 语言选择：站点当前为中文，数据结构已预留 en。
+     下方 setLang('en') 即可整体切换，中文缺失时自动回退中文。 */
+  var LANG = 'zh';
+  function pick(pair) {
+    if (!pair) return '';
+    return (LANG === 'en' && pair.en) ? pair.en : (pair.zh || pair.en || '');
+  }
+
+  /* ───────────  产品渲染  ─────────── */
+  function specHtml(specs) {
+    return (specs || []).slice(0, 4).map(function (s) {
+      return '<div class="mini-spec">' +
+        '<div class="mini-spec__k">' + esc(s.k) + '</div>' +
+        '<div class="mini-spec__v">' + esc(s.v) + (s.u ? '<span class="unit">' + esc(s.u) + '</span>' : '') + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function badgeHtml(badges) {
+    if (!badges || !badges.length) return '';
+    return '<div class="product-card__badges">' + badges.map(function (b) {
+      return '<span class="badge badge--' + esc(b.type || 'brand') + '">' + esc(b.text) + '</span>';
+    }).join('') + '</div>';
+  }
+
+  function productCardHtml(p, idx) {
+    var d = (idx % 4) + 1;
+    return '<article class="product-card reveal reveal-d' + d + '">' +
+      '<div class="product-card__media">' +
+        badgeHtml(p.badges) +
+        (p.cover
+          ? '<img src="' + esc(p.cover.url) + '" alt="' + esc(p.cover.alt || pick(p.title)) + '" loading="lazy" decoding="async">'
+          : '<div style="display:grid;place-items:center;width:100%;height:100%;color:var(--text-tertiary);font-size:13px">暂无图片</div>') +
+      '</div>' +
+      '<div class="product-card__body">' +
+        '<span class="product-card__cat">' + esc(p.category || '') + '</span>' +
+        '<h3 class="product-card__title">' + esc(pick(p.title)) + '</h3>' +
+        '<div class="product-card__specs">' + specHtml(p.specs) + '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  /**
+   * 把产品列表渲染进容器。
+   * container: CSS 选择器或元素
+   * opts.category / opts.prefix: 服务端过滤
+   * opts.limit: 最多显示几个
+   *
+   * 渐进增强：取数失败时**不清空**容器 —— 页面里保留的静态内容继续可用。
+   */
+  function renderProducts(container, opts) {
+    opts = opts || {};
+    var el = typeof container === 'string' ? document.querySelector(container) : container;
+    if (!el) return Promise.resolve();
+
+    var qs = ['size=' + (opts.limit || 300)];
+    if (opts.category) qs.push('category=' + encodeURIComponent(opts.category));
+    if (opts.prefix) qs.push('category_prefix=' + encodeURIComponent(opts.prefix));
+
+    return get('/products?' + qs.join('&'))
+      .then(function (res) {
+        var list = res.data || [];
+        el.__products = list;                 // 缓存，供客户端筛选复用
+        paintProducts(el, list);
+      })
+      .catch(function (err) {
+        console.warn('[site] 产品加载失败，保留页面静态内容：', err.message);
+      });
+  }
+
+  function paintProducts(el, list) {
+    if (!list.length) {
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:52px 0;color:var(--text-tertiary)">' +
+        '<span class="brand-star" style="width:26px;height:26px;display:block;margin:0 auto 12px;opacity:.4"></span>' +
+        '该分类下暂无产品</div>';
+      return;
+    }
+    el.innerHTML = list.map(productCardHtml).join('');
+    if (window.SeaStarReveal) window.SeaStarReveal(el);
+  }
+
+  /**
+   * 客户端筛选：绑在 pills 上，按 category 前缀过滤已取回的数据（零请求）。
+   * pillsSel 里的按钮用 data-filter="Commercial" （空前缀=全部）
+   */
+  function mountProductFilter(pillsSel, gridSel) {
+    var pills = document.querySelector(pillsSel);
+    var grid = typeof gridSel === 'string' ? document.querySelector(gridSel) : gridSel;
+    if (!pills || !grid) return;
+    pills.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-filter]');
+      if (!btn) return;
+      pills.querySelectorAll('[data-filter]').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      var f = btn.getAttribute('data-filter') || '';
+      var all = grid.__products || [];
+      paintProducts(grid, f ? all.filter(function (p) {
+        return (p.category || '').toLowerCase().indexOf(f.toLowerCase()) === 0;
+      }) : all);
+    });
+  }
+
+  /* ───────────  资料中心  ─────────── */
+  var KIND_LABEL = { spec: '规格书', manual: '说明书', ies: 'IES 光度文件', drawing: '图纸', other: '其他资料' };
+
+  function humanSize(n) {
+    n = Number(n) || 0;
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1048576).toFixed(1) + ' MB';
+  }
+
+  function renderDocuments(container, opts) {
+    opts = opts || {};
+    var el = typeof container === 'string' ? document.querySelector(container) : container;
+    if (!el) return Promise.resolve();
+
+    return get('/documents?size=500')
+      .then(function (res) {
+        var list = res.data || [];
+        window.__SeaStarDocs = list;           // 供筛选器复用
+        paintDocs(el, list, opts.kind || '');
+      })
+      .catch(function (err) {
+        console.warn('[site] 资料加载失败：', err.message);
+      });
+  }
+
+  function paintDocs(el, list, kind) {
+    var filtered = kind ? list.filter(function (d) { return d.kind === kind; }) : list;
+    if (!filtered.length) {
+      el.innerHTML = '<div style="text-align:center;padding:52px 0;color:var(--text-tertiary)">' +
+        '<span class="brand-star" style="width:26px;height:26px;display:block;margin:0 auto 12px;opacity:.4"></span>' +
+        '该分类下暂无资料</div>';
+      return;
+    }
+    el.innerHTML = '<div class="table-wrap"><table class="tech-table">' +
+      '<thead><tr><th>资料名称</th><th>类型</th><th>关联产品</th><th>大小</th><th style="text-align:right">下载</th></tr></thead><tbody>' +
+      filtered.map(function (d) {
+        return '<tr>' +
+          '<td>' + esc(d.title) + (d.filename ? '<div class="small" style="color:var(--text-tertiary)">' + esc(d.filename) + '</div>' : '') + '</td>' +
+          '<td><span class="badge badge--brand">' + esc(d.kind_label || KIND_LABEL[d.kind] || d.kind) + '</span></td>' +
+          '<td>' + (d.product ? esc(d.product.title) : '<span style="color:var(--text-tertiary)">通用资料</span>') + '</td>' +
+          '<td class="mono">' + esc(humanSize(d.size)) + '</td>' +
+          '<td style="text-align:right"><a class="link-arrow" href="' + esc(d.url) + '">下载' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M6 12l6 6 6-6M4 20h16"/></svg>' +
+          '</a></td>' +
+        '</tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  /** 资料中心：按类型筛选（pills 复用站点样式） */
+  function mountDocFilter(pillsSel, tableSel) {
+    var pills = document.querySelector(pillsSel);
+    var table = document.querySelector(tableSel);
+    if (!pills || !table) return;
+    pills.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-kind]');
+      if (!btn) return;
+      pills.querySelectorAll('[data-kind]').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      paintDocs(table, window.__SeaStarDocs || [], btn.getAttribute('data-kind'));
+    });
+  }
+
+  /* ───────────  产品详情（可选：在产品页展开完整信息）  ─────────── */
+  function renderProductDetail(slug, container) {
+    var el = typeof container === 'string' ? document.querySelector(container) : container;
+    if (!el) return Promise.resolve();
+    return get('/products/' + encodeURIComponent(slug))
+      .then(function (res) {
+        var p = res.data;
+        el.innerHTML =
+          '<div class="grid grid-2" style="gap:var(--space-2xl);align-items:start">' +
+            '<div>' + (p.cover ? '<img src="' + esc(p.cover.url) + '" alt="' + esc(pick(p.title)) + '" style="width:100%;border-radius:var(--radius-md)">' : '') +
+              (p.images && p.images.length > 1 ? '<div class="grid grid-3 mt-lg">' + p.images.slice(1).map(function (im) {
+                return '<img src="' + esc(im.url) + '" alt="' + esc(im.alt) + '" loading="lazy" style="width:100%;border-radius:var(--radius-sm);border:1px solid var(--border-subtle)">';
+              }).join('') + '</div>' : '') +
+            '</div>' +
+            '<div>' +
+              '<span class="overline">' + esc(p.category || '') + '</span>' +
+              '<h1 class="h1 mt-md">' + esc(pick(p.title)) + '</h1>' +
+              (pick(p.summary) ? '<p class="body-l mt-lg text-secondary">' + esc(pick(p.summary)) + '</p>' : '') +
+              '<div class="table-wrap mt-2xl"><table class="tech-table"><tbody>' +
+                (p.specs || []).map(function (s) {
+                  return '<tr><th style="width:38%">' + esc(s.k) + '</th><td>' + esc(s.v) + (s.u ? ' ' + esc(s.u) : '') + '</td></tr>';
+                }).join('') +
+              '</tbody></table></div>' +
+              ((p.documents && p.documents.length)
+                ? '<h3 class="h4 mt-2xl">资料下载</h3><ul class="brand-list mt-md">' + p.documents.map(function (d) {
+                    return '<li><a href="' + esc(d.url) + '">' + esc(d.title) + ' <span class="small">(' + esc(d.kind_label) + ' · ' + esc(humanSize(d.size)) + ')</span></a></li>';
+                  }).join('') + '</ul>'
+                : '') +
+            '</div>' +
+          '</div>';
+      })
+      .catch(function (err) { console.warn('[site] 产品详情加载失败：', err.message); });
+  }
+
+  /* ───────────  联系表单：提交到后端存库  ─────────── */
+  function mountContactForm(formSel) {
+    var form = document.querySelector(formSel);
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var note = form.querySelector('[data-form-note]');
+      var btn = form.querySelector('button[type="submit"]');
+      var val = function (n) {
+        var el = form.elements[n];
+        return el ? String(el.value || '').trim() : '';
+      };
+
+      var payload = {
+        name: val('name'),
+        company: val('company'),
+        email: val('email'),
+        phone: val('phone'),
+        content: val('msg') || val('content'),
+      };
+      if (!payload.name || !payload.content) {
+        showNote(note, '请填写姓名与需求描述后再提交。', 'error');
+        return;
+      }
+
+      var oldText = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = '提交中…'; }
+
+      fetch('/api/public/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.d && res.d.ok) {
+            showNote(note, '已收到您的需求，我们会在 1–3 个工作日内与您联系。', 'success');
+            form.reset();
+          } else {
+            showNote(note, (res.d && res.d.error) || '提交失败，请稍后重试，或直接致电 0510-68506661。', 'error');
+          }
+        })
+        .catch(function () {
+          showNote(note, '网络异常，未能提交。请稍后重试，或直接致电 0510-68506661。', 'error');
+        })
+        .finally(function () {
+          if (btn) { btn.disabled = false; btn.textContent = oldText; }
+        });
+    });
+  }
+
+  function showNote(note, msg, kind) {
+    if (!note) { alert(msg); return; }
+    note.textContent = msg;
+    note.classList.remove('hidden');
+    note.style.color = kind === 'error' ? 'var(--color-danger)' : 'var(--color-success)';
+  }
+
+  /* ───────────  对外暴露  ─────────── */
+  window.SeaStar = {
+    get: get,
+    esc: esc,
+    renderProducts: renderProducts,
+    renderDocuments: renderDocuments,
+    renderProductDetail: renderProductDetail,
+    mountDocFilter: mountDocFilter,
+    mountContactForm: mountContactForm,
+    setLang: function (l) { LANG = l === 'en' ? 'en' : 'zh'; },
+    KIND_LABEL: KIND_LABEL,
+  };
+
+  /* ───────────  自动挂载  ───────────
+     页面只要引入本文件即可，无需在 HTML 里写初始化代码 ——
+     降低维护者"漏写某段脚本"的概率。行为由元素上的 data-* 属性驱动。 */
+  function autoMount() {
+    // 联系表单：存库
+    if (document.querySelector('[data-contact-form]')) {
+      mountContactForm('[data-contact-form]');
+    }
+    // 产品列表：data-products="category:xxx;limit:6"
+    var grids = [];
+    document.querySelectorAll('[data-products]').forEach(function (el) {
+      var cfg = {};
+      (el.getAttribute('data-products') || '').split(';').forEach(function (kv) {
+        var i = kv.indexOf(':');
+        if (i < 0) return;
+        var k = kv.slice(0, i).trim(), v = kv.slice(i + 1).trim();
+        if (k === 'limit') cfg.limit = parseInt(v, 10) || undefined;
+        else if (k === 'category') cfg.category = v || undefined;
+        else if (k === 'prefix') cfg.prefix = v || undefined;
+      });
+      grids.push(el);
+      renderProducts(el, cfg);
+    });
+    // 与之配对的客户端筛选器：data-products-filter="<grid 选择器>"
+    document.querySelectorAll('[data-products-filter]').forEach(function (pills) {
+      var sel = pills.getAttribute('data-products-filter');
+      var grid = sel ? document.querySelector(sel) : (grids[0] || null);
+      if (grid) mountProductFilter(pills, grid);
+    });
+    // 资料中心：data-documents 指定表格容器
+    var docBox = document.querySelector('[data-documents]');
+    if (docBox) {
+      renderDocuments(docBox).then(function () { mountDocFilter('[data-doc-filter]', docBox); });
+    }
+    // 产品详情：data-product-detail="slug"
+    var detail = document.querySelector('[data-product-detail]');
+    if (detail) renderProductDetail(detail.getAttribute('data-product-detail'), detail);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoMount);
+  } else {
+    autoMount();
+  }
+})();

@@ -44,7 +44,7 @@ jobs:
     env:
       FILES: >-
         index.html odm.html lighting.html grow-light.html about.html contact.html
-        404.html styles.css js assets favicon.ico apple-touch-icon.png
+        docs.html 404.html styles.css js assets favicon.ico apple-touch-icon.png
         robots.txt sitemap.xml
     steps:
       - name: Checkout

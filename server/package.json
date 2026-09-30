@@ -1,0 +1,21 @@
+{
+  "name": "wx-seastar-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SEA☆STAR 实益达官网 · 内容管理与留言后台（Node 内置 SQLite，无原生模块依赖）",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "init-db": "node src/tools/init-db.js",
+    "create-admin": "node src/tools/create-admin.js",
+    "seed": "node src/tools/seed-products.js",
+    "check": "node --check src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "multer": "^2.0.0"
+  }
+}

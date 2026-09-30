@@ -23,3 +23,10 @@ _*.py
 _*.html
 shots/
 styles-v1-backup.css
+
+# ── 后端运行时产物（部署到服务器时生成）──
+server/node_modules/
+server/.env
+*.db
+*.db-wal
+*.db-shm

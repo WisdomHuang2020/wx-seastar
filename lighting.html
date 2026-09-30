@@ -40,7 +40,9 @@
       <a href="odm.html">ODM 设计</a>
       <a href="lighting.html" class="is-active">通用照明</a>
       <a href="grow-light.html">植物灯具</a>
-      <a href="about.html">关于我们</a>
+      <a href="docs.html">资料中心</a>
+      <a href="docs.html">资料中心</a>
+  <a href="about.html">关于我们</a>
       <a href="contact.html">联系我们</a>
     </nav>
     <div class="nav__right">
@@ -129,15 +131,16 @@
         <p class="body-l">点击标签筛选对应场景的灯具产品。</p>
       </div>
       <!-- 筛选 Tab -->
-      <div class="pills reveal" data-tabs="catalog" style="align-self:flex-end;">
-        <button class="pill is-active" data-tab="all">全部</button>
-        <button class="pill" data-tab="home">家居</button>
-        <button class="pill" data-tab="commercial">商业</button>
-        <button class="pill" data-tab="outdoor">户外</button>
+      <div class="pills reveal" data-products-filter="#productGrid" style="align-self:flex-end;">
+        <button class="pill is-active" data-filter="">全部</button>
+        <button class="pill" data-filter="Commercial">商业照明</button>
+        <button class="pill" data-filter="Residential">家居照明</button>
+        <button class="pill" data-filter="Specialty">特种照明</button>
       </div>
     </div>
 
-    <div class="grid grid-3" data-panel="catalog:all">
+    <!-- 产品网格：内容由后台维护，此处的卡片为无 JS / 取数失败时的兜底显示 -->
+    <div class="grid grid-3" id="productGrid" data-products="">
       <!-- 家居 -->
       <article class="product-card reveal" data-cat="home">
         <div class="product-card__media">
@@ -242,152 +245,6 @@
     </div>
 
     <!-- 家居 panel -->
-    <div class="grid grid-3 hidden" data-panel="catalog:home">
-      <article class="product-card">
-        <div class="product-card__media">
-          <div class="product-card__badges"><span class="badge badge--brand">热销</span></div>
-          <img src="assets/img/prod-neon-strip.jpg" alt="3D Neon Strip" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Specialty / Neon</span>
-          <h3 class="product-card__title">3D Neon Strip</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">3D Neon</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Flexible Strip</div></div><div class="mini-spec"><div class="mini-spec__k">Cert.</div><div class="mini-spec__v">CE / UL / RoHS</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          <div class="product-card__badges"><span class="badge badge--tech">新品</span></div>
-          <img src="assets/img/prod-wrpx3.jpg" alt="WRPX3 棱镜环绕灯具" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Wraparound</span>
-          <h3 class="product-card__title">WRPX3 棱镜环绕灯具</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">WRPX3</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Prismatic</div></div><div class="mini-spec"><div class="mini-spec__k">Mount</div><div class="mini-spec__v">Surface</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          <div class="product-card__badges"><span class="badge badge--brand">主推</span></div>
-          <img src="assets/img/prod-fmx15.jpg" alt="FMX15 超薄吸顶面板灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Surface</span>
-          <h3 class="product-card__title">FMX15 超薄吸顶面板灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">FMX15</div></div><div class="mini-spec"><div class="mini-spec__k">Aperture</div><div class="mini-spec__v">5–24 in</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Slim Surface</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          
-          <img src="assets/img/prod-cdx11.jpg" alt="CDX11 快装式商业筒灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Downlight</span>
-          <h3 class="product-card__title">CDX11 快装式商业筒灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">CDX11</div></div><div class="mini-spec"><div class="mini-spec__k">Voltage</div><div class="mini-spec__v">120–277V</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Retrofit</div></div></div>
-        </div>
-      </article>
-    </div>
-
-    <!-- 商业 panel -->
-    <div class="grid grid-3 hidden" data-panel="catalog:commercial">
-      <article class="product-card">
-        <div class="product-card__media">
-          <div class="product-card__badges"><span class="badge badge--tech">智能</span></div>
-          <img src="assets/img/prod-cdx2-ble.jpg" alt="CDX2 MESH BLE 无线控制筒灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Downlight</span>
-          <h3 class="product-card__title">CDX2 MESH BLE 无线控制筒灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">CDX2</div></div><div class="mini-spec"><div class="mini-spec__k">Control</div><div class="mini-spec__v">MESH BLE</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Recessed</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          
-          <img src="assets/img/prod-cdx8.jpg" alt="CDX8 泛光模块商业筒灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Downlight</span>
-          <h3 class="product-card__title">CDX8 泛光模块商业筒灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">CDX8</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Flood Module</div></div><div class="mini-spec"><div class="mini-spec__k">Mount</div><div class="mini-spec__v">Recessed</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          
-          <img src="assets/img/prod-vntx2.jpg" alt="VNTX2 方形镜前灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Residential / Vanity</span>
-          <h3 class="product-card__title">VNTX2 方形镜前灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">VNTX2</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Square Vanity</div></div><div class="mini-spec"><div class="mini-spec__k">Mount</div><div class="mini-spec__v">Wall</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          
-          <img src="assets/img/prod-bpx6.jpg" alt="BPX6 槽型面板灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Panel</span>
-          <h3 class="product-card__title">BPX6 槽型面板灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">BPX6</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Slot Panel</div></div><div class="mini-spec"><div class="mini-spec__k">Mount</div><div class="mini-spec__v">Recessed</div></div></div>
-        </div>
-      </article>
-    </div>
-
-    <!-- 户外 panel -->
-    <div class="grid grid-3 hidden" data-panel="catalog:outdoor">
-      <article class="product-card">
-        <div class="product-card__media">
-          <div class="product-card__badges"><span class="badge badge--tech">调光</span></div>
-          <img src="assets/img/prod-series-a.jpg" alt="RDX3 5CCT 可调薄型筒灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Residential / Downlight</span>
-          <h3 class="product-card__title">RDX3 5CCT 可调薄型筒灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">RDX3</div></div><div class="mini-spec"><div class="mini-spec__k">CCT</div><div class="mini-spec__v">5CCT Selectable</div></div><div class="mini-spec"><div class="mini-spec__k">Wattage</div><div class="mini-spec__v">Selectable</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          
-          <img src="assets/img/prod-linear-round.jpg" alt="CLDX3 圆柱吊装灯具" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Cylinder</span>
-          <h3 class="product-card__title">CLDX3 圆柱吊装灯具</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">CLDX3</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Cylinder</div></div><div class="mini-spec"><div class="mini-spec__k">Mount</div><div class="mini-spec__v">Pendant</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          
-          <img src="assets/img/prod-eclx.jpg" alt="ECLX 系列 LED 吸顶灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Residential / Ceiling</span>
-          <h3 class="product-card__title">ECLX 系列 LED 吸顶灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">ECLX2/3/6/7</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Ceiling</div></div><div class="mini-spec"><div class="mini-spec__k">Cert.</div><div class="mini-spec__v">CE / UL</div></div></div>
-        </div>
-      </article>
-      <article class="product-card">
-        <div class="product-card__media">
-          
-          <img src="assets/img/prod-series-b.jpg" alt="ESPX2 薄型背光面板灯" loading="lazy" decoding="async">
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">Commercial / Panel</span>
-          <h3 class="product-card__title">ESPX2 薄型背光面板灯</h3>
-          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">ESPX2</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Slim Backlight</div></div><div class="mini-spec"><div class="mini-spec__k">Mount</div><div class="mini-spec__v">Recessed</div></div></div>
-        </div>
-      </article>
-    </div>
-
-    <p class="small text-tertiary mt-xl center">* 光通量等具体参数以正式产品规格书为准。</p>
-  </div>
-</section>
 
 <!-- ==================== 应用场景（Tab 切换） ==================== -->
 <section class="section" id="scenes" style="background:var(--surface-sunken);" aria-labelledby="scene-title">
@@ -562,5 +419,6 @@
 </footer>
 
 <script src="js/app.js"></script>
+<script src="js/site.js" defer></script>
 </body>
 </html>

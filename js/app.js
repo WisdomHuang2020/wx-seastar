@@ -54,22 +54,31 @@
   }
 
   /* ---------- 3. 滚动入场（IntersectionObserver） ---------- */
-  var reveals = document.querySelectorAll('.reveal');
-  if (reveals.length) {
+  var revealObserver = null;
+
+  function attachReveal(scope) {
+    var reveals = (scope || document).querySelectorAll('.reveal:not(.is-in)');
+    if (!reveals.length) return;
     if (reduce || !('IntersectionObserver' in window)) {
       reveals.forEach(function (el) { el.classList.add('is-in'); });
-    } else {
-      var io = new IntersectionObserver(function (entries) {
+      return;
+    }
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             entry.target.classList.add('is-in');
-            io.unobserve(entry.target);
+            revealObserver.unobserve(entry.target);
           }
         });
       }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-      reveals.forEach(function (el) { io.observe(el); });
     }
+    reveals.forEach(function (el) { revealObserver.observe(el); });
   }
+
+  attachReveal(document);
+  // 供动态插入的内容（如从接口取回的产品卡）重新挂载入场动画
+  window.SeaStarReveal = attachReveal;
 
   /* ---------- 4. 光谱曲线绘制（Trace 动效） ---------- */
   var tracePaths = document.querySelectorAll('.trace-path');
@@ -154,38 +163,9 @@
     }
   }
 
-  /* ---------- 7. 联系表单（邮件提交，无需后端） ---------- */
-  // 本站为纯静态站、没有服务端，因此表单以「打开邮件客户端并预填内容」的方式提交。
-  // 这样访客填写的内容能真正送达，而不是只弹一句提示。
-  var form = document.querySelector('[data-contact-form]');
-  if (form) {
-    var MAIL_TO = 'edison_liu@wx-seastar.com';
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var val = function (n) {
-        var el = form.elements[n];
-        return el ? String(el.value || '').trim() : '';
-      };
-      var subject = '官网询价：' + (val('company') || val('name') || '照明需求');
-      var body = [
-        '姓名：' + val('name'),
-        '公司：' + val('company'),
-        '邮箱：' + val('email'),
-        '电话：' + val('phone'),
-        '',
-        '需求描述：',
-        val('msg')
-      ].join('\r\n');
-      window.location.href = 'mailto:' + MAIL_TO
-        + '?subject=' + encodeURIComponent(subject)
-        + '&body=' + encodeURIComponent(body);
-      var note = form.querySelector('[data-form-note]');
-      if (note) {
-        note.innerHTML = '已为您打开邮件客户端，请直接发送。'
-          + '若未自动打开，请发送至 <a href="mailto:' + MAIL_TO + '">' + MAIL_TO + '</a>'
-          + '，或致电 0510-68506661。';
-        note.classList.remove('hidden');
-      }
-    });
-  }
+  /* ---------- 7. 联系表单 ----------
+     提交逻辑已移交 js/site.js 的 SeaStar.mountContactForm()，
+     由它 POST 到 /api/public/messages 存入后台数据库，
+     这样客户留言才能在管理后台查阅与导出。
+     本文件不再处理表单，避免两套逻辑抢同一个 submit 事件。 */
 })();

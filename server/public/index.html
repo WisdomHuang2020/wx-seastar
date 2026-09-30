@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>内容管理 · SEA☆STAR 实益达</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ══════════════ 登录 ══════════════ -->
+<div id="loginView" class="login-wrap">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <span class="star" aria-hidden="true"></span>
+    <h1>内容管理后台</h1>
+    <p class="sub">SEA☆STAR 实益达 · 无锡市益明光电有限公司</p>
+
+    <div class="field" style="margin-top:24px">
+      <label for="lgUser">用户名</label>
+      <input class="inp" id="lgUser" name="username" autocomplete="username" required autofocus>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label for="lgPass">密码</label>
+      <input class="inp" id="lgPass" name="password" type="password" autocomplete="current-password" required>
+    </div>
+
+    <div id="lgErr" class="hidden" style="margin-top:14px;padding:10px 12px;background:#FEE2E2;color:#991B1B;border-radius:6px;font-size:13px"></div>
+
+    <button class="btn btn--lg" type="submit" style="width:100%;margin-top:20px;justify-content:center" id="lgBtn">登录</button>
+    <p class="small muted" style="margin-top:16px;text-align:center">
+      忘记密码请联系网站管理员重置
+    </p>
+  </form>
+</div>
+
+<!-- ══════════════ 主应用 ══════════════ -->
+<div id="appView" class="app hidden">
+
+  <aside class="side">
+    <div class="side__brand">
+      <div class="name"><span class="star" aria-hidden="true"></span>SEA☆STAR</div>
+      <div class="sub">CONTENT ADMIN</div>
+    </div>
+    <nav class="side__nav" id="nav">
+      <button data-view="products" class="is-active">产品管理 <span class="cnt" id="cntProducts">0</span></button>
+      <button data-view="documents">资料文件 <span class="cnt" id="cntDocuments">0</span></button>
+      <button data-view="messages">客户留言 <span class="cnt" id="cntMessages">0</span></button>
+      <button data-view="media">图片库 <span class="cnt" id="cntMedia">0</span></button>
+    </nav>
+    <div class="side__foot">
+      <div class="who" id="whoami">—</div>
+      <a href="/" target="_blank">查看前台站点 ↗</a>
+      <a href="#" id="btnPwd">修改密码</a>
+      <a href="#" id="btnLogout">退出登录</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <h2 id="viewTitle">产品管理</h2>
+      <div class="grow"></div>
+      <div id="viewActions" class="toolbar"></div>
+    </div>
+    <div class="content" id="viewBody"></div>
+  </main>
+</div>
+
+<!-- ══════════════ 弹窗容器 ══════════════ -->
+<div id="modalRoot"></div>
+<div class="toast-wrap" id="toastRoot"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>
