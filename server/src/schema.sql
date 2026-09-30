@@ -46,21 +46,24 @@ CREATE TABLE IF NOT EXISTS media (
 );
 
 -- ── 产品 ────────────────────────────────────────────────────────────────
+-- ⚠️ 数据纪律：本表字段**允许留空**，因为原官网 www.wx-seastar.com 的产品页
+--    只有一行英文产品名 —— 没有规格参数、没有简介、没有中文名。
+--    **留空是诚实，编造才是错误**。前台遇到空字段会显示"素材待补充"。
 CREATE TABLE IF NOT EXISTS products (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   slug        TEXT    NOT NULL UNIQUE,      -- URL 友好标识，如 cdx2-mesh-ble
-  category    TEXT,                         -- 业务线：lighting / grow-light / odm / ...
-  series      TEXT,                         -- 产品系列：CDX2 / WRPX3 / FMX15 ...
-  -- 双语内容
-  title_zh    TEXT    NOT NULL,
-  title_en    TEXT,
+  category    TEXT,                         -- 业务线：led-lighting / driver-odm
+  series      TEXT,                         -- 产品系列（原官网未提供，可留空）
+  -- 双语内容（两者都可为空，但业务层保证至少有一个）
+  title_zh    TEXT,                         -- 中文名：原官网没有就不要编
+  title_en    TEXT,                         -- 英文名：原官网原文
   summary_zh  TEXT,
   summary_en  TEXT,
-  body_zh     TEXT,                         -- 长描述（允许简单 HTML）
+  body_zh     TEXT,
   body_en     TEXT,
-  -- 结构化数据（JSON 字符串）
-  specs       TEXT,                         -- [{"k":"Series","v":"CDX2","u":""}]
-  badges      TEXT,                         -- [{"text":"热销","type":"brand"}]
+  -- 结构化数据（JSON 字符串）；原官网没有规格时存 '[]'
+  specs       TEXT,
+  badges      TEXT,
   cover_media INTEGER REFERENCES media(id) ON DELETE SET NULL,
   sort_order  INTEGER NOT NULL DEFAULT 0,
   published   INTEGER NOT NULL DEFAULT 1,   -- 软删除/下架

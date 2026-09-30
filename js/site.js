@@ -57,19 +57,37 @@
     }).join('') + '</div>';
   }
 
+  /**
+   * 产品卡。
+   *
+   * ⚠️ 数据纪律：原官网的产品页**只有一行产品名**，没有规格参数与简介。
+   *    所以这里**规格为空时就不渲染规格区**、简介为空就不渲染简介 ——
+   *    宁可留白，也不用编造内容把卡片"填满"。
+   */
   function productCardHtml(p, idx) {
     var d = (idx % 4) + 1;
+    var title = pick(p.title) || p.slug;
+    var specs = p.specs || [];
+    var badges = p.badges || [];
+
     return '<article class="product-card reveal reveal-d' + d + '">' +
       '<div class="product-card__media">' +
-        badgeHtml(p.badges) +
+        badgeHtml(badges) +
         (p.cover
-          ? '<img src="' + esc(p.cover.url) + '" alt="' + esc(p.cover.alt || pick(p.title)) + '" loading="lazy" decoding="async">'
-          : '<div style="display:grid;place-items:center;width:100%;height:100%;color:var(--text-tertiary);font-size:13px">暂无图片</div>') +
+          ? '<img src="' + esc(p.cover.url) + '" alt="' + esc(p.cover.alt || title) + '" loading="lazy" decoding="async">'
+          : '<div class="product-card__media--empty">素材待补充</div>') +
       '</div>' +
       '<div class="product-card__body">' +
-        '<span class="product-card__cat">' + esc(p.category || '') + '</span>' +
-        '<h3 class="product-card__title">' + esc(pick(p.title)) + '</h3>' +
-        '<div class="product-card__specs">' + specHtml(p.specs) + '</div>' +
+        (p.series ? '<span class="product-card__cat">' + esc(p.series) + '</span>' : '') +
+        '<h3 class="product-card__title">' + esc(title) + '</h3>' +
+        (specs.length
+          ? '<div class="product-card__specs">' + specHtml(specs) + '</div>'
+          : '') +
+        '<div class="product-card__foot">' +
+          '<a class="link-arrow" href="docs.html?p=' + encodeURIComponent(p.slug) + '">技术资料' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
+          '</a>' +
+        '</div>' +
       '</div>' +
     '</article>';
   }
@@ -149,15 +167,44 @@
     var el = typeof container === 'string' ? document.querySelector(container) : container;
     if (!el) return Promise.resolve();
 
+    // 支持从产品卡跳转过来：docs.html?p=<slug> → 只显示该产品的资料
+    var qs = new URLSearchParams(window.location.search);
+    var slug = qs.get('p');
+
     return get('/documents?size=500')
       .then(function (res) {
         var list = res.data || [];
-        window.__SeaStarDocs = list;           // 供筛选器复用
-        paintDocs(el, list, opts.kind || '');
+        // product 字段里带的是产品 slug，用它过滤
+        var filtered = slug ? list.filter(function (d) {
+          return d.product && d.product.slug === slug;
+        }) : list;
+
+        window.__SeaStarDocs = filtered;
+        window.__SeaStarDocScope = slug || null;
+        paintDocs(el, filtered, opts.kind || '');
+        showDocScope(filtered.length, slug, list.length);
       })
       .catch(function (err) {
         console.warn('[site] 资料加载失败：', err.message);
       });
+  }
+
+  /** 若带 ?p= 参数，在列表上方显示"仅显示 XX 的资料 / 查看全部" */
+  function showDocScope(count, slug, totalAll) {
+    var host = document.querySelector('[data-doc-scope]');
+    if (!host) return;
+    if (!slug) { host.innerHTML = ''; return; }
+    host.innerHTML = count
+      ? '<div class="card-lum" style="padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+          '<span class="badge badge--brand">已筛选</span>' +
+          '<span class="small">正在显示该产品的技术资料（' + count + ' 份）</span>' +
+          '<a class="link-arrow" style="margin-left:auto" href="docs.html">查看全部资料（' + totalAll + ' 份）</a>' +
+        '</div>'
+      : '<div class="card-lum" style="padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+          '<span class="badge badge--neutral">暂无</span>' +
+          '<span class="small">该产品还没有上传技术资料</span>' +
+          '<a class="link-arrow" style="margin-left:auto" href="contact.html">向我们索取</a>' +
+        '</div>';
   }
 
   function paintDocs(el, list, kind) {

@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * 把站上现有的产品导入数据库，作为后台的初始内容。
+ * 把原官网 www.wx-seastar.com 的产品导入数据库。
  *
- *   node src/tools/seed-products.js
+ * ⚠️ 数据纪律（务必遵守）：
+ *   原官网的产品页**只有一行产品名**，没有任何规格参数、简介或分类。
+ *   因此这里只写 title_en（原文），其余字段一律留空 ——
+ *   **不允许为了"好看"而给产品编造规格参数、中文名或宣传语**。
+ *   素材缺的部分由前台如实显示"素材待补充"，而不是拿别的东西凑。
  *
- * 幂等：以 slug 为准，已存在则跳过（不会覆盖后台已改过的内容）。
- * 产品图会同时登记进 media 表并挂到产品图库。
+ *   node src/tools/seed-products.js          # 幂等：已存在则只补图，不覆盖后台改过的内容
+ *   node src/tools/seed-products.js --reset  # 清空产品表后重建（会丢失后台的修改）
  */
 const fs = require('node:fs');
 const path = require('node:path');
@@ -16,7 +20,6 @@ const cfg = require('../config');
 db.migrate();
 
 const IMG_DIR = path.join(cfg.uploadDir, 'img');
-// 图片来源：优先取已发布的 web 根（生产环境），回退到开发机上的仓库 assets/img
 const SRC_CANDIDATES = [
   path.join(cfg.webRoot, 'assets', 'img'),
   path.resolve(__dirname, '..', '..', '..', 'assets', 'img'),
@@ -28,121 +31,133 @@ if (!SRC_CANDIDATES.length) {
 }
 const SRC_DIR = SRC_CANDIDATES[0];
 
-// 与站上现有页面一致的真实产品（原官网 LED LIGHTING 产品线）
+/**
+ * 产品清单 —— 名称一律照抄原官网原文（www.wx-seastar.com → LED LIGHTING）
+ * 格式：[slug, 原官网产品名（原文，勿改）, 配图文件名]
+ *
+ * category 字段表示业务线：led-lighting = 通用照明灯具。
+ * 原官网并未给出产品分类，所以这里不做任何细分。
+ */
 const PRODUCTS = [
-  ['3d-neon-strip',      'Specialty / Neon',       '3D Neon',      '3D Neon Strip',                        'prod-neon-strip.jpg',  '热销', 'brand',
-   [['Series', '3D Neon'], ['Type', 'Flexible Strip'], ['Cert.', 'CE / UL / RoHS']]],
-  ['wrpx3-prismatic',    'Commercial / Wraparound', 'WRPX3',        'WRPX3 棱镜环绕灯具',                    'prod-wrpx3.jpg',       '新品', 'tech',
-   [['Series', 'WRPX3'], ['Type', 'Prismatic'], ['Mount', 'Surface']]],
-  ['fmx15-slim-surface', 'Commercial / Surface',    'FMX15',        'FMX15 超薄吸顶面板灯',                  'prod-fmx15.jpg',       '主推', 'brand',
-   [['Series', 'FMX15'], ['Aperture', '5–24 in'], ['Type', 'Slim Surface']]],
-  ['cdx11-retrofit',     'Commercial / Downlight',  'CDX11',        'CDX11 快装式商业筒灯',                  'prod-cdx11.jpg',       '',     'brand',
-   [['Series', 'CDX11'], ['Voltage', '120–277V'], ['Type', 'Retrofit']]],
-  ['cdx2-mesh-ble',      'Commercial / Downlight',  'CDX2',         'CDX2 MESH BLE 无线控制筒灯',            'prod-cdx2-ble.jpg',    '智能', 'tech',
-   [['Series', 'CDX2'], ['Control', 'MESH BLE'], ['Type', 'Recessed']]],
-  ['cdx8-flood-module',  'Commercial / Downlight',  'CDX8',         'CDX8 泛光模块商业筒灯',                 'prod-cdx8.jpg',        '',     'brand',
-   [['Series', 'CDX8'], ['Type', 'Flood Module'], ['Mount', 'Recessed']]],
-  ['vntx2-square-vanity', 'Residential / Vanity',   'VNTX2',        'VNTX2 方形镜前灯',                      'prod-vntx2.jpg',       '',     'neutral',
-   [['Series', 'VNTX2'], ['Type', 'Square Vanity'], ['Mount', 'Wall']]],
-  ['bpx6-slot-panel',    'Commercial / Panel',      'BPX6',         'BPX6 槽型面板灯',                       'prod-bpx6.jpg',        '',     'brand',
-   [['Series', 'BPX6'], ['Type', 'Slot Panel'], ['Mount', 'Recessed']]],
-  ['rdx3-5cct-slim',     'Residential / Downlight', 'RDX3',         'RDX3 5CCT 可调薄型筒灯',                'prod-series-a.jpg',    '调光', 'tech',
-   [['Series', 'RDX3'], ['CCT', '5CCT Selectable'], ['Wattage', 'Selectable']]],
-  ['cldx3-cylinder',     'Commercial / Cylinder',   'CLDX3',        'CLDX3 圆柱吊装灯具',                    'prod-linear-round.jpg','',     'brand',
-   [['Series', 'CLDX3'], ['Type', 'Cylinder'], ['Mount', 'Pendant']]],
-  ['eclx-ceiling',       'Residential / Ceiling',   'ECLX',         'ECLX 系列 LED 吸顶灯',                  'prod-eclx.jpg',        '',     'neutral',
-   [['Series', 'ECLX2/3/6/7'], ['Type', 'Ceiling'], ['Cert.', 'CE / UL']]],
-  ['espx2-slim-backlight', 'Commercial / Panel',    'ESPX2',        'ESPX2 薄型背光面板灯',                  'prod-series-b.jpg',    '',     'brand',
-   [['Series', 'ESPX2'], ['Type', 'Slim Backlight'], ['Mount', 'Recessed']]],
-  ['bpx9-prow-panel',    'Commercial / Panel',      'BPX9',         'BPX9 高端槽型面板灯',                   'prod-series-a.jpg',    '',     'brand',
-   [['Series', 'BPX9'], ['Type', 'Prow Panel'], ['Mount', 'Recessed']]],
-  ['fmx11-pro-surface',  'Commercial / Surface',    'FMX11 Pro',    'FMX11 Pro 明装面板灯',                  'prod-linear-l.jpg',    '',     'brand',
-   [['Series', 'FMX11 Pro'], ['Type', 'Surface Mount'], ['Aperture', '1–4 ft']]],
-  ['fmx11-regress',      'Commercial / Surface',    'FMX11 Regress','FMX11 Regress 嵌入式面板灯',            'prod-linear-l.jpg',    '',     'brand',
-   [['Series', 'FMX11 Regress'], ['Type', 'Recessed'], ['Mount', 'Surface Flush']]],
-  ['ecdx7-recessed',     'Commercial / Downlight',  'ECDX7',        'ECDX7 商业嵌入筒灯',                    'prod-cdx8.jpg',        '',     'brand',
-   [['Series', 'ECDX7'], ['Type', 'Recessed'], ['Cert.', 'CE / UL']]],
-  ['ecdx9-recessed',     'Commercial / Downlight',  'ECDX9',        'ECDX9 商业嵌入筒灯',                    'prod-cdx11.jpg',       '',     'brand',
-   [['Series', 'ECDX9'], ['Type', 'Recessed'], ['Cert.', 'CE / UL']]],
-  ['ecdx11-surface',     'Commercial / Downlight',  'ECDX11',       'ECDX11 商业明装筒灯',                   'prod-cdx2-ble.jpg',    '',     'brand',
-   [['Series', 'ECDX11'], ['Type', 'Surface'], ['Cert.', 'CE / UL']]],
-  ['dfx2-round-downlight', 'Residential / Downlight', 'DFX2',       'DFX2 圆形 LED 筒灯',                    'prod-series-b.jpg',    '',     'neutral',
-   [['Series', 'DFX2'], ['Type', 'Round'], ['Mount', 'Recessed']]],
-  ['vdlx1-round-downlight', 'Residential / Downlight', 'VDLX1',     'VDLX1 圆形 LED 筒灯',                   'prod-series-b.jpg',    '',     'neutral',
-   [['Series', 'VDLX1'], ['Type', 'Round'], ['Mount', 'Recessed']]],
-  ['espx3-slim-backlight', 'Commercial / Panel',    'ESPX3',        'ESPX3 薄型背光面板灯',                  'prod-eclx.jpg',        '',     'brand',
-   [['Series', 'ESPX3'], ['Type', 'Slim Backlight'], ['Cert.', 'CE / UL']]],
+  ['3d-neon-strip',            '3D Neon Strip',                                        'prod-neon-strip.jpg'],
+  ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound',                           'prod-wrpx3.jpg'],
+  ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount',         'prod-fmx15.jpg'],
+  ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight',         'prod-cdx11.jpg'],
+  ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight',   'prod-cdx2-ble.jpg'],
+  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',                'prod-cdx8.jpg'],
+  ['vntx2-square-vanity',      'VNTX2 Series Square Vanity',                           'prod-vntx2.jpg'],
+  ['bpx6-slot-panel',          'BPX6 Slot Panel Light',                                'prod-bpx6.jpg'],
+  ['bpx9-prow-panel',          'BPX9 Prow Luxury Panel Light',                         'prod-series-a.jpg'],
+  ['rdx3-5cct-slim',           'RDX3 5CCT & Wattage Selectable  Slim Downlight',       'prod-series-a.jpg'],
+  ['fmx11-pro-surface',        'FMX11 Pro Surface Mount',                              'prod-linear-l.jpg'],
+  ['fmx11-regress-surface',    'FMX11 Regress Surface Mount',                          'prod-linear-l.jpg'],
+  ['cldx3-cylinder',           'CLDX3 Cylinder',                                       'prod-linear-round.jpg'],
+  ['eclx2-ceiling',            'ECLX2 Series LED Ceiling Light',                       'prod-eclx.jpg'],
+  ['eclx3-ceiling',            'ECLX3 Series LED Ceiling Light',                       'prod-eclx.jpg'],
+  ['eclx6-ceiling',            'ECLX6 Series LED Ceiling Light',                       'prod-eclx.jpg'],
+  ['eclx7-ceiling',            'ECLX7 Series LED Ceiling Light',                       'prod-eclx.jpg'],
+  ['ecdx7-recessed',           'ECDX7 Commercial Recessed Downlight',                  'prod-cdx8.jpg'],
+  ['ecdx9-recessed',           'ECDX9 Commercial Recessed Downlight',                  'prod-cdx11.jpg'],
+  ['ecdx11-surface',           'ECDX11 Commercial Surface Downlight',                  'prod-cdx2-ble.jpg'],
+  ['dfx2-round',               'DFX2 Round LED Downlight',                             'prod-series-b.jpg'],
+  ['vdlx1-round',              'VDLX1 Round LED Downlight',                            'prod-series-b.jpg'],
+  ['espx2-slim-panel',         'ESPX2 Slim Panel Light',                               'prod-series-b.jpg'],
+  ['espx3-backlight-panel',    'ESPX3 Slim Backlight Panel',                           'prod-eclx.jpg'],
 ];
 
-// ── 确保上传目录存在，并把站上已有的产品图纳入媒体库 ───────────────────
+/** ODM/OEM 业务线 —— 原官网是「DRIVER AND CONTROL BOARD」，不是灯具定制 */
+const DRIVERS = [
+  ['drv-triac-120v',   '120V TRIAC Driver 8-30W, Single CCT or 5CCT'],
+  ['drv-tri-mode',     'Tri-mode, TRIAC & 0-10V, CCT & Wattage Selectable Driver 10-55W'],
+  ['drv-0-10v',        '0-10V, CCT & Wattage Selectable Driver 10-55W'],
+  ['drv-sensor-pacb',  'Sensor Control PACB'],
+  ['drv-ble-wireless', 'BLE & Wireless Control Driver 20-40W'],
+  ['drv-uv-bms',       'UV Sterilizer Li-ion Battery BMS Board'],
+];
+
 fs.mkdirSync(IMG_DIR, { recursive: true });
 
 function ensureMedia(filename) {
+  if (!filename) return null;
   const src = path.join(SRC_DIR, filename);
   if (!fs.existsSync(src)) return null;
-
   const dst = path.join(IMG_DIR, filename);
   if (!fs.existsSync(dst)) fs.copyFileSync(src, dst);
 
-  const stat = fs.statSync(dst);
-  let row = db.get('SELECT * FROM media WHERE filename = ?', [filename]);
+  const row = db.get('SELECT * FROM media WHERE filename = ?', [filename]);
   if (row) return row.id;
-
-  const r = db.run(
-    'INSERT INTO media (filename, original_name, mime, size) VALUES (?,?,?,?)',
-    [filename, filename, 'image/jpeg', stat.size]
-  );
+  const r = db.run('INSERT INTO media (filename, original_name, mime, size) VALUES (?,?,?,?)',
+    [filename, filename, 'image/jpeg', fs.statSync(dst).size]);
   return r.lastInsertRowid;
 }
 
-let created = 0, skipped = 0, imagesAdded = 0;
+const reset = process.argv.includes('--reset');
+if (reset) {
+  db.tx(() => {
+    db.run('DELETE FROM product_media');
+    db.run('DELETE FROM products');
+  });
+  console.log('⚠️  已清空产品表（--reset）');
+}
+
+let created = 0, skipped = 0, imaged = 0;
 
 db.tx(() => {
   let order = 0;
-  for (const [slug, category, series, title_zh, img, badgeText, badgeType, specs] of PRODUCTS) {
-    order += 10;
-    const existing = db.get('SELECT * FROM products WHERE slug = ?', [slug]);
 
-    if (existing) {
-      // 产品已存在：不覆盖内容，但补齐缺失的图片（便于在无图的库上补跑）
-      if (!existing.cover_media) {
+  // ── 通用照明产品（原官网 LED LIGHTING）──
+  for (const [slug, titleEn, img] of PRODUCTS) {
+    order += 10;
+    const exists = db.get('SELECT * FROM products WHERE slug = ?', [slug]);
+    if (exists) {
+      if (!exists.cover_media) {
         const mid = ensureMedia(img);
         if (mid) {
-          db.run('UPDATE products SET cover_media = ? WHERE id = ?', [mid, existing.id]);
-          db.run('INSERT OR IGNORE INTO product_media (product_id, media_id, sort_order) VALUES (?,?,0)',
-            [existing.id, mid]);
-          imagesAdded++;
+          db.run('UPDATE products SET cover_media = ? WHERE id = ?', [mid, exists.id]);
+          db.run('INSERT OR IGNORE INTO product_media (product_id, media_id, sort_order) VALUES (?,?,0)', [exists.id, mid]);
+          imaged++;
         }
       }
       skipped++;
       continue;
     }
-
-    const mediaId = ensureMedia(img);
+    const mid = ensureMedia(img);
     const r = db.run(
-      `INSERT INTO products (slug, category, series, title_zh, summary_zh, body_zh,
-                             specs, badges, cover_media, sort_order, published)
-       VALUES (?,?,?,?,?,?,?,?,?,?,1)`,
+      `INSERT INTO products (slug, category, title_zh, title_en, specs, badges,
+                             cover_media, sort_order, published)
+       VALUES (?,?,?,?,?,?,?,?,1)`,
       [
-        slug, category, series, title_zh,
-        `${title_zh} —— 由 SEA☆STAR 实益达自主开发的商业照明产品。`,
-        null,
-        JSON.stringify(specs.map(([k, v]) => ({ k, v, u: '' }))),
-        JSON.stringify(badgeText ? [{ text: badgeText, type: badgeType }] : []),
-        mediaId, order,
+        slug,
+        'led-lighting',      // 业务线
+        null,                // 原官网无中文名 —— 留空，不编造
+        titleEn,             // 原文照抄
+        '[]',                // 原官网无规格参数 —— 空数组，不编造
+        '[]',                // 原官网无角标 —— 空数组
+        mid, order,
       ]
     );
-    if (mediaId) {
-      db.run('INSERT OR IGNORE INTO product_media (product_id, media_id, sort_order) VALUES (?,?,0)',
-        [r.lastInsertRowid, mediaId]);
-    }
+    if (mid) db.run('INSERT OR IGNORE INTO product_media (product_id, media_id, sort_order) VALUES (?,?,0)', [r.lastInsertRowid, mid]);
+    created++;
+  }
+
+  // ── ODM/OEM 产品线（原官网 DRIVER AND CONTROL BOARD）──
+  order = 10000;
+  for (const [slug, titleEn] of DRIVERS) {
+    order += 10;
+    if (db.get('SELECT 1 FROM products WHERE slug = ?', [slug])) { skipped++; continue; }
+    db.run(
+      `INSERT INTO products (slug, category, title_zh, title_en, specs, badges,
+                             cover_media, sort_order, published)
+       VALUES (?,?,?,?,?,?,NULL,?,1)`,
+      [slug, 'driver-odm', null, titleEn, '[]', '[]', order]
+    );
     created++;
   }
 });
 
-console.log(`✅ 导入完成：新增 ${created} 个产品，跳过 ${skipped} 个（已存在），补图 ${imagesAdded} 张`);
-const total = db.scalar('SELECT COUNT(*) FROM products') || 0;
-const mediaCount = db.scalar('SELECT COUNT(*) FROM media') || 0;
-console.log(`   当前产品总数 ${total}，媒体库 ${mediaCount} 张`);
+console.log(`✅ 导入完成：新增 ${created} 个，跳过 ${skipped} 个，补图 ${imaged} 张`);
+console.log(`   通用照明 ${db.scalar("SELECT COUNT(*) FROM products WHERE category='led-lighting'")} 个` +
+            ` / ODM 驱动 ${db.scalar("SELECT COUNT(*) FROM products WHERE category='driver-odm'")} 个`);
 console.log('');
-console.log('   下一步：node src/tools/create-admin.js admin  （创建后台账号）');
+console.log('   注意：产品名称一律照抄原官网原文，规格参数与简介**故意留空** ——');
+console.log('        原官网没有这些信息，编造会与事实不符。素材补齐后可在后台填。');
