@@ -27,6 +27,7 @@
 """
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -41,6 +42,27 @@ def run(cmd):
     r = subprocess.run(cmd, shell=True, capture_output=True, text=True,
                        encoding='utf-8', errors='replace')
     return r.stdout.strip()
+
+
+def github_token():
+    """取 GitHub 凭据（GCM 里已存），不落盘、不打印。
+
+    ⚠️ 不要用 `printf ... | git credential fill` 这种 shell 管道：
+    Windows 上 shell=True 走的是 cmd.exe，**没有 printf 内建**，
+    结果是静默取到空值。直接用子进程 + stdin 才跨平台可靠。
+    """
+    try:
+        r = subprocess.run(['git', 'credential', 'fill'],
+                           input='protocol=https\nhost=github.com\n\n',
+                           capture_output=True, text=True,
+                           encoding='utf-8', errors='replace',
+                           env=dict(os.environ, GIT_TERMINAL_PROMPT='0'))
+    except Exception:                                        # noqa: BLE001
+        return ''
+    for line in r.stdout.split('\n'):
+        if line.startswith('password='):
+            return line[len('password='):].strip()
+    return ''
 
 
 def _api(url, token=None):
@@ -117,10 +139,7 @@ def main():
         if not repo:
             print('⚠️  无法从 remote 推断 owner/name，跳过 Release 检查')
         else:
-            # 凭据取自 GCM，脚本内不落盘、不打印
-            tok = run("printf 'protocol=https\\nhost=github.com\\n\\n' | "
-                      "GIT_TERMINAL_PROMPT=0 git credential fill 2>/dev/null "
-                      "| sed -n 's/^password=//p'")
+            tok = github_token()
             data = _api('https://api.github.com/repos/%s/releases?per_page=100' % repo, tok)
             if data is None:
                 print('⚠️  Release 接口不可达或无权限，跳过该检查')
