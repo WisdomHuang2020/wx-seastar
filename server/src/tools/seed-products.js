@@ -39,30 +39,38 @@ const SRC_DIR = SRC_CANDIDATES[0];
  * 原官网并未给出产品分类，所以这里不做任何细分。
  */
 const PRODUCTS = [
-  ['3d-neon-strip',            '3D Neon Strip',                                        'prod-neon-strip.jpg'],
-  ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound',                           'prod-wrpx3.jpg'],
-  ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount',         'prod-fmx15.jpg'],
-  ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight',         'prod-cdx11.jpg'],
-  ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight',   'prod-cdx2-ble.jpg'],
-  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',                'prod-cdx8.jpg'],
-  ['vntx2-square-vanity',      'VNTX2 Series Square Vanity',                           'prod-vntx2.jpg'],
-  ['bpx6-slot-panel',          'BPX6 Slot Panel Light',                                'prod-bpx6.jpg'],
-  ['bpx9-prow-panel',          'BPX9 Prow Luxury Panel Light',                         'prod-series-a.jpg'],
-  ['rdx3-5cct-slim',           'RDX3 5CCT & Wattage Selectable  Slim Downlight',       'prod-series-a.jpg'],
-  ['fmx11-pro-surface',        'FMX11 Pro Surface Mount',                              'prod-linear-l.jpg'],
-  ['fmx11-regress-surface',    'FMX11 Regress Surface Mount',                          'prod-linear-l.jpg'],
-  ['cldx3-cylinder',           'CLDX3 Cylinder',                                       'prod-linear-round.jpg'],
-  ['eclx2-ceiling',            'ECLX2 Series LED Ceiling Light',                       'prod-eclx.jpg'],
-  ['eclx3-ceiling',            'ECLX3 Series LED Ceiling Light',                       'prod-eclx.jpg'],
-  ['eclx6-ceiling',            'ECLX6 Series LED Ceiling Light',                       'prod-eclx.jpg'],
-  ['eclx7-ceiling',            'ECLX7 Series LED Ceiling Light',                       'prod-eclx.jpg'],
-  ['ecdx7-recessed',           'ECDX7 Commercial Recessed Downlight',                  'prod-cdx8.jpg'],
-  ['ecdx9-recessed',           'ECDX9 Commercial Recessed Downlight',                  'prod-cdx11.jpg'],
-  ['ecdx11-surface',           'ECDX11 Commercial Surface Downlight',                  'prod-cdx2-ble.jpg'],
-  ['dfx2-round',               'DFX2 Round LED Downlight',                             'prod-series-b.jpg'],
-  ['vdlx1-round',              'VDLX1 Round LED Downlight',                            'prod-series-b.jpg'],
-  ['espx2-slim-panel',         'ESPX2 Slim Panel Light',                               'prod-series-b.jpg'],
-  ['espx3-backlight-panel',    'ESPX3 Slim Backlight Panel',                           'prod-eclx.jpg'],
+  // ── 图片映射规则：**只按图片上实际印出的型号来配**，
+  //    因为原始素材的文件名是建站方按顺序生成的，与型号无关，
+  //    之前按猜测命名导致大量错配（实测核对后修正）。
+  //    无法从图上确认型号的，一律不配图 —— 前台会如实显示「素材待补充」。
+  //
+  //  [slug, 原官网产品名（原文）, 配图 或 null]
+  ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight', 'prod-series-a.jpg'],     // 图上印 CDX2 BLE
+  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',                'prod-cdx8.jpg'],         // 图上印 CDX8
+  ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight',          'prod-linear-l.jpg'],     // 图上印 CDX11
+  ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount',           'prod-linear-round.jpg'], // 图上印 FMX15
+  ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound',                            'prod-fmx15-b.jpg'],      // 图上印 WRPX3
+
+  // ── 以下型号原官网未提供（或无法确认）对应产品图 → 不配图 ──
+  ['3d-neon-strip',            '3D Neon Strip',                                        null],
+  ['vntx2-square-vanity',      'VNTX2 Series Square Vanity',                           null],
+  ['bpx6-slot-panel',          'BPX6 Slot Panel Light',                                null],
+  ['bpx9-prow-panel',          'BPX9 Prow Luxury Panel Light',                         null],
+  ['rdx3-5cct-slim',           'RDX3 5CCT & Wattage Selectable  Slim Downlight',       null],
+  ['fmx11-pro-surface',        'FMX11 Pro Surface Mount',                              null],
+  ['fmx11-regress-surface',    'FMX11 Regress Surface Mount',                          null],
+  ['cldx3-cylinder',           'CLDX3 Cylinder',                                       null],
+  ['eclx2-ceiling',            'ECLX2 Series LED Ceiling Light',                       null],
+  ['eclx3-ceiling',            'ECLX3 Series LED Ceiling Light',                       null],
+  ['eclx6-ceiling',            'ECLX6 Series LED Ceiling Light',                       null],
+  ['eclx7-ceiling',            'ECLX7 Series LED Ceiling Light',                       null],
+  ['ecdx7-recessed',           'ECDX7 Commercial Recessed Downlight',                  null],
+  ['ecdx9-recessed',           'ECDX9 Commercial Recessed Downlight',                  null],
+  ['ecdx11-surface',           'ECDX11 Commercial Surface Downlight',                  null],
+  ['dfx2-round',               'DFX2 Round LED Downlight',                             null],
+  ['vdlx1-round',              'VDLX1 Round LED Downlight',                            null],
+  ['espx2-slim-panel',         'ESPX2 Slim Panel Light',                               null],
+  ['espx3-backlight-panel',    'ESPX3 Slim Backlight Panel',                           null],
 ];
 
 /** ODM/OEM 业务线 —— 原官网是「DRIVER AND CONTROL BOARD」，不是灯具定制 */

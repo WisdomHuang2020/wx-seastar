@@ -214,64 +214,50 @@
   </div>
 </section>
 
-<!-- ==================== 技术实力带（深色 · 光谱预览） ==================== -->
+<!-- ==================== 检测能力（内容来源：原官网工厂设施页）==================== -->
 <section class="section dark tech-band" aria-labelledby="tech-title">
   <div class="tech-band__ambient" aria-hidden="true"></div>
   <div class="container tech-band__inner">
-    <div class="grid grid-2" style="gap:var(--space-3xl);align-items:center">
-      <div class="reveal">
-        <span class="overline">04 / 光学研发</span>
-        <h2 class="h2 mt-md" id="tech-title">光谱，是可以被工程化的</h2>
-        <p class="body-l mt-md" style="color:var(--text-on-dark-muted);max-width:52ch;">
-          我们的光学实验室可对 380–780nm 全波段进行精确调控。无论是家居照明的舒适性，还是植物照明的光形态建成响应，都以光谱数据为依据，而非凭经验估算。
-        </p>
+    <div class="section-head reveal">
+      <span class="overline">04 / 检测能力</span>
+      <h2 class="h2" id="tech-title">CSA 目击实验室</h2>
+      <p class="body-l" style="max-width:70ch">
+        据 SEA☆STAR 实益达官网的工厂设施页介绍，无锡实益达设有 CSA Witness Lab，
+        按严格的测试流程运行，实验室分为六个分项：
+      </p>
+    </div>
 
-        <div class="grid grid-2 mt-xl" style="gap:var(--space-md)">
-          <div class="spec-box"><div class="spec-box__k">光谱范围</div><div class="spec-box__v">380–780<span class="spec-box__u">nm</span></div></div>
-          <div class="spec-box"><div class="spec-box__k">显色指数</div><div class="spec-box__v">Ra&gt;95<span class="spec-box__u">典型</span></div></div>
-          <div class="spec-box"><div class="spec-box__k">光效</div><div class="spec-box__v">—<span class="spec-box__u">lm/W</span></div></div>
-          <div class="spec-box"><div class="spec-box__k">色容差</div><div class="spec-box__v">&lt;3<span class="spec-box__u">SDCM</span></div></div>
-        </div>
+    <div class="grid grid-3 mt-3xl">
+      <div class="card-lum reveal reveal-d1" style="padding:var(--space-lg);">
+        <div class="spec-box__k">01 · ELECTRICAL</div>
+        <p class="h4 mt-sm">电气性能测试</p>
       </div>
-
-      <!-- 光谱曲线 SVG（可绘制） -->
-      <div class="spectrum-panel reveal reveal-d2">
-        <div class="spectrum-panel__head">
-          <span class="mono">SPECTRAL POWER DISTRIBUTION · 380–780nm</span>
-          <span class="badge badge--tech">Live</span>
-        </div>
-        <svg viewBox="0 0 640 300" role="img" aria-label="相对光谱功率分布曲线">
-          <defs>
-            <linearGradient id="specFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--brand-500)" stop-opacity=".45"/>
-              <stop offset="100%" stop-color="var(--brand-500)" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <!-- 网格 -->
-          <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
-            <path d="M60 40 H620 M60 100 H620 M60 160 H620 M60 220 H620"/>
-            <path d="M60 40 V240 M200 40 V240 M340 40 V240 M480 40 V240 M620 40 V240"/>
-          </g>
-          <!-- 面积填充 -->
-          <path class="spectrum-area" d="M60 240 C110 232 140 150 190 140 C230 132 250 210 300 205 C350 200 360 120 420 110 C470 102 500 150 560 160 C590 165 610 190 620 205 L620 240 Z" fill="url(#specFill)"/>
-          <!-- 曲线 -->
-          <path class="trace-path" d="M60 240 C110 232 140 150 190 140 C230 132 250 210 300 205 C350 200 360 120 420 110 C470 102 500 150 560 160 C590 165 610 190 620 205" fill="none" stroke="var(--brand-500)" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- 坐标轴 -->
-          <line x1="60" y1="240" x2="620" y2="240" stroke="var(--ink-700)" stroke-width="1"/>
-          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#6B7280">
-            <text x="60" y="260">380</text>
-            <text x="200" y="260">480</text>
-            <text x="340" y="260">580</text>
-            <text x="480" y="260">680</text>
-            <text x="608" y="260">780</text>
-          </g>
-          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#6B7280">
-            <text x="30" y="44">1.0</text><text x="30" y="164">0.5</text><text x="30" y="244">0</text>
-          </g>
-        </svg>
-        <p class="small mt-md" style="font-family:var(--font-mono);color:var(--text-on-dark-muted);">相对强度 (a.u.)　光谱示意</p>
+      <div class="card-lum reveal reveal-d2" style="padding:var(--space-lg);">
+        <div class="spec-box__k">02 · OPTICAL</div>
+        <p class="h4 mt-sm">光学测试</p>
+      </div>
+      <div class="card-lum reveal reveal-d3" style="padding:var(--space-lg);">
+        <div class="spec-box__k">03 · SURGE</div>
+        <p class="h4 mt-sm">雷击浪涌测试</p>
+      </div>
+      <div class="card-lum reveal reveal-d1" style="padding:var(--space-lg);">
+        <div class="spec-box__k">04 · EMI</div>
+        <p class="h4 mt-sm">静音室与 EMI 测试</p>
+      </div>
+      <div class="card-lum reveal reveal-d2" style="padding:var(--space-lg);">
+        <div class="spec-box__k">05 · RELIABILITY</div>
+        <p class="h4 mt-sm">可靠性环境测试</p>
+      </div>
+      <div class="card-lum reveal reveal-d3" style="padding:var(--space-lg);">
+        <div class="spec-box__k">06 · AGING</div>
+        <p class="h4 mt-sm">长寿命老化测试</p>
       </div>
     </div>
+
+    <p class="small mt-3xl" style="color:var(--text-on-dark-muted);max-width:80ch">
+      实验室分项名称与体系认证信息均来自 SEA☆STAR 实益达官网。
+      具体的测试报告与产品合规文件，请在我们的技术资料中心查看或直接索取。
+    </p>
   </div>
 </section>
 
