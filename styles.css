@@ -110,6 +110,102 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   font-size:.6875rem; font-weight:600; letter-spacing:.16em;
   text-transform:uppercase; color:var(--brand-500);
 }
+
+/* ─────────────  3b. 品牌图形层（取自 Logo 的视觉基因）─────────────
+   Logo 实测特征 → 设计语言：
+     · 8 片楔形叶片、顺时针旋转动感      → 放射装饰、旋转动效
+     · 中心四角星负空间                  → 星形符号（章节标、列表项、分隔）
+     · 叶片间细缝、锐利直线边缘          → 斜切角、硬边，不用大圆角
+     · 单一青蓝色相(H197–209°) + 明度层次 → 只用明度表达层次，不引入第二色相
+   ─────────────────────────────────────────────────────────── */
+
+/* 星形符号（对应 Logo 中心的四角星负空间） */
+.brand-star{
+  display:inline-block; width:1em; height:1em; flex-shrink:0;
+  background:currentColor; vertical-align:-.1em;
+  clip-path:polygon(50% 0%,56% 35%,100% 50%,56% 65%,50% 100%,44% 65%,0% 50%,44% 35%);
+}
+/* 章节标（overline）自动带星形前缀 —— 全站无需改 HTML */
+.overline::before{
+  content:""; display:inline-block;
+  width:.72em; height:.72em; margin-right:.7em;
+  background:currentColor; vertical-align:.02em;
+  clip-path:polygon(50% 0%,56% 35%,100% 50%,56% 65%,50% 100%,44% 65%,0% 50%,44% 35%);
+}
+/* 放射图形（对应 8 片叶片的旋转对称） */
+.brand-burst{
+  display:inline-block; width:1em; height:1em; flex-shrink:0;
+  background:currentColor; opacity:.9;
+  clip-path:polygon(
+    50% 0%, 56% 40%, 100% 50%, 56% 60%, 50% 100%, 44% 60%, 0% 50%, 44% 40%,
+    50% 8%, 52% 44%, 92% 50%, 52% 56%, 50% 92%, 48% 56%, 8% 50%, 48% 44%);
+}
+/* 楔形（对应单叶片）—— 用于列表项符号 / 装饰 */
+.brand-wedge{
+  display:inline-block; width:.62em; height:.62em; flex-shrink:0;
+  background:currentColor;
+  clip-path:polygon(0% 100%, 0% 8%, 100% 100%);   /* 直角楔形，呼应叶片锐边 */
+}
+
+/* 条款列表：用楔形替代圆点 */
+.brand-list{ display:flex; flex-direction:column; gap:11px; }
+.brand-list li{
+  display:flex; align-items:flex-start; gap:11px;
+  font-size:.9375rem; line-height:1.65;
+}
+.brand-list li::before{
+  content:""; flex-shrink:0; margin-top:.52em;
+  width:.54em; height:.54em; background:var(--brand-500);
+  clip-path:polygon(0% 100%, 0% 10%, 100% 100%);
+}
+.dark .brand-list li::before{ background:var(--brand-200); }
+
+/* 45° 装饰分隔线（呼应叶片的斜边） */
+.brand-rule{
+  height:1px; border:0; position:relative;
+  background:linear-gradient(90deg,var(--brand-500) 0%,var(--brand-200) 22%,var(--border-subtle) 22%,var(--border-subtle) 100%);
+}
+.brand-rule::before{
+  content:""; position:absolute; left:0; top:-3px;
+  width:7px; height:7px; background:var(--brand-500);
+  clip-path:polygon(50% 0%,56% 35%,100% 50%,56% 65%,50% 100%,44% 65%,0% 50%,44% 35%);
+}
+
+/* 斜切角（呼应叶片的锐利斜边）—— 用于图片卡 / 徽标容器 */
+.brand-bevel{
+  clip-path:polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+.brand-bevel--sm{
+  clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+/* 品牌旋转动效（对应风车的旋转本性） */
+@keyframes brand-spin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+.brand-spin{ animation:brand-spin 26s linear infinite; }
+.nav__logo:hover .brand-img{ transform:rotate(8deg); }
+.brand-img{ transition:transform var(--duration-base) var(--ease-out-soft); }
+@media (prefers-reduced-motion:reduce){
+  .brand-spin{ animation:none; }
+  .nav__logo:hover .brand-img{ transform:none; }
+}
+
+/* 深色区块统一品牌放射纹（呼应 Logo 的 8 叶旋转结构，45° 周期） */
+.footer, .tech-band{ position:relative; }
+.footer::before, .tech-band::before{
+  content:""; position:absolute; inset:-28%; pointer-events:none; z-index:0;
+  opacity:.05;
+  background:repeating-conic-gradient(from 0deg at 50% 42%,
+    rgba(255,255,255,.95) 0deg 22.5deg, transparent 22.5deg 45deg);
+}
+.footer > .container, .tech-band > .container{ position:relative; z-index:1; }
+
+/* 首页实力带的数字：底部加品牌楔形装饰 */
+.stat{ position:relative; }
+.stat::after{
+  content:""; position:absolute; left:0; bottom:-10px;
+  width:26px; height:2px; background:var(--brand-400);
+}
+.dark .stat::after{ background:var(--brand-200); }
 .accent-word{ color:var(--brand-500); }
 .num{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
 .unit{ font-family:var(--font-mono); font-size:.8em; color:var(--text-tertiary); margin-left:2px; }
@@ -266,6 +362,10 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   color:var(--text-primary);
 }
 .nav__burger svg{ width:20px; height:20px; }
+
+/* 注：js/app.js 仍会切换 .nav--transparent / .nav--sol / .nav--dark / .is-open 等类。
+   v2 导航是**恒定白底**，所以 `.nav--transparent` 与 `.nav--dark` 刻意**不定义样式** ——
+   它们只作为 JS 的状态锚点存在，不是"样式缺失"。`.nav--sol` 则是滚动后的收边效果。 */
 
 /* 品牌图：v2 导航恒为白底 → 默认显示深色原版；
    白字版仅用于深色页脚（.brand-img--footer 处直接指定文件） */

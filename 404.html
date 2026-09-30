@@ -2,8 +2,8 @@
 <!--
   页面：404.html —— 页面未找到
   用途：由 nginx `error_page 404 /404.html` 接管；同时作为静态托管的兜底页。
-  说明：本页为深色锚定区（--night-950），延续首页 Hero 的光锥语言，
-        与全站「暗中有光」保持一致。不参与索引（noindex）。
+  说明：本页为深色锚定区（--ink-950），装饰采用与 Logo 同源的「8 叶放射纹」（45° 周期）
+        与四角星符号，与全站品牌语言一致。不参与索引（noindex）。
 -->
 <html lang="zh-CN">
 <head>
@@ -20,7 +20,7 @@
 <meta property="og:title" content="页面未找到 · SEA☆STAR 实益达">
 <meta property="og:description" content="您访问的页面不存在或已被移动。">
 <meta property="og:url" content="https://www.wx-seastar.cn/">
-<meta property="og:image" content="https://www.wx-seastar.cn/assets/seastar-og.png">
+<meta property="og:image" content="https://www.wx-seastar.cn/assets/seastar-og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -70,28 +70,30 @@
 
 <main>
 
-<!-- ==================== 404 主体（深色 · 光锥） ==================== -->
-<section class="dark darker section-lg" style="min-height:72vh;display:grid;place-items:center;position:relative;overflow:hidden;padding-top:150px;">
-  <div class="hero-home__beam" aria-hidden="true"></div>
-  <div class="hero-home__ambient" aria-hidden="true"></div>
+<!-- ==================== 404 主体（品牌深蓝 · 放射纹） ==================== -->
+<section class="dark darker section-lg" style="min-height:74vh;display:grid;place-items:center;position:relative;overflow:hidden;padding-top:150px;">
+  <!-- 品牌放射纹：呼应 Logo 的 8 叶旋转结构（45° 周期） -->
+  <div aria-hidden="true" style="position:absolute;inset:-32%;opacity:.075;background:repeating-conic-gradient(from 0deg at 50% 46%,rgba(255,255,255,.95) 0deg 22.5deg,transparent 22.5deg 45deg);"></div>
+  <div aria-hidden="true" style="position:absolute;left:50%;top:44%;width:720px;height:720px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(79,179,232,.30) 0%,rgba(79,179,232,0) 68%);"></div>
 
   <div class="container center" style="position:relative;z-index:2;">
-    <p class="overline">ERROR / 404</p>
-    <h1 class="display mt-lg">页面未找到</h1>
-    <p class="body-l mt-lg text-secondary" style="max-width:56ch;margin-inline:auto;">
-      您访问的页面不存在，或已被移动。请使用下方入口继续浏览，或直接与我们联系。
+    <span class="brand-star" style="width:38px;height:38px;color:var(--brand-200);" aria-hidden="true"></span>
+    <p class="overline mt-lg">Error / 404</p>
+    <h1 class="display mt-md">这束光，没有照到这里</h1>
+    <p class="body-l mt-lg" style="max-width:56ch;margin-inline:auto;">
+      您访问的页面不存在，或已被移动。请从下方入口继续浏览，或直接与我们联系。
     </p>
     <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
       <a class="btn btn--primary btn--lg" href="index.html">返回首页</a>
       <a class="btn btn--ghost btn--lg" href="contact.html">联系我们</a>
     </div>
 
-    <div class="divider mt-2xl" aria-hidden="true"></div>
+    <hr class="brand-rule mt-2xl" style="max-width:420px;margin-inline:auto;">
 
-    <div class="flex gap-md mt-lg justify-center" style="flex-wrap:wrap;">
-      <a class="link-arrow" href="odm.html">ODM 设计 →</a>
-      <a class="link-arrow" href="lighting.html">通用照明 →</a>
-      <a class="link-arrow" href="grow-light.html">植物灯具 →</a>
+    <div class="flex gap-lg mt-lg justify-center" style="flex-wrap:wrap;">
+      <a class="link-arrow" href="odm.html">ODM 设计</a>
+      <a class="link-arrow" href="lighting.html">通用照明</a>
+      <a class="link-arrow" href="grow-light.html">植物灯具</a>
     </div>
   </div>
 </section>
