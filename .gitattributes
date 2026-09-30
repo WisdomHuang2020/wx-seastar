@@ -1,0 +1,12 @@
+# 统一以 LF 存入仓库，避免 Windows(CRLF) 与 Linux(LF) 之间
+# 产生大量"字节不同但内容相同"的假差异，让逐字节核验保持有效。
+* text=auto eol=lf
+
+# 二进制资源不参与换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary

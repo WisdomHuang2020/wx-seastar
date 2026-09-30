@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<!--
+  页面：植物照明灯具页 grow-light.html
+  设计系统：Linear × Warm Editorial × ClickHouse（暗底为主 · 高光效 · 高密度 Tech Utility）
+  令牌来源：DESIGN.md §12
+  说明：本页为全站技术密度最高的页面，采用暗底仪表盘式布局
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>植物照明灯具 · SEA☆STAR 实益达 — 温室补光 / 室内种植 / 垂直农场光谱方案</title>
+<meta name="description" content="SEA☆STAR 实益达 植物照明灯具：面向温室补光、室内种植与垂直农场的专业光谱方案，涵盖 PPF/PPE/光谱配比等可量化指标。">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="darker" style="background:var(--night-950);">
+
+<header class="nav nav--transparent nav--dark" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="index.html">
+      <span class="brand-swap"><img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <a href="odm.html">ODM 设计</a>
+      <a href="lighting.html">通用照明</a>
+      <a href="grow-light.html" class="is-active">植物灯具</a>
+      <a href="about.html">关于我们</a>
+      <a href="contact.html">联系我们</a>
+    </nav>
+    <div class="nav__right">
+      <a class="btn btn--primary btn--sm" href="contact.html">获取报价</a>
+      <button class="nav__burger" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="drawer" aria-hidden="true">
+  <button class="drawer__close" aria-label="关闭菜单">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="odm.html">ODM 设计</a>
+  <a href="lighting.html">通用照明</a>
+  <a href="grow-light.html">植物灯具</a>
+  <a href="about.html">关于我们</a>
+  <a href="contact.html">联系我们</a>
+  <a class="btn btn--primary btn--lg drawer__cta" href="contact.html" style="display:inline-flex;width:fit-content;">获取报价</a>
+</div>
+
+<main>
+
+<!-- ==================== Hero（暗底 · 光谱氛围） ==================== -->
+<section class="hero-home" style="min-height:78vh;padding-top:180px;padding-bottom:var(--space-5xl);">
+  <div class="hero-home__grid" aria-hidden="true"></div>
+  <div class="hero-home__beam" style="background:conic-gradient(from 180deg at 50% 0%,transparent 42%,rgba(34,211,238,.16) 50%,rgba(239,68,68,.12) 56%,transparent 62%);" aria-hidden="true"></div>
+  <div class="hero-home__ambient" style="background:radial-gradient(ellipse at center,rgba(37,99,235,.16) 0%,rgba(220,38,38,.06) 45%,transparent 72%);" aria-hidden="true"></div>
+
+  <div class="container hero-home__inner">
+    <nav class="hero-breadcrumb" aria-label="面包屑">
+      <a href="index.html">首页</a><span>/</span><span>植物照明灯具</span>
+    </nav>
+    <div style="max-width:800px" class="ignite">
+      <span class="overline" style="color:var(--tech-cyan-400)">Horticulture Lighting · 光生物学</span>
+      <h1 class="display mt-md">光合作用，<br>是可以被<span style="color:var(--tech-cyan-400);text-shadow:0 0 28px rgba(34,211,238,.4)">精确调度</span>的</h1>
+      <p class="body-l mt-lg" style="color:var(--text-on-dark-muted);max-width:58ch;">
+        植物的生长不由亮度决定，而由光谱与光量子通量决定。我们以光子为计量单位，为温室补光、室内种植与垂直农场设计可量化、可复现的光环境方案。
+      </p>
+      <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">
+        <a class="btn btn--primary btn--lg" href="contact.html">获取光谱方案</a>
+        <a class="btn btn--ghost btn--lg" href="#spectrum">查看光谱数据</a>
+      </div>
+    </div>
+
+    <!-- 关键参数胶囊 -->
+    <div class="grid grid-4 mt-4xl" style="gap:var(--space-md);">
+      <div class="spec-box reveal reveal-d1"><div class="spec-box__k">光谱覆盖</div><div class="spec-box__v">400–780<span class="spec-box__u">nm</span></div></div>
+      <div class="spec-box reveal reveal-d2"><div class="spec-box__k">PPE 目标</div><div class="spec-box__v">—<span class="spec-box__u">μmol/J</span></div></div>
+      <div class="spec-box reveal reveal-d3"><div class="spec-box__k">配比可调</div><div class="spec-box__v">R:B<span class="spec-box__u">可定制</span></div></div>
+      <div class="spec-box reveal reveal-d4"><div class="spec-box__k">防护等级</div><div class="spec-box__v">IP65<span class="spec-box__u">最高</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 光科学解释 + 光谱图 ==================== -->
+<section class="section tech-band" id="spectrum" style="background:var(--night-900);" aria-labelledby="spectrum-title">
+  <div class="tech-band__ambient" aria-hidden="true"></div>
+  <div class="tech-band__grid" aria-hidden="true"></div>
+  <div class="container tech-band__inner">
+    <div class="section-head reveal">
+      <span class="overline" style="color:var(--tech-cyan-400)">01 / 光科学基础</span>
+      <h2 class="h2" id="spectrum-title">读懂光合有效辐射（PAR）</h2>
+      <p class="body-l" style="color:var(--text-on-dark-muted);max-width:70ch;">
+        植物主要利用 400–700nm 的可见光进行光合作用，这段波段称为光合有效辐射（PAR, Photosynthetically Active Radiation）。其中 450nm 附近蓝光与 660nm 附近红光构成两大叶绿素吸收峰——这正是植物灯设计的底层依据。
+      </p>
+    </div>
+
+    <div class="grid" style="grid-template-columns:1.5fr 1fr;gap:var(--space-xl);margin-top:var(--space-2xl);align-items:start;">
+      <!-- 光谱主图 -->
+      <div class="spectrum-panel reveal">
+        <div class="spectrum-panel__head">
+          <span class="mono">PAR 相对光量子通量分布 · 400–780nm</span>
+          <span class="badge badge--tech">Chloros Spec</span>
+        </div>
+        <svg viewBox="0 0 680 340" role="img" aria-label="植物光合有效辐射光谱曲线，标注叶绿素吸收峰">
+          <defs>
+            <linearGradient id="parArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#22D3EE" stop-opacity=".28"/>
+              <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="parStroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#8B5CF6"/>
+              <stop offset="18%" stop-color="#3B82F6"/>
+              <stop offset="38%" stop-color="#22C55E"/>
+              <stop offset="58%" stop-color="#FACC15"/>
+              <stop offset="80%" stop-color="#EF4444"/>
+              <stop offset="100%" stop-color="#DC2626"/>
+            </linearGradient>
+          </defs>
+
+          <!-- 网格 -->
+          <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+            <path d="M60 40 H660 M60 100 H660 M60 160 H660 M60 220 H660 M60 280 H660"/>
+            <path d="M60 40 V280 M160 40 V280 M260 40 V280 M360 40 V280 M460 40 V280 M560 40 V280 M660 40 V280"/>
+          </g>
+
+          <!-- 波段背景标识 -->
+          <rect x="60" y="40" width="100" height="240" fill="#8B5CF6" opacity=".05"/>
+          <rect x="160" y="40" width="100" height="240" fill="#3B82F6" opacity=".05"/>
+          <rect x="360" y="40" width="180" height="240" fill="#EF4444" opacity=".06"/>
+
+          <!-- 面积 -->
+          <path d="M60 280 C90 274 110 240 130 200 C150 160 160 120 175 108 C195 92 210 200 240 220 C270 238 285 250 320 248 C350 246 365 180 400 130 C420 100 440 92 470 96 C500 100 520 140 560 170 C590 192 630 218 660 232 L660 280 Z" fill="url(#parArea)"/>
+
+          <!-- 曲线（绘制动效） -->
+          <path class="trace-path" d="M60 280 C90 274 110 240 130 200 C150 160 160 120 175 108 C195 92 210 200 240 220 C270 238 285 250 320 248 C350 246 365 180 400 130 C420 100 440 92 470 96 C500 100 520 140 560 170 C590 192 630 218 660 232" fill="none" stroke="url(#parStroke)" stroke-width="3" stroke-linecap="round"/>
+
+          <!-- 吸收峰标注：蓝光 450nm -->
+          <line x1="175" y1="108" x2="175" y2="280" stroke="#3B82F6" stroke-width="1" stroke-dasharray="4 4" opacity=".8"/>
+          <circle cx="175" cy="108" r="4.5" fill="#3B82F6"/>
+          <text x="150" y="98" font-family="JetBrains Mono,monospace" font-size="10" fill="#93B4FD">450nm</text>
+          <text x="128" y="60" font-family="JetBrains Mono,monospace" font-size="9" fill="#6B7280">Chlorophyll B</text>
+
+          <!-- 吸收峰标注：红光 660nm -->
+          <line x1="470" y1="96" x2="470" y2="280" stroke="#EF4444" stroke-width="1" stroke-dasharray="4 4" opacity=".8"/>
+          <circle cx="470" cy="96" r="4.5" fill="#EF4444"/>
+          <text x="446" y="86" font-family="JetBrains Mono,monospace" font-size="10" fill="#FCA5A5">660nm</text>
+          <text x="432" y="60" font-family="JetBrains Mono,monospace" font-size="9" fill="#6B7280">Chlorophyll A</text>
+
+          <!-- 深红 730nm -->
+          <line x1="600" y1="196" x2="600" y2="280" stroke="#DC2626" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>
+          <circle cx="600" cy="196" r="3.5" fill="#DC2626"/>
+          <text x="576" y="188" font-family="JetBrains Mono,monospace" font-size="9" fill="#F87171">730nm</text>
+
+          <!-- X 轴 -->
+          <line x1="60" y1="280" x2="660" y2="280" stroke="#33334F" stroke-width="1"/>
+          <g font-family="JetBrains Mono,monospace" font-size="10" fill="#6B7280">
+            <text x="52" y="300">400</text>
+            <text x="152" y="300">450</text>
+            <text x="252" y="300">500</text>
+            <text x="352" y="300">560</text>
+            <text x="452" y="300">620</text>
+            <text x="552" y="300">700</text>
+            <text x="636" y="300">780</text>
+          </g>
+          <text x="330" y="322" font-family="JetBrains Mono,monospace" font-size="10" fill="#6B7280" text-anchor="middle">Wavelength (nm)</text>
+          <!-- Y 轴 -->
+          <g font-family="JetBrains Mono,monospace" font-size="10" fill="#6B7280">
+            <text x="30" y="44">1.0</text><text x="30" y="104">0.75</text><text x="30" y="164">0.5</text><text x="30" y="224">0.25</text><text x="30" y="284">0</text>
+          </g>
+        </svg>
+        <div class="flex gap-sm mt-md" style="flex-wrap:wrap;">
+          <span class="badge badge--tech">蓝光 450nm · 叶绿素 B</span>
+          <span class="badge badge--tech" style="background:rgba(239,68,68,.10);color:#FCA5A5;border-color:rgba(239,68,68,.28);">红光 660nm · 叶绿素 A</span>
+          <span class="badge badge--neutral">深红 730nm · 光形态建成</span>
+        </div>
+        <p class="small mt-md" style="font-family:var(--font-mono);color:var(--text-on-dark-muted);">图片来源：原型内联 SVG 绘制，示意曲线用于演示可视化能力，非实测数据。</p>
+      </div>
+
+      <!-- 关键概念卡片 -->
+      <div class="stack-lg">
+        <div class="card-lum" style="padding:var(--space-lg);">
+          <div class="spec-box__k">PPF · 光合光子通量</div>
+          <p class="small mt-sm" style="color:var(--text-on-dark-muted);">灯具每秒发射的 400–700nm 光子总数，单位 μmol/s。决定灯具的“光子产出能力”。</p>
+        </div>
+        <div class="card-lum" style="padding:var(--space-lg);">
+          <div class="spec-box__k">PPE · 光子效能</div>
+          <p class="small mt-sm" style="color:var(--text-on-dark-muted);">每消耗 1 焦耳电能产出的光子数，单位 μmol/J。衡量灯具能效的核心指标。</p>
+        </div>
+        <div class="card-lum" style="padding:var(--space-lg);">
+          <div class="spec-box__k">PPFD · 光量子通量密度</div>
+          <p class="small mt-sm" style="color:var(--text-on-dark-muted);">单位面积上每秒接收到的光子数，单位 μmol/m²·s。描述“植物实际获得多少光”。</p>
+        </div>
+        <div class="card-lum" style="padding:var(--space-lg);">
+          <div class="spec-box__k">SPD · 光谱功率分布</div>
+          <p class="small mt-sm" style="color:var(--text-on-dark-muted);">各波长的相对能量分布。通过调整 SPD，可针对不同作物与生长阶段优化光谱配比。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 产品线 ==================== -->
+<section class="section" style="background:var(--night-950);" aria-labelledby="pline-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline" style="color:var(--tech-cyan-400)">02 / 产品线</span>
+      <h2 class="h2" id="pline-title">三类种植场景，三套光谱策略</h2>
+      <p class="body-l" style="color:var(--text-on-dark-muted);">不同种植方式的层高、覆盖与作物类型差异极大，灯具形态与配光方式也随之不同。</p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <!-- 温室补光 -->
+      <article class="card-lum sheen reveal reveal-d1" style="padding:var(--space-xl);">
+        <span class="badge badge--brand">Greenhouse</span>
+        <h3 class="h3 mt-md">温室补光灯具</h3>
+        <p class="small mt-sm" style="color:var(--text-on-dark-muted);">针对玻璃温室与连栋大棚，高功率顶置式灯具，宽配光覆盖大面积作物冠层，耐受高湿高温环境。</p>
+        <div class="grid grid-2 mt-lg" style="gap:var(--space-sm);">
+          <div><div class="spec-box__k">形态</div><div class="mini-spec__v" style="color:var(--text-on-dark)">顶置灯 / 吊挂</div></div>
+          <div><div class="spec-box__k">防护</div><div class="mini-spec__v" style="color:var(--text-on-dark)">IP65</div></div>
+        </div>
+        <a class="link-arrow mt-lg" href="contact.html" style="color:var(--tech-cyan-400);display:inline-flex;">咨询方案
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <!-- 室内种植 -->
+      <article class="card-lum sheen reveal reveal-d2" style="padding:var(--space-xl);">
+        <span class="badge badge--tech">Indoor Grow</span>
+        <h3 class="h3 mt-md">室内种植灯具</h3>
+        <p class="small mt-sm" style="color:var(--text-on-dark-muted);">面向室内种植帐篷与小型温室，全光谱可调光设计，适配蔬菜、香草与开花作物，兼顾视觉观感。</p>
+        <div class="grid grid-2 mt-lg" style="gap:var(--space-sm);">
+          <div><div class="spec-box__k">形态</div><div class="mini-spec__v" style="color:var(--text-on-dark)">板灯 / 光条</div></div>
+          <div><div class="spec-box__k">调光</div><div class="mini-spec__v" style="color:var(--text-on-dark)">0–100%</div></div>
+        </div>
+        <a class="link-arrow mt-lg" href="contact.html" style="color:var(--tech-cyan-400);display:inline-flex;">咨询方案
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <!-- 垂直农场 -->
+      <article class="card-lum sheen reveal reveal-d3" style="padding:var(--space-xl);">
+        <span class="badge badge--success">Vertical Farm</span>
+        <h3 class="h3 mt-md">垂直农场光层</h3>
+        <p class="small mt-sm" style="color:var(--text-on-dark-muted);">针对多层立体种植架设计的窄体光条，超薄结构节省层高，可按层独立控光与光谱配比。</p>
+        <div class="grid grid-2 mt-lg" style="gap:var(--space-sm);">
+          <div><div class="spec-box__k">形态</div><div class="mini-spec__v" style="color:var(--text-on-dark)">窄体光条</div></div>
+          <div><div class="spec-box__k">厚度</div><div class="mini-spec__v" style="color:var(--text-on-dark)">超薄设计</div></div>
+        </div>
+        <a class="link-arrow mt-lg" href="contact.html" style="color:var(--tech-cyan-400);display:inline-flex;">咨询方案
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 技术参数对比表（Mono 数据表） ==================== -->
+<section class="section" style="background:var(--night-900);" aria-labelledby="spec-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline" style="color:var(--tech-cyan-400)">03 / 技术参数</span>
+      <h2 class="h2" id="spec-title">型号参数对照</h2>
+      <p class="body-l" style="color:var(--text-on-dark-muted);">下表为三个主力型号的关键指标。所有数值均以可测量单位标注，便于横向对比与方案评估。</p>
+    </div>
+
+    <div class="table-wrap mt-2xl reveal" style="background:var(--night-800);">
+      <table class="tech-table">
+        <caption class="sr-only">植物照明灯具型号技术参数对比</caption>
+        <thead>
+          <tr>
+            <th>型号 Model</th>
+            <th>应用 Application</th>
+            <th class="num">PPF (μmol/s)</th>
+            <th class="num">PPE (μmol/J)</th>
+            <th>光谱 Spectrum</th>
+            <th class="num">功率 Power</th>
+            <th>覆盖 Area</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Chloros G-Series</td>
+            <td>温室补光</td>
+            <td class="num">—<span class="unit">μmol/s</span></td>
+            <td class="num">—<span class="unit">μmol/J</span></td>
+            <td>Full / R:B 可调</td>
+            <td class="num">—<span class="unit">W</span></td>
+            <td>—<span class="unit">m²</span></td>
+          </tr>
+          <tr>
+            <td>Chloros I-Series</td>
+            <td>室内种植</td>
+            <td class="num">—<span class="unit">μmol/s</span></td>
+            <td class="num">—<span class="unit">μmol/J</span></td>
+            <td>Full Spectrum</td>
+            <td class="num">—<span class="unit">W</span></td>
+            <td>—<span class="unit">m²</span></td>
+          </tr>
+          <tr>
+            <td>Chloros V-Series</td>
+            <td>垂直农场</td>
+            <td class="num">—<span class="unit">μmol/s</span></td>
+            <td class="num">—<span class="unit">μmol/J</span></td>
+            <td>R:B 4:1 / 3:1</td>
+            <td class="num">—<span class="unit">W</span></td>
+            <td>—<span class="unit">m²</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small mt-md" style="color:var(--text-on-dark-muted);font-family:var(--font-mono);">注：表中“—”表示原型阶段占位，实际数值以正式产品规格书为准。</p>
+
+    <!-- 技术特性 -->
+    <div class="grid grid-4 mt-3xl">
+      <div class="feature reveal reveal-d1">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+        <div><h4>光谱可调</h4><p>多通道独立控制，按作物阶段调整配比</p></div>
+      </div>
+      <div class="feature reveal reveal-d2">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13H11l-1 9L19.5 11H13z"/></svg></div>
+        <div><h4>高光子效能</h4><p>以 PPE 为核心设计目标，降低单位光子能耗</p></div>
+      </div>
+      <div class="feature reveal reveal-d3">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 4 12.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3A7 7 0 0 1 12 2z"/></svg></div>
+        <div><h4>散热工程</h4><p>大面积散热结构延长光源寿命与稳定性</p></div>
+      </div>
+      <div class="feature reveal reveal-d4">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div><h4>防水防尘</h4><p>最高 IP65 防护，适应高湿种植环境</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 应用案例（作物对比数据） ==================== -->
+<section class="section" style="background:var(--night-950);" aria-labelledby="verify-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline" style="color:var(--tech-cyan-400)">04 / 数据验证</span>
+      <h2 class="h2" id="verify-title">用种植结果，验证光方案</h2>
+      <p class="body-l" style="color:var(--text-on-dark-muted);">以下为合作种植环境的应用反馈，演示数据维度而非承诺效果。</p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="card-lum reveal reveal-d1" style="padding:var(--space-xl);">
+        <div class="flex justify-between items-center">
+          <span class="badge badge--success">叶菜类</span>
+          <span class="mono small" style="color:var(--text-on-dark-muted)">生菜 / 菠菜</span>
+        </div>
+        <h3 class="h4 mt-md" style="color:var(--text-on-dark)">室内水培生菜</h3>
+        <div class="grid grid-2 mt-lg" style="gap:var(--space-md);">
+          <div class="spec-box"><div class="spec-box__k">PPFD 目标</div><div class="spec-box__v">—<span class="spec-box__u">μmol/m²·s</span></div></div>
+          <div class="spec-box"><div class="spec-box__k">光周期</div><div class="spec-box__v">—<span class="spec-box__u">h/d</span></div></div>
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);">在可控环境下优化 DLI 与光谱配比，观察叶面积与鲜重变化。</p>
+      </article>
+
+      <article class="card-lum reveal reveal-d2" style="padding:var(--space-xl);">
+        <div class="flex justify-between items-center">
+          <span class="badge badge--brand">果菜类</span>
+          <span class="mono small" style="color:var(--text-on-dark-muted)">番茄 / 辣椒</span>
+        </div>
+        <h3 class="h4 mt-md" style="color:var(--text-on-dark)">温室番茄补光</h3>
+        <div class="grid grid-2 mt-lg" style="gap:var(--space-md);">
+          <div class="spec-box"><div class="spec-box__k">补光强度</div><div class="spec-box__v">—<span class="spec-box__u">μmol/m²·s</span></div></div>
+          <div class="spec-box"><div class="spec-box__k">补光时长</div><div class="spec-box__v">—<span class="spec-box__u">h/d</span></div></div>
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);">面向冬季弱光期的补充照明，关注坐果率与果实品质。</p>
+      </article>
+
+      <article class="card-lum reveal reveal-d3" style="padding:var(--space-xl);">
+        <div class="flex justify-between items-center">
+          <span class="badge badge--tech">垂直农场</span>
+          <span class="mono small" style="color:var(--text-on-dark-muted)">多层架 / 香草</span>
+        </div>
+        <h3 class="h4 mt-md" style="color:var(--text-on-dark)">多层架香草种植</h3>
+        <div class="grid grid-2 mt-lg" style="gap:var(--space-md);">
+          <div class="spec-box"><div class="spec-box__k">层高适配</div><div class="spec-box__v">—<span class="spec-box__u">mm</span></div></div>
+          <div class="spec-box"><div class="spec-box__k">单层功耗</div><div class="spec-box__v">—<span class="spec-box__u">W</span></div></div>
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);">窄体光条在有限层高下平衡光强与散热，关注单位面积能耗。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 技术资源下载 ==================== -->
+<section class="section" style="background:var(--night-900);" aria-labelledby="res-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline" style="color:var(--tech-cyan-400)">05 / 技术资源</span>
+      <h2 class="h2" id="res-title">工程与技术文档</h2>
+      <p class="body-l" style="color:var(--text-on-dark-muted);">面向灯光设计师与种植工程师，提供可直接用于方案计算的技术资料。</p>
+    </div>
+
+    <div class="table-wrap mt-2xl reveal" style="background:var(--night-800);">
+      <table class="tech-table">
+        <thead>
+          <tr>
+            <th>文件名称 Document</th>
+            <th>类型 Type</th>
+            <th>说明 Description</th>
+            <th class="num">下载</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Chloros 产品规格书</td>
+            <td>PDF</td>
+            <td>完整技术参数与型号选型表</td>
+            <td class="num"><a href="contact.html" class="link-arrow" style="color:var(--tech-cyan-400)">获取</a></td>
+          </tr>
+          <tr>
+            <td>IES / LDT 配光文件</td>
+            <td>IES</td>
+            <td>用于光学仿真与照度计算</td>
+            <td class="num"><a href="contact.html" class="link-arrow" style="color:var(--tech-cyan-400)">获取</a></td>
+          </tr>
+          <tr>
+            <td>PPFD 布点计算指南</td>
+            <td>PDF</td>
+            <td>种植区域光强分布计算方法</td>
+            <td class="num"><a href="contact.html" class="link-arrow" style="color:var(--tech-cyan-400)">获取</a></td>
+          </tr>
+          <tr>
+            <td>光谱数据报告</td>
+            <td>CSV</td>
+            <td>各型号 SPD 原始测量数据</td>
+            <td class="num"><a href="contact.html" class="link-arrow" style="color:var(--tech-cyan-400)">获取</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="section-lg cta-band" style="background:var(--night-950);" aria-labelledby="grow-cta">
+  <div class="cta-band__beam" style="background:conic-gradient(from 180deg at 50% 0%,transparent 42%,rgba(34,211,238,.14) 50%,transparent 58%);" aria-hidden="true"></div>
+  <div class="cta-band__ambient" aria-hidden="true"></div>
+  <div class="container center relative">
+    <span class="overline" style="color:var(--tech-cyan-400)">06 / 定制光谱方案</span>
+    <h2 class="display mt-md mx-auto" id="grow-cta" style="max-width:22ch;">告诉我们种什么，<br>我们来配光</h2>
+    <p class="body-l mt-lg mx-auto" style="color:var(--text-on-dark-muted);max-width:54ch;">提供作物类型、种植面积与层高信息，我们将给出 PPFD 布点建议与灯具选型方案。</p>
+    <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
+      <a class="btn btn--primary btn--lg" href="contact.html">获取光谱方案</a>
+      <a class="btn btn--ghost btn--lg" href="lighting.html">查看通用照明</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">照明整体解决方案提供商。ODM 设计 · 通用照明 · 植物照明。</p>
+      </div>
+      <div class="footer__col">
+        <h4>业务线</h4>
+        <a href="odm.html">ODM 设计</a>
+        <a href="lighting.html">通用照明灯具</a>
+        <a href="grow-light.html">植物照明灯具</a>
+      </div>
+      <div class="footer__col">
+        <h4>公司</h4>
+        <a href="about.html">关于我们</a>
+        <a href="about.html#history">发展历程</a>
+        <a href="about.html#factory">工厂与产能</a>
+        <a href="contact.html">联系我们</a>
+      </div>
+      <div class="footer__col">
+        <h4>联系</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="contact.html">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
+      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

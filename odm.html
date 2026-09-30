@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<!--
+  页面：ODM 设计页 odm.html
+  设计系统：Linear × Warm Editorial × ClickHouse（明底为主 · 中光效 · 大留白 · 暖调）
+  令牌来源：DESIGN.md §12
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ODM 设计服务 · SEA☆STAR 实益达 — 从概念到量产的灯具定制开发</title>
+<meta name="description" content="SEA☆STAR 实益达 ODM 设计服务：需求分析、概念设计、结构工程、样品验证到量产支持的端到端灯具定制开发。">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav nav--transparent" id="nav" data-nav-transparent="false" style="color:var(--text-primary);">
+  <div class="nav__inner">
+    <a class="nav__logo" href="index.html">
+      <span class="brand-swap"><img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <a href="odm.html" class="is-active">ODM 设计</a>
+      <a href="lighting.html">通用照明</a>
+      <a href="grow-light.html">植物灯具</a>
+      <a href="about.html">关于我们</a>
+      <a href="contact.html">联系我们</a>
+    </nav>
+    <div class="nav__right">
+      <a class="btn btn--primary btn--sm" href="contact.html">获取报价</a>
+      <button class="nav__burger" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="drawer" aria-hidden="true">
+  <button class="drawer__close" aria-label="关闭菜单">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="odm.html">ODM 设计</a>
+  <a href="lighting.html">通用照明</a>
+  <a href="grow-light.html">植物灯具</a>
+  <a href="about.html">关于我们</a>
+  <a href="contact.html">联系我们</a>
+  <a class="btn btn--primary btn--lg drawer__cta" href="contact.html" style="display:inline-flex;width:fit-content;">获取报价</a>
+</div>
+
+<main>
+
+<!-- ==================== Hero（明底 · 中光效 · 设计叙事） ==================== -->
+<section class="hero-split hero-light hero-light--sub">
+  <div class="hero-light__ambient" aria-hidden="true"></div>
+  <div class="container relative">
+    <nav class="hero-breadcrumb" aria-label="面包屑">
+      <a href="index.html">首页</a><span>/</span><span>ODM 设计</span>
+    </nav>
+    <div class="grid grid-2" style="gap:var(--space-3xl);align-items:center;">
+      <div class="reveal">
+        <span class="overline">ODM Design Service</span>
+        <h1 class="display mt-md">让好设计，<br>从图纸一路走到货架</h1>
+        <p class="body-l mt-lg text-secondary measure">
+          我们不只是代工，而是把客户的产品构想，翻译成可量产、可认证、可迭代的照明产品。深耕照明行业多年，沉淀成一套从概念到交付的完整设计流程。
+        </p>
+        <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">
+          <a class="btn btn--primary btn--lg" href="contact.html">提交设计需求</a>
+          <a class="btn btn--secondary btn--lg" href="#cases">查看案例</a>
+        </div>
+      </div>
+
+      <!-- 设计草图 / 光效示意 -->
+      <div class="reveal reveal-d2 relative">
+        <div style="position:relative;border-radius:var(--radius-2xl);overflow:hidden;border:1px solid var(--border-subtle);background:linear-gradient(160deg,var(--brand-amber-50),var(--neutral-100));aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 400 300" fill="none" style="width:78%;" aria-hidden="true">
+            <!-- 灯具设计线稿 -->
+            <ellipse cx="200" cy="252" rx="90" ry="12" fill="#F5A623" opacity=".22"/>
+            <path d="M110 110 L200 40 L290 110 Z" fill="none" stroke="#111827" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M110 110 Q200 132 290 110" fill="none" stroke="#B87408" stroke-width="2"/>
+            <path d="M200 40 V16" stroke="#111827" stroke-width="1.6"/>
+            <path d="M150 118 V150 M200 124 V164 M250 118 V150" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 4"/>
+            <!-- 标注线 -->
+            <path d="M310 40 H360 M310 110 H360" stroke="#D1D5DB" stroke-width="1"/>
+            <path d="M355 40 V110" stroke="#D1D5DB" stroke-width="1"/>
+            <circle cx="355" cy="75" r="1.5" fill="#B87408"/>
+            <text x="332" y="72" font-family="JetBrains Mono,monospace" font-size="9" fill="#6B7280">H</text>
+            <!-- 光晕 -->
+            <ellipse cx="200" cy="112" rx="86" ry="16" fill="#F5A623" opacity=".28"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 服务概览胶囊 -->
+    <div class="grid grid-4 mt-4xl">
+      <div class="feature reveal reveal-d1">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+        <div><h4>需求洞察</h4><p>市场与场景研究</p></div>
+      </div>
+      <div class="feature reveal reveal-d2">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 2 2-7 7-3 1 1-3z"/><path d="M17 6l1.5-1.5a2.1 2.1 0 0 1 3 3L20 9"/></svg></div>
+        <div><h4>工业设计</h4><p>外观与体验</p></div>
+      </div>
+      <div class="feature reveal reveal-d3">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg></div>
+        <div><h4>结构工程</h4><p>可制造性验证</p></div>
+      </div>
+      <div class="feature reveal reveal-d4">
+        <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div><h4>量产交付</h4><p>品质与产能保障</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 设计流程时间轴 ==================== -->
+<section class="section" aria-labelledby="process-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">01 / 设计流程</span>
+      <h2 class="h2" id="process-title">五步，把一个想法变成可量产的灯</h2>
+      <p class="body-l">每个阶段都有明确的交付物与评审节点，客户全程可见、可介入。</p>
+    </div>
+
+    <div class="timeline mt-3xl" style="max-width:860px;">
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">01</div>
+        <div class="timeline__body">
+          <h3 class="h3">需求分析</h3>
+          <p>梳理目标市场、使用场景、成本区间与认证要求，输出产品定义书与关键技术指标（CCT / 光效 / 防护等级 / 目标售价）。</p>
+          <div class="timeline__meta">
+            <span class="badge badge--neutral">产品定义书</span>
+            <span class="badge badge--neutral">竞品分析</span>
+            <span class="badge badge--brand">约 1–2 周</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">02</div>
+        <div class="timeline__body">
+          <h3 class="h3">概念设计</h3>
+          <p>工业设计团队产出多套外观方案与光效概念，结合品牌调性确定造型语言、材质方案与光学路径。</p>
+          <div class="timeline__meta">
+            <span class="badge badge--neutral">外观方案 ×3</span>
+            <span class="badge badge--neutral">光效概念</span>
+            <span class="badge badge--brand">约 2–4 周</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">03</div>
+        <div class="timeline__body">
+          <h3 class="h3">结构工程</h3>
+          <p>完成 3D 建模、散热仿真、光学配光设计（IES 文件）与电气方案，确保可制造性与安规符合性。</p>
+          <div class="timeline__meta">
+            <span class="badge badge--neutral">3D 模型</span>
+            <span class="badge badge--neutral">IES 配光</span>
+            <span class="badge badge--brand">约 3–5 周</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">04</div>
+        <div class="timeline__body">
+          <h3 class="h3">样品验证</h3>
+          <p>制作功能样机并进行光通量、色容差、温升、安规与寿命老化测试，客户实装验证后锁定量产版本。</p>
+          <div class="timeline__meta">
+            <span class="badge badge--neutral">功能样机</span>
+            <span class="badge badge--success">老化测试</span>
+            <span class="badge badge--brand">约 3–4 周</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">05</div>
+        <div class="timeline__body">
+          <h3 class="h3">量产支持</h3>
+          <p>开模、试产、认证送检到批量交付，提供全套技术文档与持续的品质追踪，支持后续迭代与衍生型号开发。</p>
+          <div class="timeline__meta">
+            <span class="badge badge--neutral">模具与试产</span>
+            <span class="badge badge--success">认证送检</span>
+            <span class="badge badge--brand">按订单排期</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 案例集 ==================== -->
+<section class="section" id="cases" style="background:var(--surface-sunken);" aria-labelledby="cases-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">02 / 案例作品</span>
+      <h2 class="h2" id="cases-title">做过的一些灯</h2>
+      <p class="body-l">以下为部分可公开的定制开发案例，具体客户信息以保密协议为准。</p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="case-card sheen reveal reveal-d1">
+        <div class="case-card__media" style="background:linear-gradient(150deg,var(--brand-amber-50),var(--neutral-200));">
+          <svg viewBox="0 0 300 190" fill="none" style="width:70%;" aria-hidden="true">
+            <ellipse cx="150" cy="150" rx="70" ry="9" fill="#F5A623" opacity=".25"/>
+            <rect x="105" y="60" width="90" height="70" rx="10" fill="#1A1A2E"/>
+            <rect x="112" y="98" width="76" height="6" rx="3" fill="#FFB84D"/>
+            <path d="M150 34v26" stroke="#111827" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="case-card__body">
+          <span class="product-card__cat">Residential · Pendant</span>
+          <h3>北欧风木质感吊灯系列</h3>
+          <p>为北欧家居品牌开发的模块化吊灯，支持三种口径与两种色温替换，通过 CE / RoHS 认证。</p>
+        </div>
+      </article>
+
+      <article class="case-card sheen reveal reveal-d2">
+        <div class="case-card__media" style="background:linear-gradient(150deg,var(--neutral-100),var(--neutral-300));">
+          <svg viewBox="0 0 300 190" fill="none" style="width:76%;" aria-hidden="true">
+            <ellipse cx="150" cy="152" rx="90" ry="8" fill="#F5A623" opacity=".2"/>
+            <rect x="60" y="56" width="180" height="12" rx="6" fill="#111827"/>
+            <rect x="62" y="68" width="176" height="5" rx="2.5" fill="#FFB84D" opacity=".85"/>
+            <path d="M84 73v46M150 73v52M216 73v46" stroke="#9CA3AF" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="case-card__body">
+          <span class="product-card__cat">Commercial · Linear</span>
+          <h3>办公空间线性照明系统</h3>
+          <p>低眩光（UGR&lt;19）线性灯具，支持无缝拼接与调光，为写字楼项目定制批量交付。</p>
+        </div>
+      </article>
+
+      <article class="case-card sheen reveal reveal-d3">
+        <div class="case-card__media" style="background:linear-gradient(150deg,var(--night-900),var(--night-700));">
+          <svg viewBox="0 0 300 190" fill="none" style="width:70%;" aria-hidden="true">
+            <ellipse cx="150" cy="152" rx="80" ry="8" fill="#DC2626" opacity=".3"/>
+            <rect x="85" y="52" width="130" height="18" rx="4" fill="#16162A" stroke="#33334F"/>
+            <rect x="88" y="70" width="124" height="6" rx="3" fill="#EF4444" opacity=".85"/>
+            <rect x="88" y="63" width="124" height="6" rx="3" fill="#3B82F6" opacity=".75"/>
+          </svg>
+        </div>
+        <div class="case-card__body">
+          <span class="product-card__cat">Horticulture · Bar</span>
+          <h3>垂直农场专用植物光条</h3>
+          <p>面向多层种植架的窄体光条，可按层定制光谱配比，配套 PPFD 布点方案交付。</p>
+        </div>
+      </article>
+
+      <article class="case-card sheen reveal reveal-d1">
+        <div class="case-card__media" style="background:linear-gradient(150deg,var(--neutral-100),var(--brand-amber-50));">
+          <svg viewBox="0 0 300 190" fill="none" style="width:64%;" aria-hidden="true">
+            <ellipse cx="150" cy="150" rx="56" ry="10" fill="#F5A623" opacity=".28"/>
+            <path d="M100 96 L150 44 L200 96 Z" fill="#1A1A2E"/>
+            <ellipse cx="150" cy="96" rx="50" ry="9" fill="#FFB84D" opacity=".8"/>
+            <path d="M150 44 V22" stroke="#111827" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="case-card__body">
+          <span class="product-card__cat">Retail · Track</span>
+          <h3>零售店铺轨道射灯</h3>
+          <p>高显色（Ra&gt;95）可调角射灯，为服装零售品牌开发，突出商品色彩还原。</p>
+        </div>
+      </article>
+
+      <article class="case-card sheen reveal reveal-d2">
+        <div class="case-card__media" style="background:linear-gradient(150deg,var(--neutral-200),var(--neutral-100));">
+          <svg viewBox="0 0 300 190" fill="none" style="width:70%;" aria-hidden="true">
+            <ellipse cx="150" cy="154" rx="64" ry="8" fill="#F5A623" opacity=".2"/>
+            <path d="M120 46 H180 L188 118 H112 Z" fill="#1A1A2E"/>
+            <path d="M118 112 H182" stroke="#FFB84D" stroke-width="3"/>
+          </svg>
+        </div>
+        <div class="case-card__body">
+          <span class="product-card__cat">Outdoor · Bollard</span>
+          <h3>庭院景观草坪灯</h3>
+          <p>IP65 防护等级户外灯具，铝合金压铸灯体，适应沿海高盐雾环境。</p>
+        </div>
+      </article>
+
+      <article class="case-card sheen reveal reveal-d3">
+        <div class="case-card__media" style="background:linear-gradient(150deg,var(--brand-amber-50),var(--neutral-200));">
+          <svg viewBox="0 0 300 190" fill="none" style="width:66%;" aria-hidden="true">
+            <ellipse cx="150" cy="150" rx="54" ry="9" fill="#F5A623" opacity=".24"/>
+            <circle cx="150" cy="96" r="42" fill="#1A1A2E"/>
+            <circle cx="150" cy="96" r="30" fill="#FFB84D" opacity=".28"/>
+            <circle cx="150" cy="96" r="30" fill="none" stroke="#FFB84D" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="case-card__body">
+          <span class="product-card__cat">Decorative · Sphere</span>
+          <h3>球形氛围台灯</h3>
+          <p>无级调光与触控交互的桌面灯具，为生活方式品牌开发的完整 ODM 方案。</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 研发实力 ==================== -->
+<section class="section dark tech-band" aria-labelledby="rd-title">
+  <div class="tech-band__ambient" aria-hidden="true"></div>
+  <div class="container tech-band__inner">
+    <div class="grid grid-2" style="gap:var(--space-3xl);align-items:center;">
+      <div class="reveal">
+        <span class="overline">03 / 研发实力</span>
+        <h2 class="h2 mt-md" id="rd-title">设计能被验证，才值得被交付</h2>
+        <p class="body-l mt-md" style="color:var(--text-on-dark-muted);max-width:52ch;">
+          从光学实验室到结构工程组，我们以数据而非直觉来支撑每一个设计决策。
+        </p>
+      </div>
+      <div class="grid grid-2" style="gap:var(--space-md)">
+        <div class="spec-box reveal reveal-d1"><div class="spec-box__k">设计研发团队</div><div class="spec-box__v"><span data-count="48">0</span><span class="spec-box__u">人</span></div></div>
+        <div class="spec-box reveal reveal-d2"><div class="spec-box__k">授权专利</div><div class="spec-box__v"><span data-count="86">0</span><span class="spec-box__u">项</span></div></div>
+        <div class="spec-box reveal reveal-d3"><div class="spec-box__k">光学实验室</div><div class="spec-box__v"><span data-count="3">0</span><span class="spec-box__u">间</span></div></div>
+        <div class="spec-box reveal reveal-d4"><div class="spec-box__k">年均新品开发</div><div class="spec-box__v"><span data-count="120">0</span><span class="spec-box__u">款</span></div></div>
+      </div>
+    </div>
+
+    <h3 class="h4 mt-4xl reveal" style="color:var(--text-on-dark-muted);font-family:var(--font-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;">合作品牌</h3>
+    <div class="logo-wall mt-lg reveal">
+      <div class="logo-wall__item">NORDLYS</div>
+      <div class="logo-wall__item">Habitat&nbsp;Living</div>
+      <div class="logo-wall__item">VERDANT</div>
+      <div class="logo-wall__item">KLOKKEN</div>
+      <div class="logo-wall__item">Aureus&nbsp;Retail</div>
+      <div class="logo-wall__item">GREENLAB</div>
+      <div class="logo-wall__item">MERIDIAN</div>
+      <div class="logo-wall__item">Lys&nbsp;&amp;&nbsp;Co.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="section-lg cta-band" style="background:var(--surface-bg);" aria-labelledby="odm-cta">
+  <div class="container center relative">
+    <span class="overline">04 / 开始一个新项目</span>
+    <h2 class="display mt-md mx-auto" id="odm-cta" style="max-width:20ch;">把您的产品构想，<br>发给我们评估</h2>
+    <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
+      <a class="btn btn--primary btn--lg" href="contact.html">提交设计需求</a>
+      <a class="btn btn--secondary btn--lg" href="lighting.html">查看通用照明产品</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">照明整体解决方案提供商。ODM 设计 · 通用照明 · 植物照明。</p>
+      </div>
+      <div class="footer__col">
+        <h4>业务线</h4>
+        <a href="odm.html">ODM 设计</a>
+        <a href="lighting.html">通用照明灯具</a>
+        <a href="grow-light.html">植物照明灯具</a>
+      </div>
+      <div class="footer__col">
+        <h4>公司</h4>
+        <a href="about.html">关于我们</a>
+        <a href="about.html#history">发展历程</a>
+        <a href="about.html#factory">工厂与产能</a>
+        <a href="contact.html">联系我们</a>
+      </div>
+      <div class="footer__col">
+        <h4>联系</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="contact.html">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
+      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

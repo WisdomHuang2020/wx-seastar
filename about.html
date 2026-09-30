@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!--
+  页面：关于我们 about.html
+  设计系统：Linear × Warm Editorial × ClickHouse（Warm Editorial 叙事排版 · 明底为主）
+  令牌来源：DESIGN.md §12
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>关于我们 · SEA☆STAR 实益达（无锡市益明光电有限公司）</title>
+<meta name="description" content="SEA☆STAR 实益达 企业故事、发展历程、团队与工厂产能介绍。照明整体解决方案提供商。">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav nav--transparent" id="nav" data-nav-transparent="false" style="color:var(--text-primary);">
+  <div class="nav__inner">
+    <a class="nav__logo" href="index.html">
+      <span class="brand-swap"><img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <a href="odm.html">ODM 设计</a>
+      <a href="lighting.html">通用照明</a>
+      <a href="grow-light.html">植物灯具</a>
+      <a href="about.html" class="is-active">关于我们</a>
+      <a href="contact.html">联系我们</a>
+    </nav>
+    <div class="nav__right">
+      <a class="btn btn--primary btn--sm" href="contact.html">获取报价</a>
+      <button class="nav__burger" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="drawer" aria-hidden="true">
+  <button class="drawer__close" aria-label="关闭菜单">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="odm.html">ODM 设计</a>
+  <a href="lighting.html">通用照明</a>
+  <a href="grow-light.html">植物灯具</a>
+  <a href="about.html">关于我们</a>
+  <a href="contact.html">联系我们</a>
+  <a class="btn btn--primary btn--lg drawer__cta" href="contact.html" style="display:inline-flex;width:fit-content;">获取报价</a>
+</div>
+
+<main>
+
+<!-- ==================== Hero（Warm Editorial 叙事） ==================== -->
+<section class="hero-split hero-light hero-light--sub" aria-labelledby="about-title">
+  <div class="hero-light__ambient" aria-hidden="true"></div>
+  <div class="container relative">
+    <nav class="hero-breadcrumb" aria-label="面包屑">
+      <a href="index.html">首页</a><span>/</span><span>关于我们</span>
+    </nav>
+    <div class="grid grid-2" style="gap:var(--space-3xl);align-items:center;">
+      <div class="reveal">
+        <span class="overline">About SEA&#9733;STAR</span>
+        <h1 class="display mt-md" id="about-title">做光的容器，<br>也做光的工艺</h1>
+        <p class="body-l mt-lg text-secondary measure">
+          无锡市益明光电有限公司（SEA☆STAR 实益达）是实益达集团控股的国家高新技术企业，坐落于无锡新吴区，基地占地面积 43,000 平方米，现有员工 600 余人。
+        </p>
+        <p class="body-l mt-md text-secondary measure">
+          公司集人居照明、出行照明、智能控制、EMS 等系列产品的研发、生产、销售、服务于一体，具备专业的研发能力与垂直整合能力，着力打造 LED 行业一流的物联网智能制造工厂。
+        </p>
+      </div>
+
+      <div class="reveal reveal-d2">
+        <div style="position:relative;border-radius:var(--radius-2xl);overflow:hidden;border:1px solid var(--border-subtle);background:linear-gradient(160deg,var(--brand-amber-50),var(--neutral-200));aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 400 300" fill="none" style="width:78%;" aria-hidden="true">
+            <ellipse cx="200" cy="246" rx="120" ry="16" fill="#F5A623" opacity=".18"/>
+            <!-- 三盏灯剪影 -->
+            <g>
+              <path d="M110 100 V60" stroke="#111827" stroke-width="1.6"/>
+              <path d="M80 100 L110 78 L140 100 Z" fill="#1A1A2E"/>
+              <ellipse cx="110" cy="102" rx="30" ry="7" fill="#FFB84D" opacity=".8"/>
+            </g>
+            <g>
+              <path d="M200 118 V78" stroke="#111827" stroke-width="1.6"/>
+              <path d="M168 118 L200 92 L232 118 Z" fill="#1A1A2E"/>
+              <ellipse cx="200" cy="120" rx="32" ry="7" fill="#FFB84D" opacity=".9"/>
+            </g>
+            <g>
+              <path d="M290 100 V60" stroke="#111827" stroke-width="1.6"/>
+              <path d="M260 100 L290 78 L320 100 Z" fill="#1A1A2E"/>
+              <ellipse cx="290" cy="102" rx="30" ry="7" fill="#FFB84D" opacity=".8"/>
+            </g>
+            <path d="M110 108 L200 126 L290 108" stroke="#F5A623" stroke-width="1.2" opacity=".4"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 品牌数据 ==================== -->
+<section class="section-tight" style="background:var(--surface-sunken);">
+  <div class="container">
+    <div class="grid grid-4" style="gap:var(--space-xl);">
+      <div class="stat reveal reveal-d1"><div class="stat__num" style="color:var(--brand-amber-700)"><span data-count="43000">0</span><span class="stat__unit" style="color:var(--text-secondary)">㎡</span></div><div class="stat__label" style="color:var(--text-secondary)">基地占地</div></div>
+      <div class="stat reveal reveal-d2"><div class="stat__num" style="color:var(--brand-amber-700)"><span data-count="600">0</span><span class="stat__unit" style="color:var(--text-secondary)">+</span></div><div class="stat__label" style="color:var(--text-secondary)">员工总数</div></div>
+      <div class="stat reveal reveal-d3"><div class="stat__num" style="color:var(--brand-amber-700)"><span data-count="100">0</span><span class="stat__unit" style="color:var(--text-secondary)">万 PCS</span></div><div class="stat__label" style="color:var(--text-secondary)">月产能</div></div>
+      <div class="stat reveal reveal-d4"><div class="stat__num" style="color:var(--brand-amber-700)"><span data-count="45">0</span><span class="stat__unit" style="color:var(--text-secondary)">+</span></div><div class="stat__label" style="color:var(--text-secondary)">研发工程师</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 发展历程 ==================== -->
+<section class="section" id="history" aria-labelledby="history-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">01 / 发展历程</span>
+      <h2 class="h2" id="history-title">一路走来的关键节点</h2>
+    </div>
+
+    <div class="timeline mt-3xl" style="max-width:860px;">
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">'98</div>
+        <div class="timeline__body">
+          <h3 class="h3">实益达集团成立</h3>
+          <p>实益达集团成立，总部设于深圳龙岗，业务覆盖 EMS 电子制造服务与智能控制。</p>
+        </div>
+      </div>
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">'07</div>
+        <div class="timeline__body">
+          <h3 class="h3">A 股上市</h3>
+          <p>成功登陆 A 股市场（股票代码 002137），成为中国首家 EMS 上市公司。</p>
+        </div>
+      </div>
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">'16</div>
+        <div class="timeline__body">
+          <h3 class="h3">无锡基地成立</h3>
+          <p>无锡市益明光电有限公司成立，作为集团照明业务主体落户无锡新吴区鸿山。</p>
+        </div>
+      </div>
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">'19</div>
+        <div class="timeline__body">
+          <h3 class="h3">官网备案与市场拓展</h3>
+          <p>品牌官网 wx-seastar.com 完成备案上线，产品进入北美、欧洲、亚洲及南美市场。</p>
+        </div>
+      </div>
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">'20</div>
+        <div class="timeline__body">
+          <h3 class="h3">马来西亚工厂成立</h3>
+          <p>马来西亚工厂设立，服务东南亚及海外客户，交付周期缩短至约 2–3 个月。</p>
+        </div>
+      </div>
+      <div class="timeline__step reveal">
+        <div class="timeline__dot">'23</div>
+        <div class="timeline__body">
+          <h3 class="h3">马厂迁入新址</h3>
+          <p>马来西亚工厂迁入 12,000 平方米新厂区，产能与交付能力进一步提升。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 团队与价值观 ==================== -->
+<section class="section" style="background:var(--surface-sunken);" aria-labelledby="team-title">
+  <div class="container">
+    <div class="grid grid-2" style="gap:var(--space-3xl);align-items:center;">
+      <div class="reveal">
+        <span class="overline">02 / 我们相信</span>
+        <h2 class="h2 mt-md" id="team-title">光的价值，在于被感知</h2>
+        <p class="body-l mt-lg text-secondary measure">我们不把灯具当作电器，而当作光的容器。设计的第一原则，永远是“用户站在这个空间里，感受如何”。</p>
+
+        <div class="stack-lg mt-2xl">
+          <div class="feature">
+            <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+            <div><h4>长期主义</h4><p>不追逐短期风口，把时间投在真正决定光品质的底层能力上。</p></div>
+          </div>
+          <div class="feature">
+            <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg></div>
+            <div><h4>工程可信</h4><p>所有指标可测量、可复现、可追溯，用数据而非话术建立信任。</p></div>
+          </div>
+          <div class="feature">
+            <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 2 2-7 7-3 1 1-3z"/><path d="M17 6l1.5-1.5a2.1 2.1 0 0 1 3 3L20 9"/></svg></div>
+            <div><h4>设计克制</h4><p>好的照明设计懂得隐藏自己，让空间与使用者成为主角。</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-md);">
+        <div class="card reveal reveal-d1"><div class="h3 mono" style="color:var(--brand-amber-700)">48</div><p class="small text-secondary mt-sm">研发设计团队（人）</p></div>
+        <div class="card reveal reveal-d2"><div class="h3 mono" style="color:var(--brand-amber-700)">3</div><p class="small text-secondary mt-sm">光学实验室（间）</p></div>
+        <div class="card reveal reveal-d3"><div class="h3 mono" style="color:var(--brand-amber-700)">120</div><p class="small text-secondary mt-sm">年均新品开发（款）</p></div>
+        <div class="card reveal reveal-d4"><div class="h3 mono" style="color:var(--brand-amber-700)">360+</div><p class="small text-secondary mt-sm">全职员工（人）</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 工厂与产能（深色） ==================== -->
+<section class="section dark tech-band" id="factory" aria-labelledby="factory-title">
+  <div class="tech-band__ambient" aria-hidden="true"></div>
+  <div class="tech-band__grid" aria-hidden="true"></div>
+  <div class="container tech-band__inner">
+    <div class="section-head reveal">
+      <span class="overline">03 / 工厂与产能</span>
+      <h2 class="h2" id="factory-title">从设计到量产，闭环在自己的工厂里</h2>
+      <p class="body-l" style="color:var(--text-on-dark-muted);max-width:70ch;">自有生产基地配备 SMT 贴片、注塑、压铸、组装与老化测试产线，关键工序自主可控，品质与交期都有保障。</p>
+    </div>
+
+    <div class="grid grid-4 mt-3xl" style="gap:var(--space-md);">
+      <div class="spec-box reveal reveal-d1"><div class="spec-box__k">生产基地</div><div class="spec-box__v"><span data-count="24000">0</span><span class="spec-box__u">m²</span></div></div>
+      <div class="spec-box reveal reveal-d2"><div class="spec-box__k">自动化产线</div><div class="spec-box__v"><span data-count="6">0</span><span class="spec-box__u">条</span></div></div>
+      <div class="spec-box reveal reveal-d3"><div class="spec-box__k">月产能</div><div class="spec-box__v">—<span class="spec-box__u">万只</span></div></div>
+      <div class="spec-box reveal reveal-d4"><div class="spec-box__k">老化测试位</div><div class="spec-box__v"><span data-count="1200">0</span><span class="spec-box__u">个</span></div></div>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <div class="card-lum reveal reveal-d1" style="padding:var(--space-lg);">
+        <div class="spec-box__k">SMT 贴片</div>
+        <p class="small mt-sm" style="color:var(--text-on-dark-muted)">全自动贴片与回流焊，保证光源板一致性。</p>
+      </div>
+      <div class="card-lum reveal reveal-d2" style="padding:var(--space-lg);">
+        <div class="spec-box__k">结构与装配</div>
+        <p class="small mt-sm" style="color:var(--text-on-dark-muted)">注塑、压铸与组装产线，支持多材质灯具生产。</p>
+      </div>
+      <div class="card-lum reveal reveal-d3" style="padding:var(--space-lg);">
+        <div class="spec-box__k">老化和品控</div>
+        <p class="small mt-sm" style="color:var(--text-on-dark-muted)">批量老化与光电参数抽检，逐批出具测试报告。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="section-lg" style="background:var(--surface-bg);" aria-labelledby="about-cta">
+  <div class="container center relative">
+    <span class="overline">04 / 与我们合作</span>
+    <h2 class="display mt-md mx-auto" id="about-cta" style="max-width:20ch;">想聊聊，<br>您正在找的那束光？</h2>
+    <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
+      <a class="btn btn--primary btn--lg" href="contact.html">联系我们</a>
+      <a class="btn btn--secondary btn--lg" href="odm.html">了解 ODM 服务</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">照明整体解决方案提供商。ODM 设计 · 通用照明 · 植物照明。</p>
+      </div>
+      <div class="footer__col">
+        <h4>业务线</h4>
+        <a href="odm.html">ODM 设计</a>
+        <a href="lighting.html">通用照明灯具</a>
+        <a href="grow-light.html">植物照明灯具</a>
+      </div>
+      <div class="footer__col">
+        <h4>公司</h4>
+        <a href="about.html">关于我们</a>
+        <a href="about.html#history">发展历程</a>
+        <a href="about.html#factory">工厂与产能</a>
+        <a href="contact.html">联系我们</a>
+      </div>
+      <div class="footer__col">
+        <h4>联系</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="contact.html">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
+      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>
