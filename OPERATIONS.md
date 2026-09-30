@@ -108,32 +108,56 @@ cd /opt/wx-seastar/server && npm install --omit=dev
 
 ## 4. 发布流程
 
-### 静态站（页面/样式）
+### 主路径：push 即自动上线（**推荐**）
 
 ```
 git push origin main
 ```
-→ GitHub Actions 自动同步到 `/var/www/wx-seastar`（含部署前整站备份）
+
+**最多 2 分钟**后自动上线。原理是**服务器自己去拉代码**——
+服务器上有个 systemd timer 每 2 分钟检查一次 GitHub 有没有新提交。
+
+```bash
+# 看自动部署的日志
+journalctl -u wx-seastar-deploy -n 50 --no-pager
+
+# 看下次什么时候检查
+systemctl list-timers wx-seastar-deploy.timer
+
+# 不想等 2 分钟，立刻跑一次
+systemctl start wx-seastar-deploy.service
+```
+
+**为什么不用 GitHub Actions 直接推？**
+实测 runner → 本服务器的 SSH/SCP 链路**不稳定**：会卡住、留下僵尸会话，
+加 `BatchMode` 和超时参数都压不住。与其在那条路上反复打补丁，
+不如让服务器自己拉 —— 出网正常，且完全不依赖 runner 的网络环境。
+GitHub Actions 仍然保留着，能跑通就是"快通道"，跑不通也不影响上线。
+
+### 上线范围
+
+由 `deploy/auto-deploy.sh` 里的 `FILES` 白名单决定（与 CI 的清单一致）。
+**新增页面/静态文件时，这里和 `.github/workflows/deploy-lighthouse.yml` 的 `FILES` 都要改。**
 
 ### 后端（server 目录）
 
-后端代码不在静态发布白名单里，需单独同步：
-
-```bash
-cd "D:/AI Using/wx-seastar"
-tar czf - --exclude='node_modules' server \
-  | ssh -i ~/.ssh/pfc_ci root@43.142.148.37 "
-      tar xzf - -C /opt/wx-seastar
-      chown -R www-data:www-data /opt/wx-seastar
-      chmod -R o-w /opt/wx-seastar/server
-      systemctl restart wx-seastar"
-```
-（`server/package.json` 的依赖有变化时，需在服务器上额外执行一次 `npm install --omit=dev`）
+后端代码**在上线范围内**，脚本会自动同步；
+只有代码真有变化时才重启服务（避免无谓中断）。
+`package.json` 变了会自动 `npm install`。
 
 ### 删除了已发布的文件
 
-CI 是**增量覆盖**，不会删服务器上的旧文件。删除时要把路径补进
-`deploy/obsolete.txt`，部署时会自动清理。
+把路径补进 `deploy/obsolete.txt`，部署时会自动清理。
+
+### 出问题要回滚
+
+每次部署前会整站备份到 `/root/webroot-backup-<时间戳>.tar.gz`（保留最近 5 份）：
+
+```bash
+ls -lt /root/webroot-backup-*.tar.gz | head -3
+tar xzf /root/webroot-backup-2026-09-30-125842.tar.gz -C /var/www/wx-seastar
+chown -R www-data:www-data /var/www/wx-seastar
+```
 
 ---
 
@@ -142,13 +166,18 @@ CI 是**增量覆盖**，不会删服务器上的旧文件。删除时要把路�
 | 现象 | 先查什么 |
 |---|---|
 | 后台打不开 | `systemctl status wx-seastar`；`journalctl -u wx-seastar -n 50` |
-| 前台产品不显示 | 打开浏览器控制台看 `/api/public/products` 是否报错；检查服务是否在跑 |
-| 上传失败 | 文件是否超限（图片 12MB / 文档 80MB）；`/etc/wx-seastar.env` 里的上限；磁盘 `df -h` |
+| 前台产品不显示 | 浏览器控制台看 `/api/public/products` 是否报错；服务是否在跑 |
+| 上传失败 | 文件是否超限（图片 12MB / 文档 80MB）；磁盘 `df -h` |
 | 图片 404 | `/var/www/wx-seastar/uploads/img` 下是否有该文件；属主是否 www-data |
 | 忘记密码 | 用上面第 3 节的 `--reset` 重置 |
-| 改了内容前台没变 | 浏览器强刷（Ctrl+F5）；确认保存成功；看接口返回值 |
+| **push 后没上线** | `journalctl -u wx-seastar-deploy -n 50`；`systemctl list-timers`；确认 timer 在跑 |
+| 改了内容前台没变 | 浏览器强刷（Ctrl+F5）；确认保存成功 |
 
-**所有异常的第一步都是看日志**：`journalctl -u wx-seastar -n 100 --no-pager`
+**排查任何异常的第一步都是看日志**：
+```bash
+journalctl -u wx-seastar -n 100 --no-pager          # 站点服务
+journalctl -u wx-seastar-deploy -n 100 --no-pager   # 自动部署
+```
 
 ---
 
@@ -156,12 +185,14 @@ CI 是**增量覆盖**，不会删服务器上的旧文件。删除时要把路�
 
 | 备份对象 | 频率 | 方式 |
 |---|---|---|
-| 数据库 | 每天 | `sqlite3 .backup` 到 `/root/`，保留 30 天 |
-| 上传文件 | 每周 | `tar czf` 到 `/root/` 或下载到本地 |
+| 数据库 | 每天 | `sqlite3 /var/lib/wx-seastar/data.db ".backup '/root/wx-seastar-db-$(date +%F).db'"` |
+| 上传文件 | 每周 | `tar czf /root/uploads-$(date +%F).tar.gz -C /var/www/wx-seastar uploads` |
+| 站点文件 | 每次部署自动 | `/root/webroot-backup-*.tar.gz`（保留 5 份） |
 | 代码 | 每次发布 | 已在 GitHub |
 
-> 目前**尚未配置自动备份**。数据量很小（数据库通常 < 1MB），
-> 建议加一条 cron；需要的话可以补上。
+> **数据库与上传文件尚未配置自动备份**（站点文件的备份是自动的）。
+> 这两样正是"丢了就没了"的数据，建议加一条 cron。
+> 数据量很小（数据库通常 < 1MB），备份成本几乎为零。
 
 ---
 
@@ -170,7 +201,7 @@ CI 是**增量覆盖**，不会删服务器上的旧文件。删除时要把路�
 - **加中英双语前台**：数据库字段已预留（`title_zh`/`title_en` 等），
   前台 `js/site.js` 里的 `setLang('en')` 即可切换；只需要再做一套英文页面。
 - **换数据库**：只改 `server/src/lib/db.js` 一个文件（全项目唯一接触 SQL 的地方）。
-- **上传到对象存储**：`server/src/lib/upload.js` 是唯一的上传落盘处，
-  可改为写入腾讯云 COS。
-- **加通知**：客户留言后发邮件提醒 —— 在 `public.routes.js` 的留言插入处挂钩子即可
-  （`config.js` 已预留 `NOTIFY_TO` 配置位）。
+- **上传到对象存储**：`server/src/lib/upload.js` 是唯一的上传落盘处，可改为写入腾讯云 COS。
+- **加留言通知**：在 `public.routes.js` 的留言插入处挂钩子（`config.js` 已预留 `NOTIFY_TO`）。
+- **调整自动部署频率**：改 `/etc/systemd/system/wx-seastar-deploy.timer` 里的
+  `OnUnitActiveSec=2min`，然后 `systemctl daemon-reload && systemctl restart wx-seastar-deploy.timer`。
