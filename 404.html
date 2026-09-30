@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  页面：404.html —— 页面未找到
+  用途：由 nginx `error_page 404 /404.html` 接管；同时作为静态托管的兜底页。
+  说明：本页为深色锚定区（--night-950），延续首页 Hero 的光锥语言，
+        与全站「暗中有光」保持一致。不参与索引（noindex）。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>页面未找到 · SEA☆STAR 实益达</title>
+<meta name="description" content="您访问的页面不存在或已被移动。请返回 SEA☆STAR 实益达官网首页，或联系我们获取照明方案与报价。">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://www.wx-seastar.cn/">
+<meta name="theme-color" content="#0F0F1A">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SEA☆STAR 实益达">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="页面未找到 · SEA☆STAR 实益达">
+<meta property="og:description" content="您访问的页面不存在或已被移动。">
+<meta property="og:url" content="https://www.wx-seastar.cn/">
+<meta property="og:image" content="https://www.wx-seastar.cn/assets/seastar-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+<!-- 无 JS 兜底：.reveal 元素默认 opacity:0，由 IntersectionObserver 加 .is-in 显形。
+     若脚本被拦截或加载失败，此规则保证内容仍然可见。 -->
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+</head>
+<body>
+
+<!-- ==================== 导航（深色，与暗底页一致） ==================== -->
+<header class="nav nav--transparent nav--dark" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="index.html" aria-label="SEA☆STAR 实益达 · 无锡市益明光电有限公司 首页">
+      <span class="brand-swap"><img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <a href="odm.html">ODM 设计</a>
+      <a href="lighting.html">通用照明</a>
+      <a href="grow-light.html">植物灯具</a>
+      <a href="about.html">关于我们</a>
+      <a href="contact.html">联系我们</a>
+    </nav>
+    <div class="nav__right">
+      <a class="btn btn--primary btn--sm" href="contact.html">获取报价</a>
+      <button class="nav__burger" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- 移动端抽屉 -->
+<div class="drawer" aria-hidden="true">
+  <button class="drawer__close" aria-label="关闭菜单">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="odm.html">ODM 设计</a>
+  <a href="lighting.html">通用照明</a>
+  <a href="grow-light.html">植物灯具</a>
+  <a href="about.html">关于我们</a>
+  <a href="contact.html">联系我们</a>
+  <a class="btn btn--primary btn--lg drawer__cta" href="contact.html" style="display:inline-flex;width:fit-content;">获取报价</a>
+</div>
+
+<main>
+
+<!-- ==================== 404 主体（深色 · 光锥） ==================== -->
+<section class="dark darker section-lg" style="min-height:72vh;display:grid;place-items:center;position:relative;overflow:hidden;padding-top:150px;">
+  <div class="hero-home__beam" aria-hidden="true"></div>
+  <div class="hero-home__ambient" aria-hidden="true"></div>
+
+  <div class="container center" style="position:relative;z-index:2;">
+    <p class="overline">ERROR / 404</p>
+    <h1 class="display mt-lg">页面未找到</h1>
+    <p class="body-l mt-lg text-secondary" style="max-width:56ch;margin-inline:auto;">
+      您访问的页面不存在，或已被移动。请使用下方入口继续浏览，或直接与我们联系。
+    </p>
+    <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
+      <a class="btn btn--primary btn--lg" href="index.html">返回首页</a>
+      <a class="btn btn--ghost btn--lg" href="contact.html">联系我们</a>
+    </div>
+
+    <div class="divider mt-2xl" aria-hidden="true"></div>
+
+    <div class="flex gap-md mt-lg justify-center" style="flex-wrap:wrap;">
+      <a class="link-arrow" href="odm.html">ODM 设计 →</a>
+      <a class="link-arrow" href="lighting.html">通用照明 →</a>
+      <a class="link-arrow" href="grow-light.html">植物灯具 →</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ==================== 页脚 ==================== -->
+<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">
+          照明整体解决方案提供商。ODM 设计 · 通用照明 · 植物照明。
+        </p>
+        <div class="flex gap-sm mt-lg" style="flex-wrap:wrap;">
+          <span class="badge badge--neutral">ISO 9001</span>
+          <span class="badge badge--neutral">CE</span>
+          <span class="badge badge--neutral">UL</span>
+        </div>
+      </div>
+
+      <div class="footer__col">
+        <h4>业务线</h4>
+        <a href="odm.html">ODM 设计</a>
+        <a href="lighting.html">通用照明灯具</a>
+        <a href="grow-light.html">植物照明灯具</a>
+      </div>
+      <div class="footer__col">
+        <h4>公司</h4>
+        <a href="about.html">关于我们</a>
+        <a href="about.html#history">发展历程</a>
+        <a href="about.html#factory">工厂与产能</a>
+        <a href="contact.html">联系我们</a>
+      </div>
+      <div class="footer__col">
+        <h4>联系</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="contact.html">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
+      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

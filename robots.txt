@@ -1,0 +1,8 @@
+# SEA☆STAR 实益达 — 无锡市益明光电有限公司
+# https://www.wx-seastar.cn/
+
+User-agent: *
+Allow: /
+Disallow: /404.html
+
+Sitemap: https://www.wx-seastar.cn/sitemap.xml
