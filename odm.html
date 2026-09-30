@@ -11,7 +11,7 @@
 <title>ODM 设计服务 · SEA☆STAR 实益达 — 从概念到量产的灯具定制开发</title>
 <meta name="description" content="SEA☆STAR 实益达 ODM 设计服务：需求分析、概念设计、结构工程、样品验证到量产支持的端到端灯具定制开发。">
 <link rel="canonical" href="https://www.wx-seastar.cn/odm.html">
-<meta name="theme-color" content="#0F0F1A">
+<meta name="theme-color" content="var(--ink-900)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SEA☆STAR 实益达">
 <meta property="og:locale" content="zh_CN">
@@ -88,21 +88,21 @@
 
       <!-- 设计草图 / 光效示意 -->
       <div class="reveal reveal-d2 relative">
-        <div style="position:relative;border-radius:var(--radius-2xl);overflow:hidden;border:1px solid var(--border-subtle);background:linear-gradient(160deg,var(--brand-amber-50),var(--neutral-100));aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;">
+        <div style="position:relative;border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border-subtle);background:linear-gradient(160deg,var(--brand-25),var(--neutral-100));aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;">
           <svg viewBox="0 0 400 300" fill="none" style="width:78%;" aria-hidden="true">
             <!-- 灯具设计线稿 -->
-            <ellipse cx="200" cy="252" rx="90" ry="12" fill="#F5A623" opacity=".22"/>
+            <ellipse cx="200" cy="252" rx="90" ry="12" fill="var(--brand-500)" opacity=".22"/>
             <path d="M110 110 L200 40 L290 110 Z" fill="none" stroke="#111827" stroke-width="1.6" stroke-linejoin="round"/>
-            <path d="M110 110 Q200 132 290 110" fill="none" stroke="#B87408" stroke-width="2"/>
+            <path d="M110 110 Q200 132 290 110" fill="none" stroke="var(--brand-700)" stroke-width="2"/>
             <path d="M200 40 V16" stroke="#111827" stroke-width="1.6"/>
             <path d="M150 118 V150 M200 124 V164 M250 118 V150" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4 4"/>
             <!-- 标注线 -->
             <path d="M310 40 H360 M310 110 H360" stroke="#D1D5DB" stroke-width="1"/>
             <path d="M355 40 V110" stroke="#D1D5DB" stroke-width="1"/>
-            <circle cx="355" cy="75" r="1.5" fill="#B87408"/>
+            <circle cx="355" cy="75" r="1.5" fill="var(--brand-700)"/>
             <text x="332" y="72" font-family="JetBrains Mono,monospace" font-size="9" fill="#6B7280">H</text>
             <!-- 光晕 -->
-            <ellipse cx="200" cy="112" rx="86" ry="16" fill="#F5A623" opacity=".28"/>
+            <ellipse cx="200" cy="112" rx="86" ry="16" fill="var(--brand-500)" opacity=".28"/>
           </svg>
         </div>
       </div>
@@ -219,14 +219,7 @@
 
     <div class="grid grid-3 mt-3xl">
       <article class="case-card sheen reveal reveal-d1">
-        <div class="case-card__media" style="background:linear-gradient(150deg,var(--brand-amber-50),var(--neutral-200));">
-          <svg viewBox="0 0 300 190" fill="none" style="width:70%;" aria-hidden="true">
-            <ellipse cx="150" cy="150" rx="70" ry="9" fill="#F5A623" opacity=".25"/>
-            <rect x="105" y="60" width="90" height="70" rx="10" fill="#1A1A2E"/>
-            <rect x="112" y="98" width="76" height="6" rx="3" fill="#FFB84D"/>
-            <path d="M150 34v26" stroke="#111827" stroke-width="1.6"/>
-          </svg>
-        </div>
+        <div class="case-card__media"><img src="assets/img/prod-linear-round.jpg" alt="北欧风木质感吊灯系列" loading="lazy" decoding="async"></div>
         <div class="case-card__body">
           <span class="product-card__cat">Residential · Pendant</span>
           <h3>北欧风木质感吊灯系列</h3>
@@ -235,14 +228,7 @@
       </article>
 
       <article class="case-card sheen reveal reveal-d2">
-        <div class="case-card__media" style="background:linear-gradient(150deg,var(--neutral-100),var(--neutral-300));">
-          <svg viewBox="0 0 300 190" fill="none" style="width:76%;" aria-hidden="true">
-            <ellipse cx="150" cy="152" rx="90" ry="8" fill="#F5A623" opacity=".2"/>
-            <rect x="60" y="56" width="180" height="12" rx="6" fill="#111827"/>
-            <rect x="62" y="68" width="176" height="5" rx="2.5" fill="#FFB84D" opacity=".85"/>
-            <path d="M84 73v46M150 73v52M216 73v46" stroke="#9CA3AF" stroke-width="1"/>
-          </svg>
-        </div>
+        <div class="case-card__media"><img src="assets/img/prod-wrpx3.jpg" alt="办公空间线性照明系统" loading="lazy" decoding="async"></div>
         <div class="case-card__body">
           <span class="product-card__cat">Commercial · Linear</span>
           <h3>办公空间线性照明系统</h3>
@@ -251,14 +237,7 @@
       </article>
 
       <article class="case-card sheen reveal reveal-d3">
-        <div class="case-card__media" style="background:linear-gradient(150deg,var(--night-900),var(--night-700));">
-          <svg viewBox="0 0 300 190" fill="none" style="width:70%;" aria-hidden="true">
-            <ellipse cx="150" cy="152" rx="80" ry="8" fill="#DC2626" opacity=".3"/>
-            <rect x="85" y="52" width="130" height="18" rx="4" fill="#16162A" stroke="#33334F"/>
-            <rect x="88" y="70" width="124" height="6" rx="3" fill="#EF4444" opacity=".85"/>
-            <rect x="88" y="63" width="124" height="6" rx="3" fill="#3B82F6" opacity=".75"/>
-          </svg>
-        </div>
+        <div class="case-card__media"><img src="assets/img/prod-neon-strip.jpg" alt="垂直农场专用植物光条" loading="lazy" decoding="async"></div>
         <div class="case-card__body">
           <span class="product-card__cat">Horticulture · Bar</span>
           <h3>垂直农场专用植物光条</h3>
@@ -267,14 +246,7 @@
       </article>
 
       <article class="case-card sheen reveal reveal-d1">
-        <div class="case-card__media" style="background:linear-gradient(150deg,var(--neutral-100),var(--brand-amber-50));">
-          <svg viewBox="0 0 300 190" fill="none" style="width:64%;" aria-hidden="true">
-            <ellipse cx="150" cy="150" rx="56" ry="10" fill="#F5A623" opacity=".28"/>
-            <path d="M100 96 L150 44 L200 96 Z" fill="#1A1A2E"/>
-            <ellipse cx="150" cy="96" rx="50" ry="9" fill="#FFB84D" opacity=".8"/>
-            <path d="M150 44 V22" stroke="#111827" stroke-width="1.6"/>
-          </svg>
-        </div>
+        <div class="case-card__media"><img src="assets/img/prod-cdx11.jpg" alt="零售店铺轨道射灯" loading="lazy" decoding="async"></div>
         <div class="case-card__body">
           <span class="product-card__cat">Retail · Track</span>
           <h3>零售店铺轨道射灯</h3>
@@ -283,13 +255,7 @@
       </article>
 
       <article class="case-card sheen reveal reveal-d2">
-        <div class="case-card__media" style="background:linear-gradient(150deg,var(--neutral-200),var(--neutral-100));">
-          <svg viewBox="0 0 300 190" fill="none" style="width:70%;" aria-hidden="true">
-            <ellipse cx="150" cy="154" rx="64" ry="8" fill="#F5A623" opacity=".2"/>
-            <path d="M120 46 H180 L188 118 H112 Z" fill="#1A1A2E"/>
-            <path d="M118 112 H182" stroke="#FFB84D" stroke-width="3"/>
-          </svg>
-        </div>
+        <div class="case-card__media"><img src="assets/img/prod-series-a.jpg" alt="庭院景观草坪灯" loading="lazy" decoding="async"></div>
         <div class="case-card__body">
           <span class="product-card__cat">Outdoor · Bollard</span>
           <h3>庭院景观草坪灯</h3>
@@ -298,14 +264,7 @@
       </article>
 
       <article class="case-card sheen reveal reveal-d3">
-        <div class="case-card__media" style="background:linear-gradient(150deg,var(--brand-amber-50),var(--neutral-200));">
-          <svg viewBox="0 0 300 190" fill="none" style="width:66%;" aria-hidden="true">
-            <ellipse cx="150" cy="150" rx="54" ry="9" fill="#F5A623" opacity=".24"/>
-            <circle cx="150" cy="96" r="42" fill="#1A1A2E"/>
-            <circle cx="150" cy="96" r="30" fill="#FFB84D" opacity=".28"/>
-            <circle cx="150" cy="96" r="30" fill="none" stroke="#FFB84D" stroke-width="2"/>
-          </svg>
-        </div>
+        <div class="case-card__media"><img src="assets/img/prod-fmx15-b.jpg" alt="球形氛围台灯" loading="lazy" decoding="async"></div>
         <div class="case-card__body">
           <span class="product-card__cat">Decorative · Sphere</span>
           <h3>球形氛围台灯</h3>

@@ -12,7 +12,7 @@
 <title>SEA☆STAR 实益达 · 让光，恰到好处 — 照明灯具整体解决方案</title>
 <meta name="description" content="SEA☆STAR 实益达 是一家面向全球市场的照明整体解决方案提供商，业务涵盖 ODM 灯具设计、通用照明灯具与植物照明灯具。">
 <link rel="canonical" href="https://www.wx-seastar.cn/">
-<meta name="theme-color" content="#0F0F1A">
+<meta name="theme-color" content="var(--ink-900)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SEA☆STAR 实益达">
 <meta property="og:locale" content="zh_CN">
@@ -69,30 +69,19 @@
 
 <main>
 
-<!-- ==================== Hero（深色 · beam-cone 光锥） ==================== -->
+<!-- ==================== Hero（满幅实景 · 图上叠字） ==================== -->
 <section class="hero-home">
-  <div class="hero-home__grid" aria-hidden="true"></div>
-  <div class="hero-home__beam" aria-hidden="true"></div>
-  <div class="hero-home__ambient" aria-hidden="true"></div>
-
-  <!-- 灯剪影（内联 SVG 装饰，光源） -->
-  <div class="hero-lamp" aria-hidden="true">
-    <svg viewBox="0 0 200 300" fill="none">
-      <path d="M100 4v40" stroke="#F5A623" stroke-width="2" stroke-linecap="round" opacity=".7"/>
-      <path d="M40 118 L100 44 L160 118 Z" fill="#1A1A2E" stroke="#33334F" stroke-width="1.5"/>
-      <ellipse cx="100" cy="120" rx="62" ry="10" fill="#F5A623" opacity=".55"/>
-      <path d="M40 118 Q100 138 160 118" stroke="#FFB84D" stroke-width="2"/>
-      <path d="M70 190 Q100 260 130 190" stroke="#FFB84D" stroke-width="1.4" opacity=".35" fill="none"/>
-    </svg>
+  <div class="hero-media hero-media--soft" aria-hidden="true">
+    <img src="assets/img/hero-factory.jpg" alt="" width="1920" height="1080" fetchpriority="high" decoding="async">
   </div>
 
   <div class="container hero-home__inner">
-    <div style="max-width:760px" class="ignite">
+    <div style="max-width:720px" class="ignite">
       <span class="overline">照明整体解决方案 · 实益达集团成员企业</span>
       <h1 class="display-xl mt-md">
-        让光，<span class="accent-word">恰到好处</span>。
+        让光，<span class="accent-word" style="color:var(--brand-200)">恰到好处</span>。
       </h1>
-      <p class="body-l mt-lg" style="color:var(--text-on-dark-muted);max-width:56ch;">
+      <p class="body-l mt-lg" style="max-width:56ch;">
         我们以光学工程为骨、以设计美学为魂，为全球客户提供从 ODM 定制设计、通用照明灯具到专业植物照明的全链路照明解决方案。
       </p>
       <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">
@@ -102,14 +91,10 @@
         </a>
       </div>
 
-      <!-- 信息胶囊（玻璃拟态） -->
+      <!-- 信息胶囊 -->
       <div class="flex gap-lg mt-3xl" style="flex-wrap:wrap;">
-        <div class="mono small" style="color:var(--text-on-dark-muted);padding:10px 16px;border:1px solid var(--glass-dark-border);background:var(--glass-dark);border-radius:var(--radius-full);backdrop-filter:blur(16px) saturate(140%);">
-          <span style="color:var(--brand-amber-500)">2700K–6500K</span> 全色温覆盖
-        </div>
-        <div class="mono small" style="color:var(--text-on-dark-muted);padding:10px 16px;border:1px solid var(--glass-dark-border);background:var(--glass-dark);border-radius:var(--radius-full);backdrop-filter:blur(16px) saturate(140%);">
-          <span style="color:var(--brand-amber-500)">CE · CCC · UL · RoHS</span> 全球认证
-        </div>
+        <div class="mono small hero-chip"><span>2700K–6500K</span>&nbsp;全色温覆盖</div>
+        <div class="mono small hero-chip"><span>CE · CCC · UL · RoHS</span>&nbsp;全球认证</div>
       </div>
     </div>
   </div>
@@ -127,8 +112,9 @@
     <div class="grid grid-3 mt-3xl">
       <!-- ODM -->
       <article class="biz-card sheen reveal reveal-d1">
-        <span class="biz-card__glow" aria-hidden="true"></span>
-        <div class="biz-card__icon">
+        <div class="biz-card__media"><img src="assets/img/scene-line.jpg" alt="自动化产线 · 机械臂工位" loading="lazy" decoding="async"></div>
+        <div class="biz-card__body">
+          <div class="biz-card__icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 2 2-7 7-3 1 1-3z"/><path d="M17 6l1.5-1.5a2.1 2.1 0 0 1 3 3L20 9"/><path d="M3 21l4-1"/></svg>
         </div>
         <span class="biz-card__tag">ODM Design</span>
@@ -137,12 +123,14 @@
         <a class="link-arrow" href="odm.html">了解 ODM 服务
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
+        </div>
       </article>
 
       <!-- 通用照明 -->
       <article class="biz-card sheen reveal reveal-d2">
-        <span class="biz-card__glow" aria-hidden="true"></span>
-        <div class="biz-card__icon">
+        <div class="biz-card__media"><img src="assets/img/scene-test-rack.jpg" alt="灯具测试架 · 老化车间" loading="lazy" decoding="async"></div>
+        <div class="biz-card__body">
+          <div class="biz-card__icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 6 6c0 2.2-1.2 3.6-2.3 4.8-.7.8-.7 1.2-.7 2.2H9c0-1-.1-1.4-.7-2.2C7.2 12.6 6 11.2 6 9a6 6 0 0 1 6-6z"/></svg>
         </div>
         <span class="biz-card__tag">General Lighting</span>
@@ -151,12 +139,14 @@
         <a class="link-arrow" href="lighting.html">浏览产品系列
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
+        </div>
       </article>
 
       <!-- 植物灯（暗底强调） -->
       <article class="biz-card biz-card--plant sheen reveal reveal-d3">
-        <span class="biz-card__glow" aria-hidden="true"></span>
-        <div class="biz-card__icon">
+        <div class="biz-card__media"><img src="assets/img/scene-lab-sphere.jpg" alt="积分球光度实验室" loading="lazy" decoding="async"></div>
+        <div class="biz-card__body">
+          <div class="biz-card__icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V10"/><path d="M12 10c0-4 2.5-7 7-7 0 4-2.5 7-7 7z"/><path d="M12 14c0-3-2-5.5-5.5-5.5C6.5 11.5 9 14 12 14z"/></svg>
         </div>
         <span class="biz-card__tag">Horticulture Lighting</span>
@@ -165,6 +155,7 @@
         <a class="link-arrow" href="grow-light.html">查看光谱方案
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
+        </div>
       </article>
     </div>
   </div>
@@ -239,23 +230,12 @@
       <article class="product-card reveal reveal-d1">
         <div class="product-card__media">
           <div class="product-card__badges"><span class="badge badge--brand">热销</span></div>
-          <svg viewBox="0 0 200 150" fill="none" aria-hidden="true">
-            <ellipse cx="100" cy="120" rx="52" ry="8" fill="#F5A623" opacity=".30"/>
-            <path d="M60 60h80l-10 48H70z" fill="#1A1A2E"/>
-            <ellipse cx="100" cy="60" rx="40" ry="9" fill="#FFB84D" opacity=".85"/>
-            <path d="M100 22v38" stroke="#111827" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="100" cy="20" r="5" fill="#111827"/>
-          </svg>
+          <img src="assets/img/prod-cdx2-ble.jpg" alt="CDX2 MESH BLE 无线控制商业筒灯" loading="lazy" decoding="async">
         </div>
         <div class="product-card__body">
-          <span class="product-card__cat">General / Pendant</span>
-          <h3 class="product-card__title">Aurora 系列 · 吊线灯</h3>
-          <div class="product-card__specs">
-            <div class="mini-spec"><div class="mini-spec__k">CCT</div><div class="mini-spec__v">3000K / 4000K</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">Output</div><div class="mini-spec__v">—  lm</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">Power</div><div class="mini-spec__v">12W / 18W</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">CRI</div><div class="mini-spec__v">Ra&gt;90</div></div>
-          </div>
+          <span class="product-card__cat">Commercial / Downlight</span>
+          <h3 class="product-card__title">CDX2 MESH BLE 无线控制商业筒灯</h3>
+          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">CDX2</div></div><div class="mini-spec"><div class="mini-spec__k">Control</div><div class="mini-spec__v">MESH BLE</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Recessed</div></div><div class="mini-spec"><div class="mini-spec__k">Cert.</div><div class="mini-spec__v">CE / UL / RoHS</div></div></div>
         </div>
       </article>
 
@@ -263,46 +243,25 @@
       <article class="product-card reveal reveal-d2">
         <div class="product-card__media">
           <div class="product-card__badges"><span class="badge badge--tech">新品</span></div>
-          <svg viewBox="0 0 200 150" fill="none" aria-hidden="true">
-            <ellipse cx="100" cy="124" rx="56" ry="7" fill="#F5A623" opacity=".28"/>
-            <rect x="50" y="40" width="100" height="14" rx="7" fill="#1A1A2E"/>
-            <rect x="52" y="54" width="96" height="6" rx="3" fill="#FFB84D" opacity=".8"/>
-            <path d="M66 60v42M100 60v46M134 60v42" stroke="#9CA3AF" stroke-width="1.2" opacity=".6"/>
-          </svg>
+          <img src="assets/img/prod-wrpx3.jpg" alt="WRPX3 棱镜环绕灯具" loading="lazy" decoding="async">
         </div>
         <div class="product-card__body">
-          <span class="product-card__cat">General / Linear</span>
-          <h3 class="product-card__title">Linea 系列 · 线性灯</h3>
-          <div class="product-card__specs">
-            <div class="mini-spec"><div class="mini-spec__k">CCT</div><div class="mini-spec__v">4000K / 5700K</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">Output</div><div class="mini-spec__v">—  lm</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">Power</div><div class="mini-spec__v">24W / 36W</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">UGR</div><div class="mini-spec__v">&lt;19</div></div>
-          </div>
+          <span class="product-card__cat">Commercial / Wraparound</span>
+          <h3 class="product-card__title">WRPX3 棱镜环绕灯具</h3>
+          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">WRPX3</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Prismatic</div></div><div class="mini-spec"><div class="mini-spec__k">Mount</div><div class="mini-spec__v">Surface</div></div><div class="mini-spec"><div class="mini-spec__k">Cert.</div><div class="mini-spec__v">CE / UL / RoHS</div></div></div>
         </div>
       </article>
 
       <!-- 产品 3 -->
       <article class="product-card reveal reveal-d3">
         <div class="product-card__media">
-          <div class="product-card__badges"><span class="badge badge--success">专业级</span></div>
-          <svg viewBox="0 0 200 150" fill="none" aria-hidden="true">
-            <ellipse cx="100" cy="122" rx="58" ry="8" fill="#DC2626" opacity=".25"/>
-            <rect x="36" y="46" width="128" height="20" rx="4" fill="#1A1A2E"/>
-            <rect x="38" y="66" width="124" height="6" rx="3" fill="#EF4444" opacity=".8"/>
-            <rect x="38" y="60" width="124" height="6" rx="3" fill="#3B82F6" opacity=".7"/>
-            <path d="M60 72v34M100 72v40M140 72v34" stroke="#33334F" stroke-width="1.2"/>
-          </svg>
+          <div class="product-card__badges"><span class="badge badge--brand">主推</span></div>
+          <img src="assets/img/prod-fmx15.jpg" alt="FMX15 超薄吸顶面板灯" loading="lazy" decoding="async">
         </div>
         <div class="product-card__body">
-          <span class="product-card__cat">Horticulture / Bar</span>
-          <h3 class="product-card__title">Chloros 系列 · 植物光条</h3>
-          <div class="product-card__specs">
-            <div class="mini-spec"><div class="mini-spec__k">PPF</div><div class="mini-spec__v">—  μmol/s</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">PPE</div><div class="mini-spec__v">—  μmol/J</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">Spectrum</div><div class="mini-spec__v">R:B 4:1</div></div>
-            <div class="mini-spec"><div class="mini-spec__k">Power</div><div class="mini-spec__v">—  W</div></div>
-          </div>
+          <span class="product-card__cat">Commercial / Surface Mount</span>
+          <h3 class="product-card__title">FMX15 超薄吸顶面板灯</h3>
+          <div class="product-card__specs"><div class="mini-spec"><div class="mini-spec__k">Series</div><div class="mini-spec__v">FMX15</div></div><div class="mini-spec"><div class="mini-spec__k">Type</div><div class="mini-spec__v">Slim Surface</div></div><div class="mini-spec"><div class="mini-spec__k">Aperture</div><div class="mini-spec__v">5–24 in</div></div><div class="mini-spec"><div class="mini-spec__k">Cert.</div><div class="mini-spec__v">CE / UL / RoHS</div></div></div>
         </div>
       </article>
     </div>
@@ -340,8 +299,8 @@
         <svg viewBox="0 0 640 300" role="img" aria-label="相对光谱功率分布曲线">
           <defs>
             <linearGradient id="specFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#F5A623" stop-opacity=".45"/>
-              <stop offset="100%" stop-color="#F5A623" stop-opacity="0"/>
+              <stop offset="0%" stop-color="var(--brand-500)" stop-opacity=".45"/>
+              <stop offset="100%" stop-color="var(--brand-500)" stop-opacity="0"/>
             </linearGradient>
           </defs>
           <!-- 网格 -->
@@ -352,9 +311,9 @@
           <!-- 面积填充 -->
           <path class="spectrum-area" d="M60 240 C110 232 140 150 190 140 C230 132 250 210 300 205 C350 200 360 120 420 110 C470 102 500 150 560 160 C590 165 610 190 620 205 L620 240 Z" fill="url(#specFill)"/>
           <!-- 曲线 -->
-          <path class="trace-path" d="M60 240 C110 232 140 150 190 140 C230 132 250 210 300 205 C350 200 360 120 420 110 C470 102 500 150 560 160 C590 165 610 190 620 205" fill="none" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round"/>
+          <path class="trace-path" d="M60 240 C110 232 140 150 190 140 C230 132 250 210 300 205 C350 200 360 120 420 110 C470 102 500 150 560 160 C590 165 610 190 620 205" fill="none" stroke="var(--brand-500)" stroke-width="2.5" stroke-linecap="round"/>
           <!-- 坐标轴 -->
-          <line x1="60" y1="240" x2="620" y2="240" stroke="#33334F" stroke-width="1"/>
+          <line x1="60" y1="240" x2="620" y2="240" stroke="var(--ink-700)" stroke-width="1"/>
           <g font-family="JetBrains Mono, monospace" font-size="10" fill="#6B7280">
             <text x="60" y="260">380</text>
             <text x="200" y="260">480</text>
@@ -372,16 +331,17 @@
   </div>
 </section>
 
-<!-- ==================== CTA 区 ==================== -->
+<!-- ==================== CTA 区（满幅实景 + 遮罩） ==================== -->
 <section class="section-lg dark cta-band" aria-labelledby="cta-title">
-  <div class="cta-band__beam" aria-hidden="true"></div>
-  <div class="cta-band__ambient" aria-hidden="true"></div>
+  <div class="hero-media" aria-hidden="true">
+    <img src="assets/img/scene-exterior.jpg" alt="" loading="lazy" decoding="async">
+  </div>
   <div class="container relative center">
     <span class="overline">05 / 开启合作</span>
     <h2 class="display mt-md" id="cta-title" style="max-width:18ch;margin-inline:auto;">
-      把您的照明构想，<br>交给一支<span style="color:var(--brand-amber-500);text-shadow:var(--glow-text-amber)">懂光</span>的团队
+      把您的照明构想，<br>交给一支<span style="color:var(--brand-200);">懂光</span>的团队
     </h2>
-    <p class="body-l mt-lg mx-auto" style="color:var(--text-on-dark-muted);max-width:52ch;">
+    <p class="body-l mt-lg mx-auto" style="max-width:52ch;">
       无论是 ODM 定制开发、通用照明选型，还是植物照明方案，我们都能在 3 个工作日内给出初步回应。
     </p>
     <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
