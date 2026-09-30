@@ -198,30 +198,65 @@
       <span class="overline">Find Us · 到达我们</span>
       <h2 class="h3" id="map-title" style="margin-top:var(--space-sm);">公司位置</h2>
     </div>
-    <div class="reveal" style="position:relative;border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border-subtle);aspect-ratio:21/8;min-height:260px;background:linear-gradient(160deg,var(--neutral-100),var(--neutral-200));">
-      <!-- 位置示意图（内联 SVG 绘制，非实时地图底图） -->
-      <svg viewBox="0 0 1000 380" fill="none" style="width:100%;height:100%;" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
-        <rect width="1000" height="380" fill="#F4F4F5"/>
-        <g stroke="#E5E7EB" stroke-width="1">
-          <path d="M0 60 H1000 M0 140 H1000 M0 220 H1000 M0 300 H1000"/>
-          <path d="M120 0 V380 M280 0 V380 M440 0 V380 M600 0 V380 M760 0 V380 M920 0 V380"/>
-        </g>
-        <!-- 主干道 -->
-        <path d="M0 190 H1000" stroke="#D1D5DB" stroke-width="6"/>
-        <path d="M500 0 V380" stroke="#D1D5DB" stroke-width="6"/>
-        <!-- 水系/绿地 -->
-        <path d="M0 320 Q250 280 500 330 T1000 310 V380 H0 Z" fill="#E5E7EB" opacity=".7"/>
-        <!-- 定位点（暖光） -->
-        <circle cx="500" cy="190" r="40" fill="var(--brand-500)" opacity=".14"/>
-        <circle cx="500" cy="190" r="20" fill="var(--brand-500)" opacity=".22"/>
-        <circle cx="500" cy="190" r="8" fill="var(--brand-500)"/>
-        <circle cx="500" cy="190" r="8" fill="none" stroke="#fff" stroke-width="2"/>
-      </svg>
-      <!-- 位置标签 -->
-      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-160%);background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:10px 16px;box-shadow:var(--shadow-floating);white-space:nowrap;">
-        <div class="mono" style="font-size:.6875rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary);">SEA☆STAR 实益达 HQ</div>
-        <div class="small" style="font-weight:500;">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</div>
+    <!--
+      「公司位置」区块
+      ────────────────────────────────────────────────────────────────
+      原来这里是一张**内联 SVG 画的假地图**（非真实底图），对访客没有实用价值。
+      改为「真实地址 + 一键导航」。
+
+      为什么不直接嵌一张真地图：国内可公开展示的地图只有
+      腾讯 / 高德 / 百度 / 天地图四家，都要自己申请 key + 域名白名单，
+      而 www.wx-seastar.cn 目前尚未完成 ICP 备案（高德会直接报 INVALID_DOMAIN）。
+      故先采用**官方便捷链接**方案：不需要 key、不需要备案、即刻可用。
+      （原官网 www.wx-seastar.com 用的是 Google Maps，在国内属不合规地图源，不能照搬。）
+
+      链接均为各家官方 URL 格式，非猜测：
+        高德 URI API  https://uri.amap.com/search?keyword=<kw>&city=<city>&src=<src>&callnative=1
+                      （官方文档：keyword 必选；callnative=1 在移动端尝试唤起高德 App）
+        百度地图      https://map.baidu.com/search/<kw>
+
+      检索词用**公司全称**而不是地址：地图上有该 POI 就精确命中，没有就搜不到
+      （访客可改用旁边的「复制地址」）。
+      —— 宁可搜不到，也不能搜到**别的地方**：地址里的「经十一路以西、经十三路以北」
+      是宗地描述，直接拿去检索反而可能落到错误位置。
+    -->
+    <div class="grid grid-2 reveal" style="gap:var(--space-2xl);align-items:stretch;">
+
+      <!-- 地址 -->
+      <div class="card" style="padding:var(--space-2xl);display:flex;flex-direction:column;">
+        <span class="badge badge--brand" style="align-self:flex-start;">SEA☆STAR 实益达 HQ</span>
+        <p class="h4" style="margin-top:var(--space-lg);line-height:1.55;">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</p>
+        <p class="small" style="color:var(--text-tertiary);margin-top:var(--space-md);">邮编 214145　·　电话 0510-68506661</p>
+        <div class="flex" style="gap:var(--space-md);margin-top:auto;padding-top:var(--space-xl);flex-wrap:wrap;">
+          <button class="btn btn--secondary" type="button"
+                  data-copy-text="江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            <span data-copy-label>复制地址</span>
+          </button>
+        </div>
       </div>
+
+      <!-- 导航 -->
+      <div class="card" style="padding:var(--space-2xl);display:flex;flex-direction:column;">
+        <h3 class="h4">导航到这里</h3>
+        <p class="small mt-sm" style="color:var(--text-secondary);">点击会在对应地图中打开本公司的位置；手机上会尝试直接唤起地图 App。</p>
+        <div class="stack-lg" style="margin-top:var(--space-xl);">
+          <a class="btn btn--primary btn--lg" style="width:100%;"
+             href="https://uri.amap.com/search?keyword=无锡市益明光电有限公司&amp;city=无锡&amp;src=wx-seastar-web&amp;callnative=1"
+             target="_blank" rel="noopener">
+            在高德地图中打开
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+          </a>
+          <a class="btn btn--secondary btn--lg" style="width:100%;"
+             href="https://map.baidu.com/search/无锡市益明光电有限公司"
+             target="_blank" rel="noopener">
+            在百度地图中打开
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+          </a>
+        </div>
+        <p class="small" style="color:var(--text-tertiary);margin-top:auto;padding-top:var(--space-xl);">若地图中未搜到本司标注点，请用左侧「复制地址」粘贴到任意地图 App 中检索，或直接致电 0510-68506661 由我们指引。</p>
+      </div>
+
     </div>
   </div>
 </section>

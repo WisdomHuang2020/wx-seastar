@@ -337,6 +337,52 @@
     note.style.color = kind === 'error' ? 'var(--color-danger)' : 'var(--color-success)';
   }
 
+  /* ───────────  复制到剪贴板（地址等）  ───────────
+     用法：<button data-copy-text="要复制的文字">
+             <svg…/><span data-copy-label>复制地址</span>
+           </button>
+     只替换 <span data-copy-label> 里的文字，保留图标，避免按钮宽度跳动。 */
+  function mountCopyButtons(sel) {
+    document.querySelectorAll(sel).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var text = btn.getAttribute('data-copy-text') || '';
+        var labelEl = btn.querySelector('[data-copy-label]');
+        var label = labelEl ? labelEl.textContent : '复制';
+        if (!text) return;
+
+        var show = function (msg) {
+          if (!labelEl) return;
+          labelEl.textContent = msg;
+          setTimeout(function () { labelEl.textContent = label; }, 2000);
+        };
+
+        // 现代 API 只在安全上下文（https / localhost）可用；否则回退 execCommand
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(
+            function () { show('已复制'); },
+            function () { fallback(); });
+        } else {
+          fallback();
+        }
+
+        function fallback() {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.top = '-1000px';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+          document.body.removeChild(ta);
+          show(ok ? '已复制' : '请手动复制');
+        }
+      });
+    });
+  }
+
   /* ───────────  对外暴露  ─────────── */
   window.SeaStar = {
     get: get,
@@ -387,6 +433,10 @@
     // 产品详情：data-product-detail="slug"
     var detail = document.querySelector('[data-product-detail]');
     if (detail) renderProductDetail(detail.getAttribute('data-product-detail'), detail);
+    // 复制按钮：data-copy-text="要复制的文字"
+    if (document.querySelector('[data-copy-text]')) {
+      mountCopyButtons('[data-copy-text]');
+    }
   }
 
   if (document.readyState === 'loading') {

@@ -271,6 +271,9 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .btn:hover{ transform:translateY(-1px); }
 .btn:active{ transform:translateY(0); }
+/* 按钮内的图标必须显式定尺寸：内联 <svg> 只给 viewBox 时默认尺寸极大，
+   在 flex 容器里会被拉成巨型图形、盖住整块内容（联系页曾实测踩到）。 */
+.btn svg{ width:17px; height:17px; flex-shrink:0; }
 .btn--sm{ height:38px; padding:0 18px; font-size:.875rem; }
 .btn--lg{ height:54px; padding:0 34px; font-size:1rem; }
 
