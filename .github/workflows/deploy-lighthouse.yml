@@ -1,0 +1,131 @@
+# ─────────────────────────────────────────────────────────────
+# SEA☆STAR 实益达 官网 —— 部署到腾讯云轻量应用服务器（Lighthouse）
+#
+# 四要素（完整对照表见 deploy/sites.yml）：
+#   ① 仓库    git@github.com:WisdomHuang2020/wx-seastar.git   (main)
+#   ② 工作流  本文件
+#   ③ 目标    43.142.148.37（lhins-6i7vay90 / ap-shanghai / VM-0-12-ubuntu）
+#             root@/var/www/wx-seastar   ← 必须等于 nginx 的 root
+#   ④ 验证    https://www.wx-seastar.cn/
+#
+# 仓库 secrets（仓库级，站与站之间同名不冲突）：
+#   LH_HOST / LH_USER / LH_ROOT / LH_SSH_KEY      （LH_PORT 可选，默认 22）
+#   ⚠️ 在本机（Git Bash）写入 secrets 时必须加 MSYS_NO_PATHCONV=1，
+#      否则 /var/www/wx-seastar 会被自动转成 Windows 路径。
+#
+# 站点形态：**纯静态多页站，零构建步骤** —— 仓库根即发布产物。
+# 因此部署 = 把白名单文件 tar over ssh 推过去。
+# ⚠️ 新增任何静态文件，必须同步更新下面 FILES 与 deploy/sites.yml 的 deploy_files；
+#    脚本会断言清单每项存在，漏了会直接失败（而不是静默不上传）。
+# ─────────────────────────────────────────────────────────────
+name: Deploy to Lighthouse
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'deploy/**'
+      - '.github/**'
+      - 'VERSION'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-lighthouse
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy www.wx-seastar.cn
+    runs-on: ubuntu-latest
+    env:
+      FILES: >-
+        index.html odm.html lighting.html grow-light.html about.html contact.html
+        404.html styles.css js assets favicon.ico apple-touch-icon.png
+        robots.txt sitemap.xml
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version & check configuration
+        id: cfg
+        run: |
+          set -eu
+          echo "version=$(cat VERSION 2>/dev/null || echo unknown)" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ secrets.LH_HOST }}" ] && [ -n "${{ secrets.LH_SSH_KEY }}" ]; then
+            echo "ready=true"  >> "$GITHUB_OUTPUT"
+            echo "配置就绪：将部署到 ${{ secrets.LH_HOST }}:${{ secrets.LH_ROOT }}"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::LH_* secrets 尚未配置，本次跳过部署（这不是失败）。"
+            echo "::warning::配置入口：仓库 Settings → Secrets and variables → Actions"
+          fi
+
+      - name: Assert deploy manifest
+        run: |
+          set -eu
+          missing=0
+          for f in $FILES; do
+            if [ ! -e "$f" ]; then
+              echo "::error::发布清单中的 $f 不存在 —— 新增静态文件后需同步更新本工作流的 FILES 与 deploy/sites.yml"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] && echo "发布清单 $FILES 全部就位"
+
+      - name: Deploy to server over SSH
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          LH_HOST:    ${{ secrets.LH_HOST }}
+          LH_USER:    ${{ secrets.LH_USER }}
+          LH_ROOT:    ${{ secrets.LH_ROOT }}
+          LH_SSH_KEY: ${{ secrets.LH_SSH_KEY }}
+          LH_PORT:    ${{ secrets.LH_PORT }}
+          VERSION:    ${{ steps.cfg.outputs.version }}
+        run: |
+          set -euo pipefail
+          port="${LH_PORT:-22}"
+
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$LH_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$port" -H "$LH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          # 白名单打包 → 远端：备份 → 解包 → 属主 → 写哨兵 → 回环自检
+          # 注：远端脚本作为 ssh 的位置参数传入（不用 heredoc），
+          #     否则 heredoc 会占用 stdin，tar 的数据流就传不过去了。
+          tar czf - $FILES | ssh -i ~/.ssh/deploy_key -p "$port" \
+            -o StrictHostKeyChecking=yes "$LH_USER@$LH_HOST" "
+            set -euo pipefail
+            WEB_ROOT='$LH_ROOT'
+            VERSION='$VERSION'
+            [ -d \"\$WEB_ROOT\" ] || { echo 'ERROR: web root 不存在:' \"\$WEB_ROOT\"; exit 1; }
+            BK=\"\$HOME/webroot-backup-\$(date +%F-%H%M%S).tar.gz\"
+            tar czf \"\$BK\" -C \"\$WEB_ROOT\" .
+            echo \"已备份: \$BK\"
+            tar xzf - -C \"\$WEB_ROOT\"
+            chown -R www-data:www-data \"\$WEB_ROOT\"
+            printf '%s\n' \"\$VERSION\" > \"\$WEB_ROOT/.deployed-version\"
+            echo \"哨兵已写: \$WEB_ROOT/.deployed-version = \$VERSION\"
+            ls -t \"\$HOME\"/webroot-backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs -r rm -f
+            echo '--- 服务器本地回环自检 ---'
+            curl -sk --resolve www.wx-seastar.cn:443:127.0.0.1 -o /dev/null -w '  首页       http=%{http_code}\n' --max-time 10 https://www.wx-seastar.cn/
+            curl -sk --resolve www.wx-seastar.cn:443:127.0.0.1 -o /dev/null -w '  ODM 页     http=%{http_code}\n' --max-time 10 https://www.wx-seastar.cn/odm.html
+            curl -sk --resolve www.wx-seastar.cn:443:127.0.0.1 -o /dev/null -w '  不存在路径 http=%{http_code}（应为 404）\n' --max-time 10 https://www.wx-seastar.cn/__deploy_probe__
+            echo 'DEPLOY_DONE'
+            "
+
+      - name: Verify from public internet (non-blocking)
+        if: steps.cfg.outputs.ready == 'true'
+        continue-on-error: true
+        run: |
+          set -u
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 25 https://www.wx-seastar.cn/ || echo 000)
+          echo "线上首页 HTTP = $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::境外出口访问本服务器可能被 TLS 中断（已知现象），不代表部署失败；"
+            echo "::warning::权威判据是上一步的「服务器本地回环自检」。"
+          fi

@@ -1,0 +1,67 @@
+# ─────────────────────────────────────────────────────────────
+# 站点对照表（单一真源）
+#
+# 改站点先改这张表，再同步 CI secrets 与服务器 nginx 配置。
+# 这张表必须能同时回答四个问题：
+#   改哪个仓库 → 触发哪个工作流 → 传到哪台机的哪个目录 → 从哪个域名验证
+# 任何一项缺失，链路就是断的。
+# ─────────────────────────────────────────────────────────────
+
+sites:
+  - id:      wx-seastar
+    name:    SEA☆STAR 实益达 官网（无锡市益明光电有限公司）
+
+    repo:    git@github.com:WisdomHuang2020/wx-seastar.git
+    branch:  main
+    workflow: .github/workflows/deploy-lighthouse.yml
+
+    # 规范域名（页面 canonical / sitemap / OG 全部统一为 www）
+    domain:  www.wx-seastar.cn
+    aliases: [wx-seastar.cn]            # 裸域由 nginx 301 收敛到 www
+
+    lighthouse:
+      instance_id: lhins-6i7vay90
+      instance_name: wisdom2026
+      region:    ap-shanghai
+      host:      43.142.148.37          # 公网 IP
+      hostname:  VM-0-12-ubuntu
+      user:      root
+      web_root:  /var/www/wx-seastar    # ⚠️ 必须等于 nginx 的 root
+      nginx_conf: /etc/nginx/sites-available/wx-seastar
+      owner:     www-data
+      port:      22
+      key_local: ~/.ssh/pfc_ci          # 本机手动部署所用私钥（与 optical 站复用）
+      tls_cert:  /etc/letsencrypt/live/www.wx-seastar.cn/
+      tls_expiry: 2026-12-23
+      # CI 侧用仓库 secrets：LH_HOST / LH_USER / LH_ROOT / LH_SSH_KEY（LH_PORT 可选）
+
+    # 站点形态：纯静态多页站，**无构建步骤** —— 仓库根即发布产物
+    dist:  .
+    build: none
+
+    # 发布白名单（新增静态文件必须同步更新这里 **和** workflow 的 FILES）
+    # 刻意排除：*.md（README/DESIGN/DELIVERY/COMPANY-INFO）、LICENSE、
+    #           .gitignore、.gitattributes —— 不应对外暴露
+    deploy_files:
+      - index.html
+      - odm.html
+      - lighting.html
+      - grow-light.html
+      - about.html
+      - contact.html
+      - 404.html
+      - styles.css
+      - js
+      - assets
+      - favicon.ico
+      - apple-touch-icon.png
+      - robots.txt
+      - sitemap.xml
+
+    # 关键 nginx 语义（改动前先确认）
+    nginx_notes:
+      - 多页静态站 → location / 用 `try_files $uri $uri/ =404`
+        **不可**回落 index.html（否则不存在的页面返回首页内容 + 200）
+      - error_page 404 /404.html（深色兜底页，带 noindex）
+      - location = /favicon.ico 强制 no-cache（favicon 是浏览器最顽固的缓存）
+      - 证书 SAN 已含 wx-seastar.cn + www.wx-seastar.cn，无需重签
