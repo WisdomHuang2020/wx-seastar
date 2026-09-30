@@ -154,14 +154,36 @@
     }
   }
 
-  /* ---------- 7. 联系表单（前端演示，不提交） ---------- */
-  var form = document.querySelector('[data-demo-form]');
+  /* ---------- 7. 联系表单（邮件提交，无需后端） ---------- */
+  // 本站为纯静态站、没有服务端，因此表单以「打开邮件客户端并预填内容」的方式提交。
+  // 这样访客填写的内容能真正送达，而不是只弹一句提示。
+  var form = document.querySelector('[data-contact-form]');
   if (form) {
+    var MAIL_TO = 'edison_liu@wx-seastar.com';
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      var val = function (n) {
+        var el = form.elements[n];
+        return el ? String(el.value || '').trim() : '';
+      };
+      var subject = '官网询价：' + (val('company') || val('name') || '照明需求');
+      var body = [
+        '姓名：' + val('name'),
+        '公司：' + val('company'),
+        '邮箱：' + val('email'),
+        '电话：' + val('phone'),
+        '',
+        '需求描述：',
+        val('msg')
+      ].join('\r\n');
+      window.location.href = 'mailto:' + MAIL_TO
+        + '?subject=' + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(body);
       var note = form.querySelector('[data-form-note]');
       if (note) {
-        note.textContent = '已收到您的需求（原型演示，未真实提交）。我们会尽快与您联系。';
+        note.innerHTML = '已为您打开邮件客户端，请直接发送。'
+          + '若未自动打开，请发送至 <a href="mailto:' + MAIL_TO + '">' + MAIL_TO + '</a>'
+          + '，或致电 0510-68506661。';
         note.classList.remove('hidden');
       }
     });

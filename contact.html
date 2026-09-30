@@ -89,9 +89,9 @@
       <!-- 表单 -->
       <div class="reveal">
         <h2 class="h3" id="form-title">项目询价 / 需求提交</h2>
-        <p class="small text-secondary mt-sm">带 <span style="color:var(--color-danger)">*</span> 为必填项。本页为原型演示，提交不会真实发送。</p>
+        <p class="small text-secondary mt-sm">带 <span style="color:var(--color-danger)">*</span> 为必填项。提交后将为您打开邮件客户端；也可直接发送邮件至 <a href="mailto:edison_liu@wx-seastar.com" style="color:var(--brand-amber-700)">edison_liu@wx-seastar.com</a>。</p>
 
-        <form class="stack-lg mt-xl" data-demo-form novalidate style="margin-top:var(--space-xl);">
+        <form class="stack-lg mt-xl" data-contact-form novalidate style="margin-top:var(--space-xl);">
           <div class="grid grid-2" style="gap:var(--space-md);">
             <div class="field">
               <label for="name">姓名 <span style="color:var(--color-danger)">*</span></label>
@@ -174,10 +174,6 @@
               <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
               <div><h4>地址</h4><p>江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</p></div>
             </div>
-            <div class="feature">
-              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-              <div><h4>工作时间</h4><p>待补充（官网未提供，请以实际营业时间为准）</p></div>
-            </div>
           </div>
         </div>
 
@@ -193,7 +189,7 @@
   </div>
 </section>
 
-<!-- ==================== 地图占位 ==================== -->
+<!-- ==================== 公司位置 ==================== -->
 <section class="section-tight" style="background:var(--surface-sunken);" aria-labelledby="map-title">
   <div class="container">
     <div class="section-head reveal" style="margin-bottom:var(--space-xl);">
@@ -201,7 +197,7 @@
       <h2 class="h3" id="map-title" style="margin-top:var(--space-sm);">公司位置</h2>
     </div>
     <div class="reveal" style="position:relative;border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border-subtle);aspect-ratio:21/8;min-height:260px;background:linear-gradient(160deg,var(--neutral-100),var(--neutral-200));">
-      <!-- 地图占位（内联 SVG 网格化示意） -->
+      <!-- 位置示意图（内联 SVG 绘制，非实时地图底图） -->
       <svg viewBox="0 0 1000 380" fill="none" style="width:100%;height:100%;" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
         <rect width="1000" height="380" fill="#F4F4F5"/>
         <g stroke="#E5E7EB" stroke-width="1">
@@ -224,7 +220,6 @@
         <div class="mono" style="font-size:.6875rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary);">SEA☆STAR 实益达 HQ</div>
         <div class="small" style="font-weight:500;">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</div>
       </div>
-      <span class="badge badge--neutral" style="position:absolute;right:16px;bottom:16px;background:var(--surface-card);border:1px solid var(--border-subtle);">地图占位 · 原型示意</span>
     </div>
   </div>
 </section>
