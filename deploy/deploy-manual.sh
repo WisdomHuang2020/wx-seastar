@@ -25,7 +25,7 @@ KEY="$HOME/.ssh/pfc_ci"
 PORT=22
 OWNER="www-data"
 
-FILES="index.html odm.html lighting.html grow-light.html about.html contact.html 404.html styles.css js assets favicon.ico apple-touch-icon.png robots.txt sitemap.xml"
+FILES="index.html odm.html lighting.html grow-light.html about.html contact.html docs.html 404.html styles.css js assets favicon.ico apple-touch-icon.png robots.txt sitemap.xml"
 
 cd "$(dirname "$0")/.."
 
@@ -44,8 +44,10 @@ done
 echo "✅ 发布清单校验通过"
 
 # ── 前置校验：web_root 必须等于 nginx 的 root ─────────────
+# 注意要剥掉行尾分号：配置行是 `root /var/www/wx-seastar;`，
+# 直接取 $2 会得到带分号的字符串，导致误报不一致（已实测踩到）。
 REMOTE_ROOT="$(ssh -i "$KEY" -p "$PORT" -o BatchMode=yes "$USER@$HOST" \
-  "awk '/^[[:space:]]*root[[:space:]]/{print \$2; exit}' /etc/nginx/sites-available/wx-seastar")"
+  "awk '/^[[:space:]]*root[[:space:]]/{gsub(/;/,\"\",\$2); print \$2; exit}' /etc/nginx/sites-available/wx-seastar")"
 if [ "$REMOTE_ROOT" != "$WEB_ROOT" ]; then
   echo "❌ 闸门拦截：nginx 的 root 是 '$REMOTE_ROOT'，与本脚本的 WEB_ROOT '$WEB_ROOT' 不一致"
   echo "   拒绝部署 —— 否则会出现「文件传上去了但站点读的是另一个目录」的假成功。"

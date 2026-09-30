@@ -41,6 +41,9 @@ jobs:
   deploy:
     name: Deploy www.wx-seastar.cn
     runs-on: ubuntu-latest
+    # 防"假死"：曾实测 SSH 通道断开后步骤仍挂在 in_progress，
+    # 既占 concurrency 锁又让后续 push 不触发。超时后自动失败释放。
+    timeout-minutes: 10
     env:
       FILES: >-
         index.html odm.html lighting.html grow-light.html about.html contact.html
