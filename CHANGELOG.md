@@ -11,6 +11,39 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.9.1] - 2026-10-08
+
+### 修复
+- **发版后访客可能仍执行旧版 JS/CSS，新功能"看着像没上线"**。
+  根因：站内静态资源只有 nginx 默认的 `Last-Modified` / `ETag`、
+  **完全没有 `Cache-Control`**，浏览器于是按 RFC 7234 §4.2.2 做「启发式缓存」，
+  在缓存新鲜期内**根本不发请求**，自然拿不到新版。
+  实测症状：`/lighting` 的 HTML 已是新版（筛选按钮出现了），
+  但 `js/site.js` 还是旧版（筛选逻辑对不上）→ **点筛选没反应**。
+  核验手法：`curl` 直接拉线上源文件与本地 `cmp` 逐字节比对 —— 结果是完全一致，
+  证明**不是没部署，而是浏览器没去取**。
+
+### 变更
+- nginx（`deploy/nginx-wx-seastar.conf`）新增 `location ~* \.(js|css)$`，
+  对站内 JS/CSS 下发 `Cache-Control: no-cache, must-revalidate` ——
+  要求浏览器每次回源校验（有 `ETag`，未变即 304，开销很小）。
+- ⚠️ 该 location 内**重复声明了 HSTS**。nginx 的规则是：
+  location 里只要出现**一个** `add_header`，server 块的 `add_header` 就**不再继承** ——
+  不重复就会丢掉 `Strict-Transport-Security`。
+- 图片（`/uploads/img/`，30 天）与文档（`/uploads/doc/`，不缓存）的既有策略未改动。
+
+### 说明
+- nginx 配置**不在发布白名单内**，需手工 scp 到
+  `/etc/nginx/sites-available/wx-seastar` 再 `systemctl reload nginx`。
+  上传前已备份到 `/root/nginx-wx-seastar-bak-<时间戳>.conf`，
+  并以 `nginx -t` 作为闸门（测试不过就不 reload）。
+- **已存在的浏览器缓存需要用户强刷一次**才会更新；此后每次回访都会自动校验。
+- 验证：`/js/site.js` 等已带 `Cache-Control: no-cache, must-revalidate` 且 HSTS 仍在；
+  8 个页面全 200；`/lighting.html` → `/lighting` 的 301 未被新正则抢走；
+  图片长缓存未受影响；同机其它站点正常。
+
+---
+
 ## [v0.9.0] - 2026-10-08
 
 ### 新增
