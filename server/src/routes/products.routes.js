@@ -124,6 +124,12 @@ router.post('/', wrap(async (req, res) => {
     return fail(res, 409, `标识「${data.slug}」已被占用，请换一个`);
   }
 
+  // 未指定排序时排到现有产品末尾 —— 否则默认值 0 会抢走首页前三位
+  if (req.body?.sort_order === undefined || String(req.body.sort_order).trim() === '') {
+    const max = db.scalar('SELECT COALESCE(MAX(sort_order), 0) FROM products') || 0;
+    data.sort_order = max + 10;
+  }
+
   const cols = Object.keys(data);
   const r = db.run(
     `INSERT INTO products (${cols.join(',')}) VALUES (${cols.map(() => '?').join(',')})`,

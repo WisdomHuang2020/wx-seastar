@@ -308,8 +308,23 @@ async function openProductEditor(p) {
   const d = detail || {
     title_zh: '', title_en: '', summary_zh: '', summary_en: '', body_zh: '', body_en: '',
     slug: '', category: '', series: '', specs: [], badges: [], images: [], documents: [],
-    cover_url: null, cover_media: null, published: true, sort_order: 0,
+    cover_url: null, cover_media: null, published: true, sort_order: '',
   };
+
+  // 业务线是「受控词表」：前台两个产品页按固定值取数
+  //   /lighting → led-lighting      /odm → driver-odm
+  // 早先这里是自由输入框、提示词写「如 Commercial / Downlight」，
+  // 与真实取值根本不是一套词表 —— 填得再认真前台也看不见。故改为下拉。
+  const CATS = [
+    { v: 'led-lighting', t: '照明线（LED Lighting）→ /lighting' },
+    { v: 'driver-odm', t: 'ODM 驱动与控制板 → /odm' },
+    { v: '', t: '不归类（前台两个产品页都不显示）' },
+  ];
+  const catOptions = CATS.slice();
+  // 历史数据若有非标准值，保留并显式标注，避免被静默改写
+  if (d.category && !CATS.some(c => c.v === d.category)) {
+    catOptions.unshift({ v: d.category, t: d.category + '（非标准值，建议改选）' });
+  }
 
   const wrap = document.createElement('div');
   wrap.className = 'mask';
@@ -332,7 +347,10 @@ async function openProductEditor(p) {
         </div>
         <div class="field">
           <label>业务线</label>
-          <input class="inp" id="fCategory" value="${esc(d.category)}" placeholder="如 Commercial / Downlight">
+          <select class="sel" id="fCategory">
+            ${catOptions.map(c => `<option value="${esc(c.v)}"${(d.category || '') === c.v ? ' selected' : ''}>${esc(c.t)}</option>`).join('')}
+          </select>
+          <span class="hint">决定这个产品出现在哪个前台页面；选「不归类」则两个产品页都不显示</span>
         </div>
         <div class="field">
           <label>产品系列</label>
@@ -353,7 +371,7 @@ async function openProductEditor(p) {
         </div>
         <div class="field">
           <label>排序（数字越小越靠前）</label>
-          <input class="inp" id="fOrder" type="number" value="${esc(d.sort_order)}">
+          <input class="inp" id="fOrder" type="number" value="${esc(d.sort_order)}" placeholder="留空自动排到最后">
         </div>
         <div class="field span2">
           <label>详细描述（中文）</label>
@@ -564,9 +582,11 @@ async function openProductEditor(p) {
       category: $('#fCategory', wrap).value.trim(),
       series: $('#fSeries', wrap).value.trim(),
       slug: $('#fSlug', wrap).value.trim(),
-      sort_order: Number($('#fOrder', wrap).value) || 0,
       specs, badges,
     };
+    // 排序留空 → 不提交该字段，交给后端排到末尾（避免默认 0 抢走首页展示位）
+    const ordRaw = $('#fOrder', wrap).value.trim();
+    if (ordRaw !== '') payload.sort_order = Number(ordRaw) || 0;
     if (!payload.title_zh) return toast('产品名称（中文）是必填项', 'err');
 
     try {

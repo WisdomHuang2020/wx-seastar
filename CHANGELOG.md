@@ -11,6 +11,37 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.8.1] - 2026-10-08
+
+### 修复
+- **后台新建的产品可能在任何一个前台产品页都不出现**。根因是它的「业务线」
+  （`products.category`）为空，而 `/lighting` 与 `/odm` 都是**按固定值取数**
+  （`category:led-lighting` / `category:driver-odm`），空值两边都进不去。
+  线上实例：`id=61`「洗墙壁灯 wallpack」。
+- 该产品同时因 `sort_order = 0`（小于现有产品最小值 10）**顶到了首页产品区第一位**，
+  抢占了原有展示位。
+
+### 变更
+- **后台「业务线」由自由输入框改为下拉选择**（`server/public/admin.js`）。
+  原先的输入框提示词是「如 Commercial / Downlight」，而前台只认
+  `led-lighting` / `driver-odm` 两个值 —— **提示词与真实取值不是一套词表**，
+  照着提示填写同样不会上架。改为下拉「照明线（→ /lighting） / ODM 驱动与控制板
+  （→ /odm） / 不归类」后，填写口径与前台取数口径统一。
+  历史数据若存在非标准值，会保留并标注「非标准值，建议改选」，**不做静默改写**。
+- **新建产品未填排序时自动排到末尾**（`server/src/routes/products.routes.js`）：
+  取当前 `MAX(sort_order) + 10`，不再使用默认值 0。后台「排序」留空即为此行为。
+
+### 数据修正
+- 线上 `products.id = 61`：`category` 由 `NULL` 改为 `led-lighting`，
+  `sort_order` 由 `0` 改为 `250`（排到照明线末尾）。修正前已备份数据库到
+  `/root/wx-seastar-db-2026-10-08.db`。
+
+### 说明
+- `server/**` **不在** CI 静态部署白名单内，本次后端改动需单独同步到
+  `/opt/wx-seastar/server` 并重启 `wx-seastar` 服务，`git push` 不会带上它。
+
+---
+
 ## [v0.8.0] - 2026-09-30
 
 ### 变更
