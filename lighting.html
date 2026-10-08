@@ -113,10 +113,10 @@
 
     <!-- 品类快捷导航（跳转到产品矩阵并切换到对应筛选） -->
     <div class="pills mt-3xl reveal" style="gap:var(--space-sm);">
-      <a class="pill" href="#products" data-jump-tab="catalog:home">家居照明</a>
-      <a class="pill" href="#products" data-jump-tab="catalog:commercial">商业照明</a>
-      <a class="pill" href="#products" data-jump-tab="catalog:outdoor">户外照明</a>
-      <a class="pill" href="#products">全部产品</a>
+      <a class="pill" href="#products" data-jump-filter="home">家居照明</a>
+      <a class="pill" href="#products" data-jump-filter="commercial">商业照明</a>
+      <a class="pill" href="#products" data-jump-filter="outdoor">户外照明</a>
+      <a class="pill" href="#products" data-jump-filter="">全部产品</a>
     </div>
   </div>
 </section>
@@ -130,7 +130,13 @@
         <h2 class="h2" id="products-title">按应用场景选择</h2>
         <p class="body-l">以下产品线来自 SEA☆STAR 实益达官网。需要规格书或光度文件，可在<a href="/docs" class="link-arrow" style="display:inline-flex">技术资料中心</a>下载。</p>
       </div>
-      <!-- 筛选 Tab -->
+      <!-- 场景筛选 Tab：对应后台产品的「应用场景」字段（可多选，与业务线 category 无关） -->
+      <div class="pills reveal" data-products-filter="#productGrid" style="gap:var(--space-sm);">
+        <button class="pill is-active" data-filter="">全部</button>
+        <button class="pill" data-filter="home">家居照明</button>
+        <button class="pill" data-filter="commercial">商业照明</button>
+        <button class="pill" data-filter="outdoor">户外照明</button>
+      </div>
 
     </div>
 

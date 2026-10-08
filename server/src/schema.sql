@@ -54,6 +54,9 @@ CREATE TABLE IF NOT EXISTS products (
   slug        TEXT    NOT NULL UNIQUE,      -- URL 友好标识，如 cdx2-mesh-ble
   category    TEXT,                         -- 业务线：led-lighting / driver-odm
   series      TEXT,                         -- 产品系列（原官网未提供，可留空）
+  scene       TEXT,                         -- 应用场景（JSON 数组，可多选）：home/commercial/outdoor
+                                            -- 与业务线 category 分离：category 决定出现在哪个页面，
+                                            -- scene 只决定页面内的筛选归类，互不影响
   -- 双语内容（两者都可为空，但业务层保证至少有一个）
   title_zh    TEXT,                         -- 中文名：原官网没有就不要编
   title_en    TEXT,                         -- 英文名：原官网原文

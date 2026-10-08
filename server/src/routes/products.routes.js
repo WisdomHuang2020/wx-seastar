@@ -16,6 +16,7 @@ function shape(row) {
     published: !!row.published,
     specs: parseJson(row.specs, []),
     badges: parseJson(row.badges, []),
+    scene: parseJson(row.scene, []),
     cover_url: row.cover_filename ? `/uploads/img/${row.cover_filename}` : null,
   };
 }
@@ -24,6 +25,9 @@ const SELECT_BASE = `
   SELECT p.*, m.filename AS cover_filename
     FROM products p
     LEFT JOIN media m ON m.id = p.cover_media`;
+
+/** 应用场景受控词表（数组顺序 = 前台筛选按钮顺序） */
+const SCENES = ['home', 'commercial', 'outdoor'];
 
 /** GET /api/products —— 支持 ?q= 搜索、?category= 过滤、分页 */
 router.get('/', wrap(async (req, res) => {
@@ -89,10 +93,19 @@ function normalize(body, existing) {
         .map(b => ({ text: String(b.text).trim(), type: String(b.type || 'brand').trim() }))
     : parseJson(body.badges, null) ?? parseJson(existing?.badges, []);
 
+  // 应用场景（可多选）：只接受受控词表内的值，并按 SCENES 顺序归一化。
+  // 与「业务线」category 相互独立 —— category 决定出现在哪个页面，
+  // scene 只决定页面内的筛选归类，不要混用。
+  const rawScene = Array.isArray(body.scene)
+    ? body.scene
+    : (parseJson(body.scene, null) ?? parseJson(existing?.scene, []));
+  const scene = Array.isArray(rawScene) ? SCENES.filter(s => rawScene.indexOf(s) >= 0) : [];
+
   return {
     slug: String(body.slug ?? existing?.slug ?? '').trim(),
     category: String(body.category ?? existing?.category ?? '').trim() || null,
     series: String(body.series ?? existing?.series ?? '').trim() || null,
+    scene: JSON.stringify(scene),
     title_zh,
     title_en: String(body.title_en ?? existing?.title_en ?? '').trim() || null,
     summary_zh: String(body.summary_zh ?? existing?.summary_zh ?? '').trim() || null,

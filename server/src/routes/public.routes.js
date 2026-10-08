@@ -36,7 +36,7 @@ router.get('/products', wrap(async (req, res) => {
 
   const total = db.scalar(`SELECT COUNT(*) FROM products p ${clause}`, params) || 0;
   const rows = db.all(
-    `SELECT p.id, p.slug, p.category, p.series,
+    `SELECT p.id, p.slug, p.category, p.series, p.scene,
             p.title_zh, p.title_en, p.summary_zh, p.summary_en,
             p.specs, p.badges, p.sort_order, p.updated_at,
             m.filename AS cover_filename, m.alt_zh AS cover_alt_zh
@@ -46,6 +46,7 @@ router.get('/products', wrap(async (req, res) => {
 
   return ok(res, rows.map(r => ({
     id: r.id, slug: r.slug, category: r.category, series: r.series,
+    scene: parseJson(r.scene, []),
     title: { zh: r.title_zh, en: r.title_en },
     summary: { zh: r.summary_zh, en: r.summary_en },
     specs: parseJson(r.specs, []),
@@ -75,6 +76,7 @@ router.get('/products/:slug', wrap(async (req, res) => {
 
   return ok(res, {
     id: p.id, slug: p.slug, category: p.category, series: p.series,
+    scene: parseJson(p.scene, []),
     title: { zh: p.title_zh, en: p.title_en },
     summary: { zh: p.summary_zh, en: p.summary_en },
     body: { zh: p.body_zh, en: p.body_en },

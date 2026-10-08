@@ -64,6 +64,13 @@
    *    所以这里**规格为空时就不渲染规格区**、简介为空就不渲染简介 ——
    *    宁可留白，也不用编造内容把卡片"填满"。
    */
+  /* 卡片上的小标签：优先用系列名；没有系列时退化为应用场景（让访客看清归类依据） */
+  var SCENE_TEXT = { home: '家居', commercial: '商业', outdoor: '户外' };
+  function cardCategory(p) {
+    if (p.series) return p.series;
+    return (p.scene || []).map(function (s) { return SCENE_TEXT[s] || s; }).join(' · ');
+  }
+
   function productCardHtml(p, idx) {
     var d = (idx % 4) + 1;
     var title = pick(p.title) || p.slug;
@@ -78,7 +85,7 @@
           : '<div class="product-card__media--empty">素材待补充</div>') +
       '</div>' +
       '<div class="product-card__body">' +
-        (p.series ? '<span class="product-card__cat">' + esc(p.series) + '</span>' : '') +
+        (cardCategory(p) ? '<span class="product-card__cat">' + esc(cardCategory(p)) + '</span>' : '') +
         '<h3 class="product-card__title">' + esc(title) + '</h3>' +
         (specs.length
           ? '<div class="product-card__specs">' + specHtml(specs) + '</div>'
@@ -132,8 +139,9 @@
   }
 
   /**
-   * 客户端筛选：绑在 pills 上，按 category 前缀过滤已取回的数据（零请求）。
-   * pillsSel 里的按钮用 data-filter="Commercial" （空前缀=全部）
+   * 客户端筛选：绑在 pills 上，按产品的「应用场景」多选标签过滤已取回的数据（零请求）。
+   * pillsSel 里的按钮用 data-filter="home|commercial|outdoor"（空值 = 显示全部）。
+   * ⚠️ 筛的是 scene（页内归类），不是 category（业务线 —— 它决定出现在哪个页面）。
    */
   function mountProductFilter(pillsSel, gridSel) {
     var pills = document.querySelector(pillsSel);
@@ -147,7 +155,7 @@
       var f = btn.getAttribute('data-filter') || '';
       var all = grid.__products || [];
       paintProducts(grid, f ? all.filter(function (p) {
-        return (p.category || '').toLowerCase().indexOf(f.toLowerCase()) === 0;
+        return (p.scene || []).indexOf(f) >= 0;
       }) : all);
     });
   }

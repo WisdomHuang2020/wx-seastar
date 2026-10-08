@@ -33,6 +33,14 @@ function migrate() {
   const d = open();
   const sql = fs.readFileSync(path.join(__dirname, '..', 'schema.sql'), 'utf8');
   d.exec(sql);
+
+  // ⚠️ schema.sql 全是 `CREATE TABLE IF NOT EXISTS` —— 它只能**建新表**，
+  // 不会给**已存在**的表补列。所以后续新增的列必须在这里显式 ALTER（幂等）。
+  const cols = new Set(d.prepare('PRAGMA table_info(products)').all().map(c => c.name));
+  if (!cols.has('scene')) {
+    d.exec('ALTER TABLE products ADD COLUMN scene TEXT');
+  }
+
   return d;
 }
 

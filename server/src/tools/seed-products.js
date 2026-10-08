@@ -27,6 +27,9 @@ const cfg = require('../config');
 db.migrate();
 
 const IMG_DIR = path.join(cfg.uploadDir, 'img');
+
+/** 应用场景受控词表（顺序 = 前台筛选按钮顺序，与 products.routes.js / admin.js 保持一致） */
+const SCENES = ['home', 'commercial', 'outdoor'];
 // 图片源目录：<repo>/assets/img/product/  或  <webroot>/assets/img/product/
 const SRC_CANDIDATES = [
   path.join(cfg.webRoot, 'assets', 'img', 'product'),
@@ -41,40 +44,49 @@ const SRC_DIR = SRC_CANDIDATES[0];
 
 /**
  * 产品清单 —— 名称一律照抄原官网原文（www.wx-seastar.com）
- * 格式：[slug, 原官网产品名（原文，勿改）]
+ * 格式：[slug, 原官网产品名（原文，勿改）, 应用场景数组]
  *
  * 图片**不在这里指定** —— 约定为 `assets/img/product/<slug>.jpg`，
  * 由 ensureMediaFor() 按 slug 直接取。缺文件就如实不配图（前台显示「素材待补充」）。
  *
  * category 字段表示业务线：led-lighting = 通用照明灯具 / driver-odm = 驱动与控制板。
  * 原官网并未给出产品分类，所以这里不做任何细分。
+ *
+ * ⚠️ 第三项 scene（应用场景）**原官网同样没有这个维度** —— 它是按产品名里的
+ *    行业术语推断出来的，不是原官网资料：
+ *      名字含 Commercial  → 商业（CDX / ECDX 系列，依据最硬）
+ *      Vanity             → 家居（镜前灯）
+ *      Wallpack           → 户外（户外壁灯）
+ *      其余按术语常识归类（Downlight 筒灯、Panel 面板灯、Ceiling 吸顶灯、Cylinder 圆柱灯…）
+ *    受控词表 home / commercial / outdoor，可多选。
+ *    如需调整，请在后台「应用场景」里改，并同步更新此处以保持一致。
  */
 const PRODUCTS = [
   // ── LED LIGHTING（24 个，原官网 LED 页「全部」标签下的完整清单）──
-  ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight'],
-  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight'],
-  ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight'],
-  ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount'],
-  ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound'],
-  ['3d-neon-strip',            '3D Neon Strip'],
-  ['vntx2-square-vanity',      'VNTX2 Series Square Vanity'],
-  ['bpx6-slot-panel',          'BPX6 Slot Panel Light'],
-  ['bpx9-prow-panel',          'BPX9 Prow Luxury Panel Light'],
-  ['rdx3-5cct-slim',           'RDX3 5CCT & Wattage Selectable  Slim Downlight'],
-  ['fmx11-pro-surface',        'FMX11 Pro Surface Mount'],
-  ['fmx11-regress-surface',    'FMX11 Regress Surface Mount'],
-  ['cldx3-cylinder',           'CLDX3 Cylinder'],
-  ['eclx2-ceiling',            'ECLX2 Series LED Ceiling Light'],
-  ['eclx3-ceiling',            'ECLX3 Series LED Ceiling Light'],
-  ['eclx6-ceiling',            'ECLX6 Series LED Ceiling Light'],
-  ['eclx7-ceiling',            'ECLX7 Series LED Ceiling Light'],
-  ['ecdx7-recessed',           'ECDX7 Commercial Recessed Downlight'],
-  ['ecdx9-recessed',           'ECDX9 Commercial Recessed Downlight'],
-  ['ecdx11-surface',           'ECDX11 Commercial Surface Downlight'],
-  ['dfx2-round',               'DFX2 Round LED Downlight'],
-  ['vdlx1-round',              'VDLX1 Round LED Downlight'],
-  ['espx2-slim-panel',         'ESPX2 Slim Panel Light'],
-  ['espx3-backlight-panel',    'ESPX3 Slim Backlight Panel'],
+  ['cdx2-mesh-ble',            'CDX2 MESH BLE Wireless Control Commercial Downlight', ['commercial']],
+  ['cdx8-flood-module',        'CDX8 Flood Module Commercial Downlight',              ['commercial']],
+  ['cdx11-retrofit-277v',      'CDX11 120-277V Retrofit Commercial Downlight',        ['commercial']],
+  ['fmx15-slim-surface',       'FMX15 5/7/9/12/15/19/24in Slim Surface Mount',         ['home', 'commercial']],
+  ['wrpx3-prismatic',          'WRPX3 Prismatic Wraparound',                           ['commercial']],
+  ['3d-neon-strip',            '3D Neon Strip',                                        ['commercial']],
+  ['vntx2-square-vanity',      'VNTX2 Series Square Vanity',                           ['home']],
+  ['bpx6-slot-panel',          'BPX6 Slot Panel Light',                                ['commercial']],
+  ['bpx9-prow-panel',          'BPX9 Prow Luxury Panel Light',                         ['commercial']],
+  ['rdx3-5cct-slim',           'RDX3 5CCT & Wattage Selectable  Slim Downlight',       ['home', 'commercial']],
+  ['fmx11-pro-surface',        'FMX11 Pro Surface Mount',                              ['home', 'commercial']],
+  ['fmx11-regress-surface',    'FMX11 Regress Surface Mount',                          ['home', 'commercial']],
+  ['cldx3-cylinder',           'CLDX3 Cylinder',                                       ['commercial']],
+  ['eclx2-ceiling',            'ECLX2 Series LED Ceiling Light',                       ['home', 'commercial']],
+  ['eclx3-ceiling',            'ECLX3 Series LED Ceiling Light',                       ['home', 'commercial']],
+  ['eclx6-ceiling',            'ECLX6 Series LED Ceiling Light',                       ['home', 'commercial']],
+  ['eclx7-ceiling',            'ECLX7 Series LED Ceiling Light',                       ['home', 'commercial']],
+  ['ecdx7-recessed',           'ECDX7 Commercial Recessed Downlight',                  ['commercial']],
+  ['ecdx9-recessed',           'ECDX9 Commercial Recessed Downlight',                  ['commercial']],
+  ['ecdx11-surface',           'ECDX11 Commercial Surface Downlight',                  ['commercial']],
+  ['dfx2-round',               'DFX2 Round LED Downlight',                             ['home', 'commercial']],
+  ['vdlx1-round',              'VDLX1 Round LED Downlight',                            ['home', 'commercial']],
+  ['espx2-slim-panel',         'ESPX2 Slim Panel Light',                               ['commercial']],
+  ['espx3-backlight-panel',    'ESPX3 Slim Backlight Panel',                           ['commercial']],
 ];
 
 /** ODM/OEM 业务线 —— 原官网是「DRIVER AND CONTROL BOARD」，不是灯具定制 */
@@ -110,7 +122,7 @@ function ensureMediaFor(slug) {
 }
 
 /** 通用的「写入或补图」逻辑，避免两台设备重复代码 */
-function upsert(slug, category, titleEn, order, counters) {
+function upsert(slug, category, titleEn, sceneArr, order, counters) {
   const exists = db.get('SELECT * FROM products WHERE slug = ?', [slug]);
   if (exists) {
     if (!exists.cover_media) {
@@ -127,9 +139,9 @@ function upsert(slug, category, titleEn, order, counters) {
   const mid = ensureMediaFor(slug);
   if (!mid) counters.noimg++;
   const r = db.run(
-    `INSERT INTO products (slug, category, title_zh, title_en, specs, badges,
+    `INSERT INTO products (slug, category, title_zh, title_en, specs, badges, scene,
                            cover_media, sort_order, published)
-     VALUES (?,?,?,?,?,?,?,?,1)`,
+     VALUES (?,?,?,?,?,?,?,?,?,1)`,
     [
       slug,
       category,
@@ -137,6 +149,7 @@ function upsert(slug, category, titleEn, order, counters) {
       titleEn,    // 原文照抄
       '[]',       // 原官网无规格参数 —— 空数组，不编造
       '[]',       // 原官网无角标 —— 空数组
+      JSON.stringify(SCENES.filter(s => (sceneArr || []).indexOf(s) >= 0)),  // 受控词表归一化
       mid, order,
     ]
   );
@@ -157,14 +170,14 @@ const c = { created: 0, skipped: 0, imaged: 0, noimg: 0 };
 
 db.tx(() => {
   let order = 0;
-  for (const [slug, titleEn] of PRODUCTS) {      // 通用照明
+  for (const [slug, titleEn, scene] of PRODUCTS) {   // 通用照明
     order += 10;
-    upsert(slug, 'led-lighting', titleEn, order, c);
+    upsert(slug, 'led-lighting', titleEn, scene, order, c);
   }
-  order = 10000;                                  // ODM 驱动
+  order = 10000;                                     // ODM 驱动（无应用场景，仅出现在 /odm）
   for (const [slug, titleEn] of DRIVERS) {
     order += 10;
-    upsert(slug, 'driver-odm', titleEn, order, c);
+    upsert(slug, 'driver-odm', titleEn, [], order, c);
   }
 });
 

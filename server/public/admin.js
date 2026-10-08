@@ -237,6 +237,10 @@ async function renderProducts() {
   }
 }
 
+/** 应用场景受控词表 —— 与「业务线」分离：业务线决定出现在哪个页面，场景只决定页内筛选归类 */
+const SCENE_LABEL = { home: '家居', commercial: '商业', outdoor: '户外' };
+const SCENE_OPTS = ['home', 'commercial', 'outdoor'].map(v => ({ v: v, t: SCENE_LABEL[v] }));
+
 function renderProductTable(list) {
   const body = $('#viewBody');
   if (!list.length) {
@@ -260,7 +264,11 @@ function renderProductTable(list) {
               ${esc(p.title_zh)}
               <div class="small muted mono">${esc(p.slug)}</div>
             </td>
-            <td class="small">${esc(p.category || '—')}<div class="muted mono">${esc(p.series || '')}</div></td>
+            <td class="small">${esc(p.category || '—')}<div class="muted mono">${esc(p.series || '')}</div>
+              ${(p.scene || []).length
+                ? `<div style="margin-top:3px">${p.scene.map(s => `<span class="tag tag--brand" style="font-size:10px">${esc(SCENE_LABEL[s] || s)}</span>`).join(' ')}</div>`
+                : '<div style="margin-top:3px"><span class="tag tag--off" style="font-size:10px">未归类</span></div>'}
+            </td>
             <td>${(p.badges || []).map(b => `<span class="tag tag--brand">${esc(b.text)}</span>`).join(' ') || '<span class="muted small">—</span>'}</td>
             <td>${p.published ? '<span class="tag tag--ok">已上架</span>' : '<span class="tag tag--off">已下架</span>'}</td>
             <td class="small muted mono">${esc((p.updated_at || '').slice(0, 16))}</td>
@@ -308,7 +316,7 @@ async function openProductEditor(p) {
   const d = detail || {
     title_zh: '', title_en: '', summary_zh: '', summary_en: '', body_zh: '', body_en: '',
     slug: '', category: '', series: '', specs: [], badges: [], images: [], documents: [],
-    cover_url: null, cover_media: null, published: true, sort_order: '',
+    cover_url: null, cover_media: null, published: true, sort_order: '', scene: [],
   };
 
   // 业务线是「受控词表」：前台两个产品页按固定值取数
@@ -355,6 +363,15 @@ async function openProductEditor(p) {
         <div class="field">
           <label>产品系列</label>
           <input class="inp" id="fSeries" value="${esc(d.series)}" placeholder="如 CDX2">
+        </div>
+        <div class="field span2">
+          <label>应用场景（可多选）</label>
+          <div class="row" id="sceneBox" style="gap:20px;flex-wrap:wrap;min-height:38px;align-items:center">
+            ${SCENE_OPTS.map(s => `<label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+              <input type="checkbox" value="${s.v}"${(d.scene || []).indexOf(s.v) >= 0 ? ' checked' : ''}> ${esc(s.t)}
+            </label>`).join('')}
+          </div>
+          <span class="hint">决定产品在照明页「按应用场景选择」里的筛选归类；可多选，不选则只在「全部」中出现</span>
         </div>
         <div class="field span2">
           <label>简介（中文，一行）</label>
@@ -582,6 +599,7 @@ async function openProductEditor(p) {
       category: $('#fCategory', wrap).value.trim(),
       series: $('#fSeries', wrap).value.trim(),
       slug: $('#fSlug', wrap).value.trim(),
+      scene: $$('#sceneBox input[type=checkbox]', wrap).filter(c => c.checked).map(c => c.value),
       specs, badges,
     };
     // 排序留空 → 不提交该字段，交给后端排到末尾（避免默认 0 抢走首页展示位）
