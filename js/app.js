@@ -136,18 +136,6 @@
     });
   });
 
-  /* ---------- 5c. 快捷跳转并同步筛选（顶部品类导航 → 产品矩阵的筛选 Tab） ---------- */
-  // 用法: <a href="#products" data-jump-filter="home">
-  document.querySelectorAll('[data-jump-filter]').forEach(function (link) {
-    link.addEventListener('click', function () {
-      var key = link.getAttribute('data-jump-filter') || '';
-      var box = document.querySelector('[data-products-filter]');
-      if (!box) return;
-      var pill = box.querySelector('[data-filter="' + key + '"]');
-      if (pill) pill.click();
-    });
-  });
-
   /* ---------- 6. 数字滚动统计（滚动进入触发） ----------
      ⚠️ HTML 里的初始文本本身就是**目标值**，不是 0 ——
         因为 IntersectionObserver 只在滚动进入时才触发动画，

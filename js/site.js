@@ -144,7 +144,11 @@
    * ⚠️ 筛的是 scene（页内归类），不是 category（业务线 —— 它决定出现在哪个页面）。
    */
   function mountProductFilter(pillsSel, gridSel) {
-    var pills = document.querySelector(pillsSel);
+    // ⚠️ 两个参数都既可能是选择器字符串、也可能是 DOM 元素：
+    //    挂载处传的是 `querySelectorAll(...)` 遍历出来的**元素**。
+    //    若这里直接对元素调用 document.querySelector()，会因选择器非法而**抛异常**，
+    //    导致整个函数中断、筛选静默失效（v0.9.0 实测踩到：点了没反应）。
+    var pills = typeof pillsSel === 'string' ? document.querySelector(pillsSel) : pillsSel;
     var grid = typeof gridSel === 'string' ? document.querySelector(gridSel) : gridSel;
     if (!pills || !grid) return;
     pills.addEventListener('click', function (e) {
