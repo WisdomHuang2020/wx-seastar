@@ -45,6 +45,7 @@ sites:
     deploy_files:
       - index.html
       - odm.html
+      - oem.html
       - lighting.html
       - grow-light.html
       - about.html

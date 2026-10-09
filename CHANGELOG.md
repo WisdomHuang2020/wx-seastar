@@ -11,6 +11,60 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.11.0] - 2026-10-09
+
+### 新增
+- **ODM 与 OEM 拆分为两个独立页面**，各占一个导航项。
+
+  | 页面 | 内容 |
+  |---|---|
+  | `/odm` | **保持原「ODM/OEM」页全部内容**，仅摘掉标题与文案里的 OEM 字样 |
+  | `/oem` | **新建** —— OEM 电子制造服务（SMT 贴片 / 波峰焊 / 整机组装 / PCBA 代工） |
+
+- 导航顺序调整为：**通用照明 → 植物灯具 → ODM → OEM → 资料中心 → 关于我们 → 联系我们**
+  （ODM / OEM 由原来的第 1 位挪到第 3、4 位，即「植物灯具之后、资料中心之前」）。
+  `nav__links`、移动端 `drawer`、页脚「业务线」三处同步更新，9 个页面全部一致。
+
+### OEM 页的内容来源（**全部有出处，未编造**）
+事实性内容取自原官网 `www.wx-seastar.com` 的 **FACILITIES** 页（实测抓取）：
+
+| 原官网原文 | 页面呈现 |
+|---|---|
+| `Several high-speed SMT lines, wave-soldering lines and assembly lines` | 产线构成（SMT / 波峰焊 / 整机组装） |
+| `Class 100,000 clean room` | 十万级洁净车间 |
+| `More than 500 skillful workers with a monthly capacity of 1 million PCS` | 制造规模数据条 |
+| `SAP, AOI, SPI, MES` | 信息化管理系统 |
+| `plastic injection and stamping` | 注塑与冲压（垂直整合） |
+| `ISO 9001, ISO14001, IATF 16949` | 品质体系徽标 |
+| `IQC` / `OQC` / `BURNING` 图注 | 工艺流程与实拍图 |
+| `CSA Witness Lab` + 六类测试 | 品质体系配图说明 |
+| 集团 1998 成立 / 2007 年 A 股上市（002137）/ 中国第一家 EMS 上市公司 / 无锡 43,000㎡ / 600+ 员工 / 45+ 工程师 | 集团背景区块 |
+
+- **配图 10 张**（`assets/img/ems-*.jpg`）全部来自原官网 FACILITIES 页的实拍图，
+  图注与图片的对应关系是按 HTML 结构逐一核对得出的（SMT / 波峰焊 / 组装 / 注塑 /
+  冲压 / IQC / OQC / BURNING / CSA 实验室 / 车间），未做任何替换或合成。
+- ⚠️ **工艺流程**（IQC→SMT→AOI→波峰焊→组装→老化→OQC）是依据上述产线构成的
+  **行业通行流程梳理**，页面中已如实标注为「典型流程」——
+  原官网并未逐步列出该顺序，此处属结构化整理，请客户复核。
+- ⚠️ 原官网的 `EMS SERVICE` 栏目**是空的**（建了页面但没有内容），
+  故 OEM 页素材全部取自 FACILITIES 页，未从空白栏目臆测内容。
+
+### 修复
+- **`.gitattributes` 已声明 `* text=auto eol=lf`，但工作区仍被写成了 CRLF**：
+  本机 Python `io.open(f,'w')` 默认 `newline=None`，写入时把 `\n` 转成 Windows 的 `\r\n`。
+  带 CRLF 的 `auto-deploy.sh` 上传到 Linux 后直接语法错误（`$'do\r'`），
+  **会让拉取式部署整体挂掉**。已将 11 个受影响文件统一转回 LF，
+  并在服务器上以 `bash -n` 校验通过。今后写文本文件一律显式指定 `newline='\n'`。
+
+### 说明
+- **新增静态文件必须同步四处白名单**（本项目既有纪律）：
+  `.github/workflows/deploy-lighthouse.yml` 的 `FILES`、`deploy/sites.yml` 的
+  `deploy_files`、`deploy/auto-deploy.sh` 与 `deploy/deploy-manual.sh` 的 `FILES`。
+  本次 `oem.html` 四处均已加入；其中 `auto-deploy.sh` 在服务器上运行、
+  **不随 git 自动更新**，已手工 scp 同步并在远端校验。
+
+---
+
 ## [v0.10.0] - 2026-10-09
 
 ### 🔴 重大发现：原官网的产品远不止之前抓到的 24 个
