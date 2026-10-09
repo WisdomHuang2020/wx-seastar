@@ -38,7 +38,14 @@
       <span class="brand-swap"><img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
     </a>
     <nav class="nav__links" aria-label="Main navigation">
-      <a href="/lighting" class="is-active">General Lighting</a>
+              <div class="nav__dropdown">
+          <a href="/lighting" class="nav__dropdown-trigger is-active">General Lighting</a>
+          <div class="nav__dropdown-menu">
+            <a href="/lighting?scene=home">Residential</a>
+            <a href="/lighting?scene=commercial">Commercial</a>
+            <a href="/lighting?scene=outdoor">Outdoor</a>
+          </div>
+        </div>
       <a href="/grow-light">Horticulture</a>
       <a href="/odm">ODM</a>
       <a href="/oem">OEM</a>
@@ -60,14 +67,10 @@
   <button class="drawer__close" aria-label="关闭菜单">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
-          <div class="nav__dropdown">
-          <a href="/lighting" class="nav__dropdown-trigger">General Lighting</a>
-          <div class="nav__dropdown-menu">
-            <a href="/lighting?scene=home">Residential</a>
-            <a href="/lighting?scene=commercial">Commercial</a>
-            <a href="/lighting?scene=outdoor">Outdoor</a>
-          </div>
-        </div>
+  <a href="/lighting">General Lighting</a>
+  <a href="/lighting?scene=home" class="drawer__sub">Residential</a>
+  <a href="/lighting?scene=commercial" class="drawer__sub">Commercial</a>
+  <a href="/lighting?scene=outdoor" class="drawer__sub">Outdoor</a>
   <a href="/grow-light">Horticulture</a>
   <a href="/odm">ODM</a>
   <a href="/oem">OEM</a>

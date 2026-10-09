@@ -11,6 +11,48 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.13.2] - 2026-10-09
+
+### 🐛 修复：产品页导航没有下拉菜单
+
+**现象**：在通用照明页（`/lighting`、`/cn/lighting`）上，鼠标划过导航「通用照明」
+没有下拉；其他页面正常。用户描述为「只有第一次能显示，选中之后就不显示」。
+
+**根因**：`deploy/add-nav-dropdown.py` 用的是**精确匹配**：
+
+```html
+<a href="/cn/lighting">通用照明</a>
+```
+
+而产品页上这一项带**选中态 class**：
+
+```html
+<a href="/cn/lighting" class="is-active">通用照明</a>
+```
+
+nav 区块里匹配不到 → 第一次 `re.sub` **顺延匹配到了 drawer 里的同一个链接**，
+把桌面下拉结构插进了移动抽屉；drawer 的第二次替换已无匹配可用。两个后果：
+
+1. 产品页 nav 里根本没有下拉结构 → hover 无反应
+2. 移动端 drawer 里塞进了桌面结构，版式错乱
+
+**更值得记的是**：脚本当时**打印了 ✔** —— `re.sub` 找不到匹配不报错，
+属**静默假绿**。所有"绿色输出"看起来都正常。
+
+### 修复与防复发
+
+- 新增 `deploy/fix-nav-lighting.py`：只在 nav / drawer **各自区块内**替换，
+  把误插进 drawer 的桌面结构还原为 `drawer__sub` 列表，
+  并把产品页的 `<a class="is-active">` 升级为下拉（**选中态保留到 trigger 上**）
+- 新增 `deploy/verify-nav.py`：18 个页面**正反两向**断言
+  - nav 必须含 `.nav__dropdown`，且不得含 `.drawer__sub`
+  - drawer 必须含 `.drawer__sub`，且不得含 `.nav__dropdown`（防误插）
+  - 4 条下拉链接齐备；产品页 trigger 必须带 `is-active`，其余页不得带
+- 该断言器做了**反向验证**：拿修复前的产物喂进去，报出 7 类错误、
+  退出码非 0 —— 证明它不是"永远通过"的假检查
+
+---
+
 ## [v0.13.1] - 2026-10-09
 
 ### ✨ 导航下拉：通用照明支持 hover 展开场景入口
