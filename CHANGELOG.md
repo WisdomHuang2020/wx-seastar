@@ -11,63 +11,6 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
-## [v0.13.0] - 2026-10-09
-
-### 🔴 架构变更：英文站为主（根路径），中文站为从（/cn）
-
-按客户要求把 v0.12.0 的双语布局**整体翻转**：
-
-| URL | 语言 | 地位 |
-|---|---|---|
-| `https://www.wx-seastar.cn/...` | 英文 | **为主（master）** |
-| `https://www.wx-seastar.cn/cn/...` | 中文 | **为从（slave）** |
-
-v0.12.0 做成了「中文在根 + 英文在 `/en`」，本次把两套页面树各自平移一层：
-
-- 英文页 `en/<p>.html` → `./<p>.html`，资源路径 `../assets/x` → `assets/x`
-- 中文页 `./<p>.html` → `cn/<p>.html`，资源路径 `assets/x` → `../assets/x`
-- 站内链接同步换前缀；后端接口 `/api` 与上传文件 `/uploads` **语言无关，不加前缀**
-
-新增 `deploy/flip-i18n.py` 固化这套平移与重写规则（可重跑），
-中文页原稿已备份在 `.flip-zh/`（已 gitignore）。
-
-**语言切换按钮**：多页静态站每页独立，故按「同页对应」把 href 写死在 HTML 里，
-不依赖 JS：
-
-```
-英文 /about  ⇄  中文 /cn/about        英文 /  ⇄  中文 /cn
-```
-
-### 🐛 修复：动态卡片跨语言串台
-
-`js/site.js` 里动态生成的卡片原先写死了**绝对路径**（`/docs`、`/contact`）和
-**中文字面量**。翻转后这会同时暴露两个毛病：
-
-- 中文站 `/cn/lighting` 上的卡片点"技术资料"会跳到英文站 `/docs`
-- 英文站的卡片提示语显示中文（"素材待补充"、"该分类下暂无产品"……）
-
-改法：
-
-- 引入 `BASE`（英文 `''` / 中文 `/cn`）与 `href(path)` 统一拼前缀
-- 新增文案表 `TEXT.zh / TEXT.en` 与 `t(key)`，覆盖卡片、表格表头、空状态、表单提示
-- 资料类型标签 `KIND_LABEL` 改为按语言分组，配套 `kindLabel(d)`
-- 应用场景 `SCENE_TEXT` 同样按语言分组（家居/商业/户外 ⇄ Residential/Commercial/Outdoor）
-- `setLang()` 现在会同步更新 `BASE`，避免切语言后链接仍指向旧站
-
-### 🔧 其它
-
-- **旧 `/en` 地址保留 301**（`/en` → `/`、`/en/lighting` → `/lighting`），
-  避免 v0.12.0 期间已发出/已收录的链接变成死链
-- `sitemap.xml` 重写：每个 URL 声明**全套** hreflang（含自身与 `x-default`）——
-  Google 要求声明必须双向 reciprocate，单向无效
-- `robots.txt` 补 `Disallow: /cn/404.html`
-- 部署白名单四处同步 `en` → `cn`
-
-> ⚠️ 提醒：`deploy/auto-deploy.sh` 在服务器上跑、**不随 git 更新**，
-> 改完必须手工 `scp` 同步一次。
-
----
-
 ## [v0.13.1] - 2026-10-09
 
 ### ✨ 导航下拉：通用照明支持 hover 展开场景入口
@@ -146,6 +89,67 @@ nav + drawer 结构改写，避免手工改漏。
   （workflow FILES / sites.yml / auto-deploy.sh / deploy-manual.sh）。
 - 页面由中文页**程序化生成**（替换文本节点 + 路径前缀 + 导航/链接改写），
   样式与结构完全复用，后续改版可重跑脚本再生成。
+
+---
+
+---
+
+## [v0.13.0] - 2026-10-09
+
+### 🔴 架构变更：英文站为主（根路径），中文站为从（/cn）
+
+按客户要求把 v0.12.0 的双语布局**整体翻转**：
+
+| URL | 语言 | 地位 |
+|---|---|---|
+| `https://www.wx-seastar.cn/...` | 英文 | **为主（master）** |
+| `https://www.wx-seastar.cn/cn/...` | 中文 | **为从（slave）** |
+
+v0.12.0 做成了「中文在根 + 英文在 `/en`」，本次把两套页面树各自平移一层：
+
+- 英文页 `en/<p>.html` → `./<p>.html`，资源路径 `../assets/x` → `assets/x`
+- 中文页 `./<p>.html` → `cn/<p>.html`，资源路径 `assets/x` → `../assets/x`
+- 站内链接同步换前缀；后端接口 `/api` 与上传文件 `/uploads` **语言无关，不加前缀**
+
+新增 `deploy/flip-i18n.py` 固化这套平移与重写规则（可重跑），
+中文页原稿已备份在 `.flip-zh/`（已 gitignore）。
+
+**语言切换按钮**：多页静态站每页独立，故按「同页对应」把 href 写死在 HTML 里，
+不依赖 JS：
+
+```
+英文 /about  ⇄  中文 /cn/about        英文 /  ⇄  中文 /cn
+```
+
+### 🐛 修复：动态卡片跨语言串台
+
+`js/site.js` 里动态生成的卡片原先写死了**绝对路径**（`/docs`、`/contact`）和
+**中文字面量**。翻转后这会同时暴露两个毛病：
+
+- 中文站 `/cn/lighting` 上的卡片点"技术资料"会跳到英文站 `/docs`
+- 英文站的卡片提示语显示中文（"素材待补充"、"该分类下暂无产品"……）
+
+改法：
+
+- 引入 `BASE`（英文 `''` / 中文 `/cn`）与 `href(path)` 统一拼前缀
+- 新增文案表 `TEXT.zh / TEXT.en` 与 `t(key)`，覆盖卡片、表格表头、空状态、表单提示
+- 资料类型标签 `KIND_LABEL` 改为按语言分组，配套 `kindLabel(d)`
+- 应用场景 `SCENE_TEXT` 同样按语言分组（家居/商业/户外 ⇄ Residential/Commercial/Outdoor）
+- `setLang()` 现在会同步更新 `BASE`，避免切语言后链接仍指向旧站
+
+### 🔧 其它
+
+- **旧 `/en` 地址保留 301**（`/en` → `/`、`/en/lighting` → `/lighting`），
+  避免 v0.12.0 期间已发出/已收录的链接变成死链
+- `sitemap.xml` 重写：每个 URL 声明**全套** hreflang（含自身与 `x-default`）——
+  Google 要求声明必须双向 reciprocate，单向无效
+- `robots.txt` 补 `Disallow: /cn/404.html`
+- 部署白名单四处同步 `en` → `cn`
+
+> ⚠️ 提醒：`deploy/auto-deploy.sh` 在服务器上跑、**不随 git 更新**，
+> 改完必须手工 `scp` 同步一次。
+
+---
 
 ---
 
