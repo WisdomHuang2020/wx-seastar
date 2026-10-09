@@ -370,19 +370,33 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .nav__dropdown{ position:relative; }
 .nav__dropdown-trigger{ display:inline-flex; align-items:center; gap:4px; }
 .nav__dropdown-menu{
-  position:absolute; top:calc(100% + 8px); left:0;
-  min-width:160px; background:#fff;
+  position:absolute;
+  /* ⚠️ 必须 top:100% 紧贴触发器。若再加间距（如 calc(100% + 8px)），
+     鼠标从导航项移到菜单的途中会经过那几像素空白 —— 此时既不在触发器上、
+     也还没进菜单，hover 断开 → 菜单消失，且**无法用 JS 补救**（鼠标已离开）。
+     视觉上的悬浮感改由 margin-top 提供，配合下方 ::before 桥接区补回 hover。 */
+  top:100%; margin-top:6px; left:0;
+  min-width:172px; background:#fff;
   border:1px solid var(--border-subtle); border-radius:var(--radius-md);
   box-shadow:0 12px 32px rgba(9,14,20,.12);
   padding:8px 0;
   opacity:0; visibility:hidden; pointer-events:none;
   transform:translateY(-6px);
-  transition:opacity var(--duration-fast), transform var(--duration-fast), visibility var(--duration-fast);
+  /* 隐藏时给 visibility 加 0.2s 延迟：鼠标在边缘抖动/斜着移入时不会瞬间消失 */
+  transition:opacity .2s var(--ease-standard), transform .2s var(--ease-out-soft),
+             visibility 0s linear .2s;
   z-index:100;
+}
+/* 桥接区：向上覆盖 margin-top 造成的空隙，让鼠标「不断线」。
+   透明、只占那 12px，不会挡住下方正文。 */
+.nav__dropdown-menu::before{
+  content:""; position:absolute; left:0; right:0; top:-12px; height:12px;
 }
 .nav__dropdown:hover .nav__dropdown-menu,
 .nav__dropdown:focus-within .nav__dropdown-menu{
   opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
+  transition:opacity .18s var(--ease-out-soft), transform .18s var(--ease-out-soft),
+             visibility 0s;
 }
 .nav__dropdown-menu a{
   display:block; padding:9px 18px;
