@@ -610,7 +610,11 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .product-card__title{ font-family:var(--font-heading); font-size:1rem; font-weight:600; line-height:1.35; }
 .product-card__specs{ display:flex; flex-wrap:wrap; gap:var(--space-lg); margin-top:var(--space-md); padding-top:var(--space-md); border-top:1px solid var(--border-subtle); }
-.product-card__foot{ margin-top:auto; padding-top:var(--space-md); }
+/* 卡片底部可能并列两个入口（规格书下载 + 技术资料），需横向排布并留间距 */
+.product-card__foot{
+  margin-top:auto; padding-top:var(--space-md);
+  display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-md);
+}
 .product-card--dark{ background:var(--ink-800); border-color:var(--ink-700); color:var(--text-on-dark); }
 .product-card--dark .product-card__media{ background:var(--ink-900); border-bottom-color:var(--ink-700); }
 .product-card--dark .product-card__cat{ color:var(--brand-200); }

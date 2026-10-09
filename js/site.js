@@ -55,6 +55,7 @@
   var TEXT = {
     zh: {
       mediaEmpty: '素材待补充',
+      downloadSpec: '规格书 (PDF)',
       noProduct: '该分类下暂无产品',
       noDoc: '该分类下暂无资料',
       techDocs: '技术资料',
@@ -83,6 +84,7 @@
     },
     en: {
       mediaEmpty: 'Image pending',
+      downloadSpec: 'Datasheet (PDF)',
       noProduct: 'No products in this category yet',
       noDoc: 'No documents in this category yet',
       techDocs: 'Technical data',
@@ -181,6 +183,13 @@
           ? '<div class="product-card__specs">' + specHtml(specs) + '</div>'
           : '') +
         '<div class="product-card__foot">' +
+          // 有规格书时直接给下载入口（图下方即可点击），否则只保留资料中心的入口。
+          // 下载走 /api/public/download/<id>：由后端转发才能计数并还原原始文件名。
+          (p.spec_doc_id
+            ? '<a class="link-arrow" href="/api/public/download/' + p.spec_doc_id + '">' + t('downloadSpec') +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M6 12l6 6 6-6M4 20h16"/></svg>' +
+              '</a>'
+            : '') +
           '<a class="link-arrow" href="' + href('/docs') + '?p=' + encodeURIComponent(p.slug) + '">' + t('techDocs') +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
           '</a>' +

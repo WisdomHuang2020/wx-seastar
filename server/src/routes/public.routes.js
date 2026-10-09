@@ -35,11 +35,17 @@ router.get('/products', wrap(async (req, res) => {
   const clause = 'WHERE ' + where.join(' AND ');
 
   const total = db.scalar(`SELECT COUNT(*) FROM products p ${clause}`, params) || 0;
+  // ⚠️ 子查询取「该产品第一份规格书」的 id，供前台产品卡直接给下载入口。
+  //    不在返回里塞完整文档列表 —— 列表页一次最多 500 条，带全量文档会显著放大响应体。
   const rows = db.all(
     `SELECT p.id, p.slug, p.category, p.series, p.scene,
             p.title_zh, p.title_en, p.summary_zh, p.summary_en,
             p.specs, p.badges, p.sort_order, p.updated_at,
-            m.filename AS cover_filename, m.alt_zh AS cover_alt_zh
+            m.filename AS cover_filename, m.alt_zh AS cover_alt_zh,
+            (SELECT d.id FROM documents d
+              WHERE d.product_id = p.id AND d.kind = 'spec'
+              ORDER BY d.sort_order, d.id LIMIT 1) AS spec_doc_id,
+            (SELECT COUNT(*) FROM documents d WHERE d.product_id = p.id) AS doc_count
        FROM products p LEFT JOIN media m ON m.id = p.cover_media
        ${clause} ORDER BY p.sort_order, p.id LIMIT ? OFFSET ?`,
     [...params, size, offset]);
@@ -54,6 +60,9 @@ router.get('/products', wrap(async (req, res) => {
     cover: r.cover_filename
       ? { url: `/uploads/img/${r.cover_filename}`, alt: r.cover_alt_zh || r.title_zh }
       : null,
+    // 前端据此在产品卡上直接给「规格书下载」入口；无规格书时为 null
+    spec_doc_id: r.spec_doc_id || null,
+    doc_count: r.doc_count || 0,
     updated_at: r.updated_at,
   })), { total, page, size });
 }));
