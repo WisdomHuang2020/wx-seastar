@@ -918,3 +918,211 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .lang-switch:hover{color:var(--brand-500);border-color:var(--brand-500);background:var(--brand-25);}
 @media (max-width:900px){.lang-switch{height:30px;min-width:36px;font-size:12px;}}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Cookie 同意横幅 & 偏好中心（v0.15.0）
+   ---------------------------------------------------------------------
+   原则：不遮挡内容、不锁滚动（面板打开时才锁）、不引入第三方资源。
+   浅色表面的悬浮层用 --shadow-overlay 与页面拉开层级。
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* 仅供屏幕阅读器 */
+.visually-hidden{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+/* 面板打开时锁住背景滚动 */
+body.cc-locked{ overflow:hidden; }
+
+/* ── 横幅 ────────────────────────────────────────────────────────────── */
+.cc-banner{
+  position:fixed; left:0; right:0; bottom:0; z-index:1200;
+  background:var(--surface-bg);
+  border-top:1px solid var(--border-subtle);
+  box-shadow:0 -12px 40px rgba(20,23,28,.14);
+  padding-block:var(--space-md);
+  opacity:0; transform:translateY(14px);
+  transition:opacity .24s var(--ease-out-soft), transform .24s var(--ease-out-soft);
+}
+.cc-banner.is-in{ opacity:1; transform:none; }
+.cc-banner[hidden]{ display:none; }   /* 覆盖 flex/块级设置，保证 hidden 生效 */
+
+.cc-banner__inner{
+  display:flex; align-items:flex-start; gap:var(--space-lg);
+  flex-wrap:wrap; justify-content:space-between;
+}
+.cc-banner__copy{ flex:1 1 460px; min-width:0; }
+.cc-banner__title{
+  margin:0 0 var(--space-2xs);
+  font-size:.9375rem; font-weight:600; color:var(--text-primary);
+  letter-spacing:.01em;
+}
+.cc-banner__body{
+  margin:0; font-size:.875rem; line-height:1.65;
+  color:var(--text-secondary); max-width:78ch;
+}
+.cc-banner__body strong{ color:var(--text-primary); font-weight:600; }
+.cc-banner__actions{
+  display:flex; align-items:center; gap:var(--space-sm);
+  flex-wrap:wrap; flex-shrink:0;
+}
+
+/* 统一按钮尺寸：站点的 .btn 默认偏高，这里压缩到横幅能容纳的高度 */
+.cc-btn{
+  height:40px; padding:0 18px; font-size:.875rem; white-space:nowrap;
+}
+.cc-btn--text{
+  height:40px; padding:0 8px;
+  background:none; border:none; cursor:pointer;
+  font-size:.875rem; font-weight:500;
+  color:var(--text-brand); font-family:inherit;
+  text-decoration:underline; text-underline-offset:3px;
+  transition:color .18s ease;
+}
+.cc-btn--text:hover{ color:var(--text-brand-deep); }
+
+/* ── 遮罩与面板 ──────────────────────────────────────────────────────── */
+.cc-overlay{
+  position:fixed; inset:0; z-index:1300;
+  display:flex; align-items:center; justify-content:center;
+  padding:var(--space-lg);
+  background:rgba(11,16,21,.46);
+  -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  opacity:0; transition:opacity .2s ease;
+}
+.cc-overlay.is-in{ opacity:1; }
+.cc-overlay[hidden]{ display:none; }
+
+.cc-panel{
+  width:min(620px,100%); max-height:min(86vh,760px); overflow-y:auto;
+  background:var(--surface-bg); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-overlay);
+  padding:var(--space-xl);
+  transform:translateY(10px) scale(.99);
+  transition:transform .2s var(--ease-out-soft);
+}
+.cc-overlay.is-in .cc-panel{ transform:none; }
+
+.cc-panel__head{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:var(--space-md); margin-bottom:var(--space-sm);
+}
+.cc-panel__title{
+  margin:0; font-size:1.25rem; font-weight:600; color:var(--text-primary);
+  letter-spacing:-.01em;
+}
+.cc-close{
+  flex-shrink:0; width:34px; height:34px; line-height:1;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:1.5rem; color:var(--text-tertiary); cursor:pointer;
+  background:none; border:none; border-radius:var(--radius-md); font-family:inherit;
+  transition:color .18s ease, background-color .18s ease;
+}
+.cc-close:hover{ color:var(--text-primary); background:var(--surface-sunken); }
+
+.cc-panel__intro{
+  margin:0 0 var(--space-lg); font-size:.875rem; line-height:1.7;
+  color:var(--text-secondary);
+}
+.cc-panel__intro strong{ color:var(--text-primary); font-weight:600; }
+
+/* ── 分类行 ──────────────────────────────────────────────────────────── */
+.cc-row{
+  padding:var(--space-md) 0;
+  border-top:1px solid var(--border-subtle);
+}
+.cc-row:first-of-type{ border-top:none; }
+.cc-row--locked{ opacity:.82; }
+
+.cc-row__head{ display:flex; align-items:center; gap:var(--space-sm); flex-wrap:wrap; }
+.cc-row__title{
+  margin:0; flex:1 1 auto; min-width:0;
+  font-size:.9375rem; font-weight:600; color:var(--text-primary);
+}
+.cc-row__desc{
+  margin:var(--space-xs) 0 0; font-size:.8125rem; line-height:1.68;
+  color:var(--text-secondary); max-width:70ch;
+}
+.cc-row__desc strong{ color:var(--text-primary); font-weight:600; }
+
+.cc-badge{
+  flex-shrink:0; padding:3px 9px; border-radius:var(--radius-full);
+  font-size:11px; font-weight:600; letter-spacing:.03em;
+  background:var(--brand-50); color:var(--brand-700);
+  border:1px solid var(--border-brand);
+}
+.cc-badge--locked{ background:var(--surface-sunken); color:var(--text-tertiary); border-color:var(--border-subtle); }
+
+/* ── 开关 ────────────────────────────────────────────────────────────── */
+.cc-switch{
+  position:relative; flex-shrink:0;
+  display:inline-flex; align-items:center; cursor:pointer;
+}
+.cc-switch__input{
+  position:absolute; inset:0; width:100%; height:100%;
+  margin:0; opacity:0; cursor:pointer;
+}
+.cc-switch__input:disabled{ cursor:not-allowed; }
+.cc-switch__track{
+  width:42px; height:24px; border-radius:var(--radius-full);
+  background:var(--neutral-300);
+  display:block; position:relative;
+  transition:background-color .2s var(--ease-standard);
+}
+.cc-switch__dot{
+  position:absolute; top:3px; left:3px;
+  width:18px; height:18px; border-radius:50%;
+  background:#fff; box-shadow:0 1px 2px rgba(20,23,28,.28);
+  transition:transform .2s var(--ease-out-soft);
+}
+.cc-switch__input:checked + .cc-switch__track{ background:var(--brand-500); }
+.cc-switch__input:checked + .cc-switch__track .cc-switch__dot{ transform:translateX(18px); }
+.cc-switch__input:disabled + .cc-switch__track{ background:var(--neutral-200); opacity:.7; }
+.cc-switch__input:checked:disabled + .cc-switch__track{ background:var(--brand-200); }
+.cc-switch__input:focus-visible + .cc-switch__track{
+  outline:2px solid var(--brand-500); outline-offset:3px;
+}
+
+.cc-panel__stamp{
+  margin:var(--space-md) 0 0; font-size:.75rem; color:var(--text-tertiary);
+  font-family:var(--font-mono);
+}
+.cc-panel__foot{
+  display:flex; gap:var(--space-sm); flex-wrap:wrap;
+  margin-top:var(--space-lg); padding-top:var(--space-lg);
+  border-top:1px solid var(--border-subtle);
+}
+.cc-panel__hint{ margin:var(--space-md) 0 0; font-size:.75rem; color:var(--text-tertiary); }
+
+/* ── 小屏：横幅改为堆叠，按钮铺满 ────────────────────────────────────── */
+@media (max-width:720px){
+  .cc-banner{ padding-block:var(--space-sm); }
+  .cc-banner__inner{ gap:var(--space-md); }
+  .cc-banner__actions{ width:100%; }
+  .cc-banner__actions .cc-btn{ flex:1 1 auto; }
+  .cc-panel{ padding:var(--space-lg); max-height:90vh; }
+  .cc-panel__foot{ flex-direction:column; }
+  .cc-panel__foot .cc-btn{ width:100%; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .cc-banner, .cc-overlay, .cc-panel, .cc-switch__track, .cc-switch__dot{
+    transition:none;
+  }
+  .cc-overlay.is-in .cc-panel{ transform:none; }
+}
+
+/* ── 页脚入口「Cookie 设置」（页脚是深色区，配色按 on-dark 走）──────── */
+.footer__cc{
+  /* <button> 要抹平浏览器默认样式，才能跟旁边的 span / a 排成一行 */
+  background:none; border:none; padding:0; margin:0;
+  font:inherit; font-size:inherit; line-height:inherit;
+  color:var(--text-on-dark-muted); cursor:pointer;
+  text-decoration:underline; text-underline-offset:3px;
+  transition:color .18s ease;
+}
+.footer__cc:hover{ color:var(--brand-200); }
+.footer__cc:focus-visible{
+  outline:2px solid var(--brand-200); outline-offset:3px; border-radius:var(--radius-sm);
+}

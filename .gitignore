@@ -47,3 +47,12 @@ server/.env
 
 # ── 导航下拉脚本临时备份 ──
 .flip-nav/
+
+# ── Cookie 模块的临时产物 ──
+# add-cookie-consent.py 注入前留的原文回滚样本（万一 git HEAD 不可用时的兜底）
+.cc-backup/
+# 无头验证的探针副本；脚本收尾会自动清理，异常中断时才可能残留
+# ⚠️ 必须带前导斜杠限死根目录 —— 写成 __cc_probe*.js 会连 probe 的源文件
+#    deploy/__cc_probe.js 一起忽略掉，而那是要入库的验收资产。
+/__cc_probe*.js
+/__*_probe*.html
