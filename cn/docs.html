@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<!--
+  页面：docs.html —— 技术资料中心
+  说明：产品规格书 / 说明书 / IES 光度文件 / 图纸的统一下载入口。
+        资料清单由后台维护（管理后台 → 资料文件），本页通过 /api/public/documents 取数。
+        页面下方的表格为「无 JS 或接口不可用」时的兜底提示。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技术资料中心 · SEA☆STAR 实益达 — 规格书 / 说明书 / IES 光度文件</title>
+<meta name="description" content="SEA☆STAR 实益达技术资料中心：下载 LED 照明产品的规格书、安装说明书、IES 光度文件与尺寸图纸。">
+<link rel="canonical" href="https://www.wx-seastar.cn/cn/docs">
+<meta name="theme-color" content="#0F1620">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SEA☆STAR 实益达">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="技术资料中心 · SEA☆STAR 实益达">
+<meta property="og:description" content="下载 LED 照明产品的规格书、安装说明书、IES 光度文件与尺寸图纸。">
+<meta property="og:url" content="https://www.wx-seastar.cn/cn/docs">
+<meta property="og:image" content="https://www.wx-seastar.cn/assets/seastar-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<script>window.__SEASTAR_LANG__='zh';</script>
+<link rel="stylesheet" href="../styles.css">
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+</head>
+<body>
+
+<!-- ==================== 导航 ==================== -->
+<header class="nav" data-nav-transparent="false" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/cn" aria-label="SEA☆STAR 实益达 · 无锡市益明光电有限公司 首页">
+      <span class="brand-swap"><img src="../assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--on-dark brand-img--nav" width="128" height="34" decoding="async"><img src="../assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--on-light brand-img--nav" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <a href="/cn/lighting">通用照明</a>
+      <a href="/cn/grow-light">植物灯具</a>
+      <a href="/cn/odm">ODM</a>
+      <a href="/cn/oem">OEM</a>
+      <a href="/cn/docs" class="is-active">资料中心</a>
+      <a href="/cn/about">关于我们</a>
+      <a href="/cn/contact">联系我们</a>
+    </nav>
+    <div class="nav__right">
+      <a class="lang-switch" href="/docs" title="English version">EN</a>
+      <a class="btn btn--primary btn--sm" href="/cn/contact">获取报价</a>
+      <button class="nav__burger" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- 移动端抽屉 -->
+<div class="drawer" aria-hidden="true">
+  <button class="drawer__close" aria-label="关闭菜单">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="/cn/lighting">通用照明</a>
+  <a href="/cn/grow-light">植物灯具</a>
+  <a href="/cn/odm">ODM</a>
+  <a href="/cn/oem">OEM</a>
+  <a href="/cn/docs">资料中心</a>
+  <a href="/cn/about">关于我们</a>
+  <a href="/cn/contact">联系我们</a>
+  <a class="btn btn--primary btn--lg drawer__cta" href="/cn/contact" style="display:inline-flex;width:fit-content;">获取报价</a>
+</div>
+
+<main>
+
+<!-- ==================== Hero ==================== -->
+<section class="hero-split hero-light hero-light--sub-sm" aria-labelledby="docs-title">
+  <div class="container relative">
+    <nav class="hero-breadcrumb" aria-label="面包屑">
+      <a href="/cn">首页</a><span>/</span><span>技术资料中心</span>
+    </nav>
+    <div class="reveal" style="max-width:760px;">
+      <span class="overline">Technical Documents · 技术资料</span>
+      <h1 class="display mt-md" id="docs-title">规格书、说明书与 IES 光度文件</h1>
+      <p class="body-l mt-lg text-secondary measure">
+        这里汇总了 SEA☆STAR 照明产品的技术资料。可按资料类型筛选，或直接下载所需文件。
+        如需特定型号的资料，也欢迎<a href="/cn/contact" class="link-arrow" style="display:inline-flex">联系我们</a>索取。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 资料列表 ==================== -->
+<section class="section-tight" aria-labelledby="list-title">
+  <div class="container">
+    <div class="flex justify-between items-center gap-lg" style="flex-wrap:wrap;margin-bottom:var(--space-xl)">
+      <h2 class="h3" id="list-title">全部资料</h2>
+      <div class="pills" data-doc-filter>
+        <button class="pill is-active" data-kind="">全部</button>
+        <button class="pill" data-kind="spec">规格书</button>
+        <button class="pill" data-kind="manual">说明书</button>
+        <button class="pill" data-kind="ies">IES 光度文件</button>
+        <button class="pill" data-kind="drawing">图纸</button>
+        <button class="pill" data-kind="other">其他</button>
+      </div>
+    </div>
+
+    <!-- 带 ?p=<slug> 进来时，这里显示"已筛选到某产品"的提示条 -->
+    <div data-doc-scope></div>
+
+    <!-- 资料表格：内容由后台维护 -->
+    <div class="reveal" data-documents>
+      <div class="empty-state">
+        <span class="brand-star" style="width:26px;height:26px;display:block;margin:0 auto 12px;color:var(--brand-200)"></span>
+        <p class="text-secondary center">正在加载资料清单…</p>
+        <p class="small text-tertiary center mt-sm">若长时间无响应，请刷新页面，或直接联系我们获取资料。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 索取资料 CTA ==================== -->
+<section class="section dark" aria-labelledby="docs-cta">
+  <div class="container center">
+    <span class="overline">没有找到需要的资料？</span>
+    <h2 class="display mt-md" id="docs-cta" style="max-width:22ch;margin-inline:auto;">
+      告诉我们型号，我们把文件发给你
+    </h2>
+    <p class="body-l mt-lg mx-auto" style="max-width:52ch;">
+      部分定制项目的资料未公开发布。提供产品型号或应用场景，我们会尽快把对应的规格书与光度文件发送给您。
+    </p>
+    <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
+      <a class="btn btn--primary btn--lg" href="/cn/contact">索取技术资料</a>
+      <a class="btn btn--ghost btn--lg" href="/cn/lighting">浏览产品系列</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ==================== 页脚 ==================== -->
+<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="../assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">
+          照明整体解决方案提供商。通用照明 · ODM · OEM。
+        </p>
+        <div class="flex gap-sm mt-lg" style="flex-wrap:wrap;">
+          <span class="badge badge--neutral">ISO 9001</span>
+          <span class="badge badge--neutral">CE</span>
+          <span class="badge badge--neutral">UL</span>
+        </div>
+      </div>
+
+      <div class="footer__col">
+        <h4>业务线</h4>
+        <a href="/cn/lighting">通用照明灯具</a>
+        <a href="/cn/grow-light">植物照明灯具</a>
+        <a href="/cn/odm">ODM 驱动与控制板</a>
+        <a href="/cn/oem">OEM 电子制造服务</a>
+      </div>
+      <div class="footer__col">
+        <h4>公司</h4>
+        <a href="/cn/about">关于我们</a>
+        <a href="/about#history">发展历程</a>
+        <a href="/about#factory">工厂与产能</a>
+        <a href="/cn/docs">技术资料中心</a>
+      </div>
+      <div class="footer__col">
+        <h4>联系</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="/cn/contact">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
+      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/app.js"></script>
+<script src="../js/site.js" defer></script>
+</body>
+</html>

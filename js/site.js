@@ -32,12 +32,98 @@
       });
   }
 
-  /* 语言选择：站点当前为中文，数据结构已预留 en。
-     下方 setLang('en') 即可整体切换，中文缺失时自动回退中文。 */
-  var LANG = 'zh';
+  /* 语言：由页面通过 window.__SEASTAR_LANG__ 指定（英文站为 'en'），默认中文。
+     中英字段任一缺失时 pick() 会自动回退到有值的一侧，不会出现空白。 */
+  var LANG = (typeof window !== 'undefined' && window.__SEASTAR_LANG__ === 'en') ? 'en' : 'zh';
   function pick(pair) {
     if (!pair) return '';
     return (LANG === 'en' && pair.en) ? pair.en : (pair.zh || pair.en || '');
+  }
+
+  /* ───────────  语言前缀  ───────────
+     v0.13.0 起：英文站在根路径（无前缀），中文站在 /cn 子路径。
+     本文件被**两套页面共用**，所有站内链接必须经 href() 拼前缀，
+     否则中文站上的动态卡片会跳回英文站（跨语言串台）。
+     后端接口 /api 与上传文件 /uploads 是语言无关的，**不**加前缀。 */
+  var BASE = (LANG === 'en') ? '' : '/cn';
+  function href(path) {
+    return BASE + (path.charAt(0) === '/' ? path : '/' + path);
+  }
+
+  /* UI 文案表：本文件里所有**写死在字符串里**的提示语都必须走 t()，
+     否则英文站会出现中文提示（v0.12.0 遗漏项）。 */
+  var TEXT = {
+    zh: {
+      mediaEmpty: '素材待补充',
+      noProduct: '该分类下暂无产品',
+      noDoc: '该分类下暂无资料',
+      techDocs: '技术资料',
+      docScopeFiltered: '已筛选',
+      docScopeShowing: '正在显示该产品的技术资料',
+      docScopeUnit: '份',
+      docScopeNone: '暂无',
+      docScopeEmpty: '该产品还没有上传技术资料',
+      viewAllDocs: '查看全部资料',
+      askUs: '向我们索取',
+      genericDoc: '通用资料',
+      docDownloadHeading: '资料下载',
+      docName: '资料名称',
+      docType: '类型',
+      docProduct: '关联产品',
+      docSize: '大小',
+      download: '下载',
+      submitNeedName: '请填写姓名与需求描述后再提交。',
+      submitOk: '已收到您的需求，我们会在 1–3 个工作日内与您联系。',
+      submitFail: '提交失败，请稍后重试，或直接致电 0510-68506661。',
+      submitNet: '网络异常，未能提交。请稍后重试，或直接致电 0510-68506661。',
+      submitting: '提交中…',
+      copied: '已复制',
+      copyManual: '请手动复制',
+      copy: '复制',
+    },
+    en: {
+      mediaEmpty: 'Image pending',
+      noProduct: 'No products in this category yet',
+      noDoc: 'No documents in this category yet',
+      techDocs: 'Technical data',
+      docScopeFiltered: 'Filtered',
+      docScopeShowing: 'Showing technical data for this product',
+      docScopeUnit: 'files',
+      docScopeNone: 'None',
+      docScopeEmpty: 'No technical data uploaded for this product yet',
+      viewAllDocs: 'View all documents',
+      askUs: 'Request from us',
+      genericDoc: 'General document',
+      docDownloadHeading: 'Downloads',
+      docName: 'Document',
+      docType: 'Type',
+      docProduct: 'Product',
+      docSize: 'Size',
+      download: 'Download',
+      submitNeedName: 'Please provide your name and a description of your requirement.',
+      submitOk: 'Thank you — we have received your enquiry and will contact you within 1–3 business days.',
+      submitFail: 'Submission failed. Please try again later, or call +86 510 6850 6661.',
+      submitNet: 'Network error — not submitted. Please try again, or call +86 510 6850 6661.',
+      submitting: 'Submitting…',
+      copied: 'Copied',
+      copyManual: 'Please copy manually',
+      copy: 'Copy',
+    },
+  };
+  function t(key) {
+    var pack = TEXT[LANG] || TEXT.zh;
+    return pack[key] || (TEXT.zh[key] || key);
+  }
+
+  /* 资料类型标签：随语言切换（原来只有中文，英文站会漏成中文） */
+  var KIND_LABEL = {
+    zh: { spec: '规格书', manual: '说明书', ies: 'IES 光度文件', drawing: '图纸', other: '其他资料' },
+    en: { spec: 'Datasheet', manual: 'User manual', ies: 'IES photometric file', drawing: 'Drawing', other: 'Other' },
+  };
+  function kindLabel(d) {
+    if (d.kind_label) return d.kind_label;
+    var pack = KIND_LABEL[LANG] || KIND_LABEL.zh;
+    return pack[d.kind] || (KIND_LABEL.zh[d.kind] || d.kind);
   }
 
   /* ───────────  产品渲染  ─────────── */
@@ -65,10 +151,14 @@
    *    宁可留白，也不用编造内容把卡片"填满"。
    */
   /* 卡片上的小标签：优先用系列名；没有系列时退化为应用场景（让访客看清归类依据） */
-  var SCENE_TEXT = { home: '家居', commercial: '商业', outdoor: '户外' };
+  var SCENE_TEXT = {
+    zh: { home: '家居', commercial: '商业', outdoor: '户外' },
+    en: { home: 'Residential', commercial: 'Commercial', outdoor: 'Outdoor' },
+  };
   function cardCategory(p) {
     if (p.series) return p.series;
-    return (p.scene || []).map(function (s) { return SCENE_TEXT[s] || s; }).join(' · ');
+    var pack = SCENE_TEXT[LANG] || SCENE_TEXT.zh;
+    return (p.scene || []).map(function (s) { return pack[s] || s; }).join(' · ');
   }
 
   function productCardHtml(p, idx) {
@@ -82,7 +172,7 @@
         badgeHtml(badges) +
         (p.cover
           ? '<img src="' + esc(p.cover.url) + '" alt="' + esc(p.cover.alt || title) + '" loading="lazy" decoding="async">'
-          : '<div class="product-card__media--empty">素材待补充</div>') +
+          : '<div class="product-card__media--empty">' + t('mediaEmpty') + '</div>') +
       '</div>' +
       '<div class="product-card__body">' +
         (cardCategory(p) ? '<span class="product-card__cat">' + esc(cardCategory(p)) + '</span>' : '') +
@@ -91,7 +181,7 @@
           ? '<div class="product-card__specs">' + specHtml(specs) + '</div>'
           : '') +
         '<div class="product-card__foot">' +
-          '<a class="link-arrow" href="/docs?p=' + encodeURIComponent(p.slug) + '">技术资料' +
+          '<a class="link-arrow" href="' + href('/docs') + '?p=' + encodeURIComponent(p.slug) + '">' + t('techDocs') +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
           '</a>' +
         '</div>' +
@@ -131,7 +221,7 @@
     if (!list.length) {
       el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:52px 0;color:var(--text-tertiary)">' +
         '<span class="brand-star" style="width:26px;height:26px;display:block;margin:0 auto 12px;opacity:.4"></span>' +
-        '该分类下暂无产品</div>';
+        esc(t('noProduct')) + '</div>';
       return;
     }
     el.innerHTML = list.map(productCardHtml).join('');
@@ -165,8 +255,6 @@
   }
 
   /* ───────────  资料中心  ─────────── */
-  var KIND_LABEL = { spec: '规格书', manual: '说明书', ies: 'IES 光度文件', drawing: '图纸', other: '其他资料' };
-
   function humanSize(n) {
     n = Number(n) || 0;
     if (n < 1024) return n + ' B';
@@ -208,14 +296,15 @@
     if (!slug) { host.innerHTML = ''; return; }
     host.innerHTML = count
       ? '<div class="card-lum" style="padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
-          '<span class="badge badge--brand">已筛选</span>' +
-          '<span class="small">正在显示该产品的技术资料（' + count + ' 份）</span>' +
-          '<a class="link-arrow" style="margin-left:auto" href="/docs">查看全部资料（' + totalAll + ' 份）</a>' +
+          '<span class="badge badge--brand">' + esc(t('docScopeFiltered')) + '</span>' +
+          '<span class="small">' + esc(t('docScopeShowing')) + ' (' + count + ' ' + esc(t('docScopeUnit')) + ')</span>' +
+          '<a class="link-arrow" style="margin-left:auto" href="' + href('/docs') + '">' + esc(t('viewAllDocs')) +
+            ' (' + totalAll + ' ' + esc(t('docScopeUnit')) + ')</a>' +
         '</div>'
       : '<div class="card-lum" style="padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
-          '<span class="badge badge--neutral">暂无</span>' +
-          '<span class="small">该产品还没有上传技术资料</span>' +
-          '<a class="link-arrow" style="margin-left:auto" href="/contact">向我们索取</a>' +
+          '<span class="badge badge--neutral">' + esc(t('docScopeNone')) + '</span>' +
+          '<span class="small">' + esc(t('docScopeEmpty')) + '</span>' +
+          '<a class="link-arrow" style="margin-left:auto" href="' + href('/contact') + '">' + esc(t('askUs')) + '</a>' +
         '</div>';
   }
 
@@ -224,18 +313,24 @@
     if (!filtered.length) {
       el.innerHTML = '<div style="text-align:center;padding:52px 0;color:var(--text-tertiary)">' +
         '<span class="brand-star" style="width:26px;height:26px;display:block;margin:0 auto 12px;opacity:.4"></span>' +
-        '该分类下暂无资料</div>';
+        esc(t('noDoc')) + '</div>';
       return;
     }
     el.innerHTML = '<div class="table-wrap"><table class="tech-table">' +
-      '<thead><tr><th>资料名称</th><th>类型</th><th>关联产品</th><th>大小</th><th style="text-align:right">下载</th></tr></thead><tbody>' +
+      '<thead><tr>' +
+        '<th>' + esc(t('docName')) + '</th>' +
+        '<th>' + esc(t('docType')) + '</th>' +
+        '<th>' + esc(t('docProduct')) + '</th>' +
+        '<th>' + esc(t('docSize')) + '</th>' +
+        '<th style="text-align:right">' + esc(t('download')) + '</th>' +
+      '</tr></thead><tbody>' +
       filtered.map(function (d) {
         return '<tr>' +
           '<td>' + esc(d.title) + (d.filename ? '<div class="small" style="color:var(--text-tertiary)">' + esc(d.filename) + '</div>' : '') + '</td>' +
-          '<td><span class="badge badge--brand">' + esc(d.kind_label || KIND_LABEL[d.kind] || d.kind) + '</span></td>' +
-          '<td>' + (d.product ? esc(d.product.title) : '<span style="color:var(--text-tertiary)">通用资料</span>') + '</td>' +
+          '<td><span class="badge badge--brand">' + esc(kindLabel(d)) + '</span></td>' +
+          '<td>' + (d.product ? esc(d.product.title) : '<span style="color:var(--text-tertiary)">' + esc(t('genericDoc')) + '</span>') + '</td>' +
           '<td class="mono">' + esc(humanSize(d.size)) + '</td>' +
-          '<td style="text-align:right"><a class="link-arrow" href="' + esc(d.url) + '">下载' +
+          '<td style="text-align:right"><a class="link-arrow" href="' + esc(d.url) + '">' + esc(t('download')) +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M6 12l6 6 6-6M4 20h16"/></svg>' +
           '</a></td>' +
         '</tr>';
@@ -280,7 +375,7 @@
                 }).join('') +
               '</tbody></table></div>' +
               ((p.documents && p.documents.length)
-                ? '<h3 class="h4 mt-2xl">资料下载</h3><ul class="brand-list mt-md">' + p.documents.map(function (d) {
+                ? '<h3 class="h4 mt-2xl">' + esc(t('docDownloadHeading')) + '</h3><ul class="brand-list mt-md">' + p.documents.map(function (d) {
                     return '<li><a href="' + esc(d.url) + '">' + esc(d.title) + ' <span class="small">(' + esc(d.kind_label) + ' · ' + esc(humanSize(d.size)) + ')</span></a></li>';
                   }).join('') + '</ul>'
                 : '') +
@@ -312,12 +407,12 @@
         content: val('msg') || val('content'),
       };
       if (!payload.name || !payload.content) {
-        showNote(note, '请填写姓名与需求描述后再提交。', 'error');
+        showNote(note, t('submitNeedName'), 'error');
         return;
       }
 
       var oldText = btn ? btn.textContent : '';
-      if (btn) { btn.disabled = true; btn.textContent = '提交中…'; }
+      if (btn) { btn.disabled = true; btn.textContent = t('submitting'); }
 
       fetch('/api/public/messages', {
         method: 'POST',
@@ -327,14 +422,14 @@
         .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
         .then(function (res) {
           if (res.d && res.d.ok) {
-            showNote(note, '已收到您的需求，我们会在 1–3 个工作日内与您联系。', 'success');
+            showNote(note, t('submitOk'), 'success');
             form.reset();
           } else {
-            showNote(note, (res.d && res.d.error) || '提交失败，请稍后重试，或直接致电 0510-68506661。', 'error');
+            showNote(note, (res.d && res.d.error) || t('submitFail'), 'error');
           }
         })
         .catch(function () {
-          showNote(note, '网络异常，未能提交。请稍后重试，或直接致电 0510-68506661。', 'error');
+          showNote(note, t('submitNet'), 'error');
         })
         .finally(function () {
           if (btn) { btn.disabled = false; btn.textContent = oldText; }
@@ -359,7 +454,7 @@
       btn.addEventListener('click', function () {
         var text = btn.getAttribute('data-copy-text') || '';
         var labelEl = btn.querySelector('[data-copy-label]');
-        var label = labelEl ? labelEl.textContent : '复制';
+        var label = labelEl ? labelEl.textContent : t('copy');
         if (!text) return;
 
         var show = function (msg) {
@@ -371,7 +466,7 @@
         // 现代 API 只在安全上下文（https / localhost）可用；否则回退 execCommand
         if (navigator.clipboard && window.isSecureContext) {
           navigator.clipboard.writeText(text).then(
-            function () { show('已复制'); },
+            function () { show(t('copied')); },
             function () { fallback(); });
         } else {
           fallback();
@@ -389,7 +484,7 @@
           var ok = false;
           try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
           document.body.removeChild(ta);
-          show(ok ? '已复制' : '请手动复制');
+          show(ok ? t('copied') : t('copyManual'));
         }
       });
     });
@@ -403,9 +498,18 @@
     renderDocuments: renderDocuments,
     renderProductDetail: renderProductDetail,
     mountDocFilter: mountDocFilter,
+    mountProductFilter: mountProductFilter,
     mountContactForm: mountContactForm,
-    setLang: function (l) { LANG = l === 'en' ? 'en' : 'zh'; },
-    KIND_LABEL: KIND_LABEL,
+    setLang: function (l) {
+      LANG = l === 'en' ? 'en' : 'zh';
+      // 前缀必须跟着语言一起变，否则切语言后动态卡片仍指向旧站
+      BASE = (LANG === 'en') ? '' : '/cn';
+    },
+    href: href,
+    t: t,
+    kindLabel: kindLabel,
+    get lang() { return LANG; },
+    get base() { return BASE; },
   };
 
   /* ───────────  自动挂载  ───────────

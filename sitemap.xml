@@ -1,52 +1,172 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SEA☆STAR 实益达官网站点地图 · 规范域名 https://www.wx-seastar.cn/ -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<!-- SEA☆STAR 实益达官网站点地图 · 规范域名 https://www.wx-seastar.cn/
+     中英双语站点（v0.13.0 起）：
+       英文站 = 根路径    https://www.wx-seastar.cn/...        （为主 / master）
+       中文站 = /cn 子路径 https://www.wx-seastar.cn/cn/...      （为从 / slave）
+     每个 URL 一律用 xhtml:link 声明**全套**语言版本（含自身与 x-default），
+     这是 Google 对 hreflang 的硬性要求：声明必须双向 reciprocate，单向无效。
+     404 页不收录（robots.txt 已屏蔽）。 -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- ═══════════ 首页 ═══════════ -->
   <url>
     <loc>https://www.wx-seastar.cn/</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/"/>
   </url>
+  <url>
+    <loc>https://www.wx-seastar.cn/cn</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/"/>
+  </url>
+
+  <!-- ═══════════ 通用照明 ═══════════ -->
+  <url>
+    <loc>https://www.wx-seastar.cn/lighting</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/lighting"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/lighting"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/lighting"/>
+  </url>
+  <url>
+    <loc>https://www.wx-seastar.cn/cn/lighting</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/lighting"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/lighting"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/lighting"/>
+  </url>
+
+  <!-- ═══════════ 植物灯具 ═══════════ -->
+  <url>
+    <loc>https://www.wx-seastar.cn/grow-light</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/grow-light"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/grow-light"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/grow-light"/>
+  </url>
+  <url>
+    <loc>https://www.wx-seastar.cn/cn/grow-light</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/grow-light"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/grow-light"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/grow-light"/>
+  </url>
+
+  <!-- ═══════════ ODM 驱动与控制板 ═══════════ -->
   <url>
     <loc>https://www.wx-seastar.cn/odm</loc>
     <lastmod>2026-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/odm"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/odm"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/odm"/>
   </url>
+  <url>
+    <loc>https://www.wx-seastar.cn/cn/odm</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/odm"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/odm"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/odm"/>
+  </url>
+
+  <!-- ═══════════ OEM 电子制造服务 ═══════════ -->
   <url>
     <loc>https://www.wx-seastar.cn/oem</loc>
     <lastmod>2026-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/oem"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/oem"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/oem"/>
   </url>
   <url>
-    <loc>https://www.wx-seastar.cn/lighting</loc>
-    <lastmod>2026-09-30</lastmod>
+    <loc>https://www.wx-seastar.cn/cn/oem</loc>
+    <lastmod>2026-10-09</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/oem"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/oem"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/oem"/>
   </url>
-  <url>
-    <loc>https://www.wx-seastar.cn/grow-light</loc>
-    <lastmod>2026-09-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
+
+  <!-- ═══════════ 资料中心 ═══════════ -->
   <url>
     <loc>https://www.wx-seastar.cn/docs</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/docs"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/docs"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/docs"/>
   </url>
+  <url>
+    <loc>https://www.wx-seastar.cn/cn/docs</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/docs"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/docs"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/docs"/>
+  </url>
+
+  <!-- ═══════════ 关于我们 ═══════════ -->
   <url>
     <loc>https://www.wx-seastar.cn/about</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/about"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/about"/>
   </url>
   <url>
+    <loc>https://www.wx-seastar.cn/cn/about</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/about"/>
+  </url>
+
+  <!-- ═══════════ 联系我们 ═══════════ -->
+  <url>
     <loc>https://www.wx-seastar.cn/contact</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/contact"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/contact"/>
   </url>
+  <url>
+    <loc>https://www.wx-seastar.cn/cn/contact</loc>
+    <lastmod>2026-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/contact"/>
+  </url>
+
 </urlset>

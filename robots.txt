@@ -4,5 +4,6 @@
 User-agent: *
 Allow: /
 Disallow: /404.html
+Disallow: /cn/404.html
 
 Sitemap: https://www.wx-seastar.cn/sitemap.xml

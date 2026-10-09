@@ -4,19 +4,19 @@
   设计系统：Linear × Warm Editorial × ClickHouse（明底为主 · 中光效 · 大留白 · 暖调）
   令牌来源：DESIGN.md §12
 -->
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ODM 驱动与控制板 · SEA☆STAR 实益达</title>
-<meta name="description" content="SEA☆STAR 实益达 ODM 驱动与控制板产品线：TRIAC / 0-10V / Tri-mode 驱动、CCT 与功率可选驱动、BLE 无线控制驱动、传感器控制、UV 杀菌锂电 BMS 板等。">
+<title>ODM Drivers &amp; Control Boards · SEA☆STAR</title>
+<meta name="description" content="SEA☆STAR ODM driver and control board line: TRIAC / 0-10V / Tri-mode drivers, CCT and wattage selectable, BLE wireless control, sensor control and UV sterilizer BMS boards.">
 <link rel="canonical" href="https://www.wx-seastar.cn/odm">
 <meta name="theme-color" content="var(--ink-900)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SEA☆STAR 实益达">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:title" content="ODM 驱动与控制板 · SEA☆STAR 实益达">
-<meta property="og:description" content="SEA☆STAR 实益达 ODM 驱动与控制板产品线：TRIAC / 0-10V / Tri-mode 驱动、CCT 与功率可选驱动、BLE 无线控制驱动、传感器控制、UV 杀菌锂电 BMS 板等。">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="ODM Drivers &amp; Control Boards · SEA☆STAR">
+<meta property="og:description" content="SEA☆STAR ODM driver and control board line: TRIAC / 0-10V / Tri-mode drivers, CCT and wattage selectable, BLE wireless control, sensor control and UV sterilizer BMS boards.">
 <meta property="og:url" content="https://www.wx-seastar.cn/odm">
 <meta property="og:image" content="https://www.wx-seastar.cn/assets/seastar-og.jpg">
 <meta property="og:image:width" content="1200">
@@ -24,6 +24,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>window.__SEASTAR_LANG__='en';</script>
 <link rel="stylesheet" href="styles.css">
 <!-- 无 JS 兜底：.reveal 元素默认 opacity:0，由 IntersectionObserver 加 .is-in 显形。
      若脚本被拦截或加载失败，此规则保证内容仍然可见。 -->
@@ -36,17 +37,18 @@
     <a class="nav__logo" href="/">
       <span class="brand-swap"><img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
     </a>
-    <nav class="nav__links" aria-label="主导航">
-      <a href="/lighting">通用照明</a>
-      <a href="/grow-light">植物灯具</a>
+    <nav class="nav__links" aria-label="Main navigation">
+      <a href="/lighting">General Lighting</a>
+      <a href="/grow-light">Horticulture</a>
       <a href="/odm" class="is-active">ODM</a>
       <a href="/oem">OEM</a>
-      <a href="/docs">资料中心</a>
-      <a href="/about">关于我们</a>
-      <a href="/contact">联系我们</a>
+      <a href="/docs">Documents</a>
+      <a href="/about">About Us</a>
+      <a href="/contact">Contact Us</a>
     </nav>
     <div class="nav__right">
-      <a class="btn btn--primary btn--sm" href="/contact">获取报价</a>
+      <a class="lang-switch" href="/cn/odm" title="中文版">中文</a>
+      <a class="btn btn--primary btn--sm" href="/contact">Get a quote</a>
       <button class="nav__burger" aria-label="打开菜单">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
@@ -58,14 +60,14 @@
   <button class="drawer__close" aria-label="关闭菜单">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
-  <a href="/lighting">通用照明</a>
-  <a href="/grow-light">植物灯具</a>
+  <a href="/lighting">General Lighting</a>
+  <a href="/grow-light">Horticulture</a>
   <a href="/odm">ODM</a>
   <a href="/oem">OEM</a>
-  <a href="/docs">资料中心</a>
-  <a href="/about">关于我们</a>
-  <a href="/contact">联系我们</a>
-  <a class="btn btn--primary btn--lg drawer__cta" href="/contact" style="display:inline-flex;width:fit-content;">获取报价</a>
+  <a href="/docs">Documents</a>
+  <a href="/about">About Us</a>
+  <a href="/contact">Contact Us</a>
+  <a class="btn btn--primary btn--lg drawer__cta" href="/contact" style="display:inline-flex;width:fit-content;">Get a quote</a>
 </div>
 
 <main>
@@ -74,14 +76,13 @@
 <section class="hero-split hero-light hero-light--sub">
   <div class="container relative">
     <nav class="hero-breadcrumb" aria-label="面包屑">
-      <a href="/">首页</a><span>/</span><span>ODM</span>
+      <a href="/">Home</a><span>/</span><span>ODM</span>
     </nav>
     <div class="reveal" style="max-width:820px;">
       <span class="overline">ODM · DRIVER AND CONTROL BOARD</span>
-      <h1 class="display mt-md">ODM 驱动与控制板</h1>
+      <h1 class="display mt-md">ODM Drivers & Control Boards</h1>
       <p class="body-l mt-lg text-secondary measure">
-        本页产品线来自 SEA☆STAR 实益达官网的「DRIVER AND CONTROL BOARD」栏目 —— 按客户需求定制驱动与控制板（ODM，Original Design Manufacturer）。
-        如需规格书、IES 或其他技术文件，可在<a href="/docs" class="link-arrow" style="display:inline-flex">技术资料中心</a>查看，或<a href="/contact" class="link-arrow" style="display:inline-flex">联系我们</a>索取。
+        This product line comes from the “DRIVER AND CONTROL BOARD” section of the SEA☆STAR official website — custom drivers and control boards built to customer requirements (ODM, Original Design Manufacturer). For datasheets, IES files or other technical documents, please visit the <a href="/docs" class="link-arrow" style="display:inline-flex">Technical Documents</a>, or <a href="/contact" class="link-arrow" style="display:inline-flex">Contact Us</a>.
       </p>
     </div>
   </div>
@@ -91,14 +92,14 @@
 <section class="section-tight" aria-labelledby="drv-title">
   <div class="container">
     <div class="section-head reveal">
-      <span class="overline">01 / 产品线</span>
-      <h2 class="h2" id="drv-title">驱动与控制板</h2>
+      <span class="overline">01 / Product Line</span>
+      <h2 class="h2" id="drv-title">Drivers & Control Boards</h2>
     </div>
 
     <!-- 产品清单由后台维护。名称照抄原官网原文，未编造参数。
          原官网未提供这些产品的图片，图片位置如实显示「素材待补充」。 -->
     <div class="grid grid-3 mt-3xl" data-products="category:driver-odm">
-      <noscript><p class="text-secondary">本页产品清单由后台维护。若此处为空白，请开启浏览器 JavaScript，或直接<a href="/contact">联系我们</a>索取产品资料。</p></noscript>
+      <noscript><p class="text-secondary">This product list is maintained in the backend. If this area is blank, please enable JavaScript or <a href="/contact">Contact Us</a>request product documents.</p></noscript>
     </div>
   </div>
 </section>
@@ -108,14 +109,14 @@
   <div class="container center">
     <span class="overline">TECHNICAL DOCUMENTS</span>
     <h2 class="display mt-md" id="odm-cta" style="max-width:22ch;margin-inline:auto;">
-      需要驱动与控制板的技术文件？
+      Need technical documents for drivers and control boards?
     </h2>
     <p class="body-l mt-lg mx-auto" style="max-width:52ch;">
-      提供型号与应用需求，我们会把对应的规格书与技术文件发送给您。
+      Provide the model and application, and we will send you the corresponding datasheet and technical files.
     </p>
     <div class="flex gap-md mt-2xl justify-center" style="flex-wrap:wrap;">
-      <a class="btn btn--primary btn--lg" href="/contact">索取技术资料</a>
-      <a class="btn btn--ghost btn--lg" href="/docs">前往资料中心</a>
+      <a class="btn btn--primary btn--lg" href="/contact">Request technical documents</a>
+      <a class="btn btn--ghost btn--lg" href="/docs">Go to Documents</a>
     </div>
   </div>
 </section>
@@ -129,33 +130,33 @@
         <div class="footer__logo">
           <img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
         </div>
-        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">照明整体解决方案提供商。通用照明 · ODM · OEM。</p>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">A complete lighting solutions provider. General lighting · ODM · OEM.</p>
       </div>
       <div class="footer__col">
-        <h4>业务线</h4>
-        <a href="/lighting">通用照明灯具</a>
-        <a href="/grow-light">植物照明灯具</a>
-        <a href="/odm">ODM 驱动与控制板</a>
-        <a href="/oem">OEM 电子制造服务</a>
+        <h4>Business lines</h4>
+        <a href="/lighting">General Lighting</a>
+        <a href="/grow-light">Horticulture Lighting</a>
+        <a href="/odm">ODM Drivers & Control Boards</a>
+        <a href="/oem">OEM Electronics Manufacturing</a>
       </div>
       <div class="footer__col">
-        <h4>公司</h4>
-        <a href="/about">关于我们</a>
-        <a href="/about#history">发展历程</a>
-        <a href="/about#factory">工厂与产能</a>
-        <a href="/contact">联系我们</a>
+        <h4>Company</h4>
+        <a href="/about">About Us</a>
+        <a href="/about#history">Milestones</a>
+        <a href="/about#factory">Factory & Capacity</a>
+        <a href="/contact">Contact Us</a>
       </div>
       <div class="footer__col">
-        <h4>联系</h4>
+        <h4>Contact</h4>
         <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
         <a href="tel:+8651068506661">0510-68506661</a>
-        <a href="/contact">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+        <a href="/contact">West of Jing 11th Rd, North of Jing 13th Rd, South of the planned canal, Hongshan Sub-district, Xinwu District, Wuxi, Jiangsu, PRC</a>
       </div>
     </div>
     <div class="footer__bottom">
-      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
-      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
-      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+      <span>© 2026 Wuxi Seastar Lighting Co., Ltd. All rights reserved.</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">ICP Filing No. 19020304-1</a>
+      <span class="mono">Wuxi Seastar Lighting Co., Ltd. · SEA☆STAR</span>
     </div>
   </div>
 </footer>

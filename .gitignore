@@ -23,6 +23,10 @@ desktop.ini
 # 抓取原官网时的临时工作目录（页面缓存 / 中间 JSON）——
 # 正式脚本见 deploy/crawl-official-products.py
 .crawl/
+
+# 双语站点构建期间的临时目录（页面缓存 / 映射表 / 生成脚本）
+.i18n/
+.cn/
 _*.py
 _*.html
 shots/
@@ -34,3 +38,9 @@ server/.env
 *.db
 *.db-wal
 *.db-shm
+
+# ── 双语翻转临时产物 ──
+.flip-zh/
+.crawl/
+.cn/
+.i18n/
