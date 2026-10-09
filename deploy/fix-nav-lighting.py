@@ -53,6 +53,32 @@ BAD_IN_DRAWER = re.compile(
     r'</div>\s*</div>', re.S)
 
 
+# nav 区块内的下拉块（不论缩进），用于统一重新格式化
+REFORMAT = re.compile(
+    r'[ \t]*<div class="nav__dropdown">\s*'
+    r'<a href="(?P<href>[^"]+)" class="(?P<cls>[^"]+)">(?P<name>[^<]+)</a>\s*'
+    r'<div class="nav__dropdown-menu">\s*'
+    r'<a href="(?P<l1>[^"]+)">(?P<t1>[^<]+)</a>\s*'
+    r'<a href="(?P<l2>[^"]+)">(?P<t2>[^<]+)</a>\s*'
+    r'<a href="(?P<l3>[^"]+)">(?P<t3>[^<]+)</a>\s*'
+    r'</div>\s*</div>', re.S)
+
+
+def _fmt_dropdown(m):
+    # 首行补回 6 空格 —— REFORMAT 的 [ \t]* 会连前导空白一起吃掉
+    return ('      <div class="nav__dropdown">\n'
+            '        <a href="%s" class="%s">%s</a>\n'
+            '        <div class="nav__dropdown-menu">\n'
+            '          <a href="%s">%s</a>\n'
+            '          <a href="%s">%s</a>\n'
+            '          <a href="%s">%s</a>\n'
+            '        </div>\n'
+            '      </div>'
+            % (m.group('href'), m.group('cls'), m.group('name'),
+               m.group('l1'), m.group('t1'), m.group('l2'), m.group('t2'),
+               m.group('l3'), m.group('t3')))
+
+
 def labels(zh):
     if zh:
         return ('通用照明', '家居照明', '商业照明', '户外照明')
@@ -71,14 +97,15 @@ def drawer_block(href, zh):
 def nav_block(href, zh, extra_class):
     name, a, b, c = labels(zh)
     cls = 'nav__dropdown-trigger' + ((' ' + extra_class) if extra_class else '')
-    return ('        <div class="nav__dropdown">\n'
-            '          <a href="%s" class="%s">%s</a>\n'
-            '          <div class="nav__dropdown-menu">\n'
-            '            <a href="%s?scene=home">%s</a>\n'
-            '            <a href="%s?scene=commercial">%s</a>\n'
-            '            <a href="%s?scene=outdoor">%s</a>\n'
-            '          </div>\n'
-            '        </div>'
+    # 首行不带缩进 —— 被替换的 <a> 原本的 6 空格前导空白会保留下来
+    return ('<div class="nav__dropdown">\n'
+            '        <a href="%s" class="%s">%s</a>\n'
+            '        <div class="nav__dropdown-menu">\n'
+            '          <a href="%s?scene=home">%s</a>\n'
+            '          <a href="%s?scene=commercial">%s</a>\n'
+            '          <a href="%s?scene=outdoor">%s</a>\n'
+            '        </div>\n'
+            '      </div>'
             % (href, cls, name, href, a, href, b, href, c))
 
 
@@ -105,7 +132,13 @@ def process(path, zh):
         raise SystemExit('✘ %s：定位不到 nav 区块' % path)
     inner = nz.group(2)
     if 'nav__dropdown' in inner:
-        report.append('nav 已是下拉结构，跳过')
+        # 已升级过，但可能带着不合规的缩进（首次插入时前缀算重了）——统一规范化
+        norm = REFORMAT.search(inner)
+        if norm:
+            inner = REFORMAT.sub(_fmt_dropdown, inner)
+            report.append('nav 已是下拉结构，已规范化缩进')
+        else:
+            report.append('nav 已是下拉结构，跳过')
     else:
         pat = (re.compile(r'<a href="/cn/lighting"(\s+class="([^"]*)")?>通用照明</a>') if zh
                else re.compile(r'<a href="/lighting"(\s+class="([^"]*)")?>General Lighting</a>'))
