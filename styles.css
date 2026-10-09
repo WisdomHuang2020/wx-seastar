@@ -366,6 +366,32 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .nav__burger svg{ width:20px; height:20px; }
 
+/* 导航下拉菜单（通用照明 → 家居/商业/户外） */
+.nav__dropdown{ position:relative; }
+.nav__dropdown-trigger{ display:inline-flex; align-items:center; gap:4px; }
+.nav__dropdown-menu{
+  position:absolute; top:calc(100% + 8px); left:0;
+  min-width:160px; background:#fff;
+  border:1px solid var(--border-subtle); border-radius:var(--radius-md);
+  box-shadow:0 12px 32px rgba(9,14,20,.12);
+  padding:8px 0;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translateY(-6px);
+  transition:opacity var(--duration-fast), transform var(--duration-fast), visibility var(--duration-fast);
+  z-index:100;
+}
+.nav__dropdown:hover .nav__dropdown-menu,
+.nav__dropdown:focus-within .nav__dropdown-menu{
+  opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
+}
+.nav__dropdown-menu a{
+  display:block; padding:9px 18px;
+  font-size:.9375rem; font-weight:500;
+  color:var(--text-primary); white-space:nowrap;
+}
+.nav__dropdown-menu a:hover{ color:var(--brand-600); background:var(--brand-25); }
+.nav__dropdown-menu a::after{ display:none; } /* 下拉项不要底部下划线 */
+
 /* 注：js/app.js 仍会切换 .nav--transparent / .nav--sol / .nav--dark / .is-open 等类。
    v2 导航是**恒定白底**，所以 `.nav--transparent` 与 `.nav--dark` 刻意**不定义样式** ——
    它们只作为 JS 的状态锚点存在，不是"样式缺失"。`.nav--sol` 则是滚动后的收边效果。 */
@@ -406,6 +432,12 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .drawer__close svg{ width:20px; height:20px; }
 .drawer__cta{ margin-top:var(--space-md); }
+.drawer__sub{
+  font-size:1.125rem !important; font-weight:500 !important;
+  padding-left:24px !important; color:var(--text-muted) !important;
+  border-bottom:none !important;
+}
+.drawer__sub:hover{ color:var(--brand-200) !important; }
 
 /* ───────────────────────────  8. Hero  ─────────────────────────── */
 /* 满幅实景图 + 图上叠字 */

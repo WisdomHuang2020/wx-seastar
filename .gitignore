@@ -44,3 +44,6 @@ server/.env
 .crawl/
 .cn/
 .i18n/
+
+# ── 导航下拉脚本临时备份 ──
+.flip-nav/

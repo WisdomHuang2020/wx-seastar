@@ -211,6 +211,7 @@
         var list = res.data || [];
         el.__products = list;                 // 缓存，供客户端筛选复用
         paintProducts(el, list);
+        applySceneFilter();                   // URL ?scene=xxx 自动激活对应筛选
       })
       .catch(function (err) {
         console.warn('[site] 产品加载失败，保留页面静态内容：', err.message);
@@ -226,6 +227,28 @@
     }
     el.innerHTML = list.map(productCardHtml).join('');
     if (window.SeaStarReveal) window.SeaStarReveal(el);
+  }
+
+  /**
+   * URL 带 ?scene=home|commercial|outdoor 时，自动激活对应筛选按钮并过滤产品。
+   * 供导航下拉菜单直接链入某个场景（如 /lighting?scene=home）。
+   */
+  function applySceneFilter() {
+    var qs = new URLSearchParams(window.location.search);
+    var scene = qs.get('scene');
+    if (!scene) return;
+    document.querySelectorAll('[data-products-filter]').forEach(function (pills) {
+      var btn = pills.querySelector('[data-filter="' + scene + '"]');
+      if (!btn) return;
+      var gridSel = pills.getAttribute('data-products-filter');
+      var grid = gridSel ? document.querySelector(gridSel) : null;
+      if (!grid || !grid.__products) return;
+      pills.querySelectorAll('[data-filter]').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      paintProducts(grid, grid.__products.filter(function (p) {
+        return (p.scene || []).indexOf(scene) >= 0;
+      }));
+    });
   }
 
   /**

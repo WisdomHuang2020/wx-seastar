@@ -68,6 +68,27 @@ v0.12.0 做成了「中文在根 + 英文在 `/en`」，本次把两套页面树
 
 ---
 
+## [v0.13.1] - 2026-10-09
+
+### ✨ 导航下拉：通用照明支持 hover 展开场景入口
+
+桌面端导航「通用照明 / General Lighting」增加 hover 下拉菜单：
+
+| 中文下拉 | 英文下拉 | 链接 |
+|---|---|---|
+| 家居照明 | Residential | `?scene=home` |
+| 商业照明 | Commercial | `?scene=commercial` |
+| 户外照明 | Outdoor | `?scene=outdoor` |
+
+- 入口直接链到 `/lighting?scene=xxx`（中文站为 `/cn/lighting?scene=xxx`）
+- `js/site.js` 读取 URL 参数自动激活页内对应筛选按钮，无需二次点击
+- 移动端 drawer 同步把三个场景入口静态展开，便于触屏访问
+
+新增 `deploy/add-nav-dropdown.py` 统一处理 18 个页面（中英文各 9 个）的
+nav + drawer 结构改写，避免手工改漏。
+
+---
+
 ### v0.12.0 —— 未独立发布，内容已并入 v0.13.0
 
 > v0.12.0 的改动随 v0.13.0 的架构翻转**一并发布，没有单独打 tag**。
