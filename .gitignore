@@ -19,6 +19,10 @@ desktop.ini
 *.bak
 *.orig
 *.log
+
+# 抓取原官网时的临时工作目录（页面缓存 / 中间 JSON）——
+# 正式脚本见 deploy/crawl-official-products.py
+.crawl/
 _*.py
 _*.html
 shots/

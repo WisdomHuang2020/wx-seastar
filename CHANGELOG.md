@@ -11,6 +11,58 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.10.0] - 2026-10-09
+
+### 🔴 重大发现：原官网的产品远不止之前抓到的 24 个
+
+此前只抓了原官网 `LED LIGHTING` 栏目**第 1 页**的 24 个产品，便当成"全部"。
+本次按「包括二级、三级子目录下的各页面」重新彻底爬取，实际情况是：
+
+| 位置 | 内容 |
+|---|---|
+| `/forum/id/15448/` | LED LIGHTING **主栏目，共 4 页**（每页 24 个） |
+| `cid/15449` | **EUROPE**（市场分区，1 页） |
+| `cid/15450` | **NORTH AMERICA**（3 页） |
+| `cid/15451` | **ASIA**（1 页） |
+| `cid/15452` | SOUTH AMERICA（空） |
+| `/page/28684/` | DRIVER AND CONTROL BOARD (ODM/OEM)，6 个（**与库内一致，无遗漏**） |
+
+**去重后原官网共 83 个 LED 产品，而我们库里只有 24 个 —— 漏了 59 个。**
+
+漏掉的包括整整几个产品线：Wallpack（WPX1~WPX5）、High Bay（HBX/EHBX）、
+Flood Light（FLX/EFLX）、Solar Flood、Vaportight、Canopy/Parking Garage、
+Track Light、Troffer、Grow Light、灯带（SMD/Neon/COB/Magnetic）、
+冷柜灯（FZ01）、以及 FMX/GBX/SPX/RDX/CDX/EPLX/ESPX 等多个系列。
+**这也解释了此前「户外照明」只有一个产品的尴尬**。
+
+### 新增
+- **补录 59 个产品**，照明线从 25 → **84 个**（总数 90，含 6 个 ODM）。
+  图片全部从原官网按栏目结构抓取（`item_img` ↔ `a.title` 的真实对应），
+  以 slug 命名存入 `assets/img/product/<slug>.jpg`，并同步到线上 `uploads/img/`。
+- **应用场景重新分类**（按产品名里的行业术语判定）：
+  家居 29 / 商业 69 / **户外 14**（此前户外仅 1 个）。
+- `seed-products.js` 同步扩充到 83 个产品（含 scene），保证 `--reset` 可重建。
+
+### 判定依据（⚠️ 属推断，建议客户复核）
+- **有明确文字依据的**：名字含 `Wallpack` / `Flood Light` / `Solar Flood` /
+  `Vaportight` / `Canopy` / `Parking Garage` → 户外；
+  含 `High Bay` / `Troffer` / `Track Light` / `Panel` / `Strip` / `Wraparound` /
+  `Linear` / `Gimbal` / `Eyeball` → 商业；`Vanity` → 家居；
+  `Downlight` / `Surface Mount` / `Ceiling` / `Retrofit` → 家居 + 商业。
+- **两处特判**（按字面规则会判错）：
+  `FZ01 Cooler Lighting（Canopy+…）` 里的 Canopy 指**冷柜层板**而非户外雨棚 → 商业；
+  `FMX10 Small Panel Lamp Ceiling Lamp` 是吸顶形态 → 家居 + 商业。
+- **原官网本身没有「家居/商业/户外」这个维度**，上述归类全部是按术语推断的，
+  请客户过目；后台可随时调整，改完前台即时生效。
+
+### 技术说明
+- 原官网对 `curl` 一律返回 **403**（页面有 WAF），但图片源
+  `resources.jsmo.xin` 仍可 `curl`（须带 `Referer` 与 `http` 协议）。
+  因此**页面用无头 Chrome 抓取**、**图片用 curl 下载**，两者结合。
+- 抓取脚本保存在 `deploy/crawl-official-products.py`，日后核对可复现。
+
+---
+
 ## [v0.9.2] - 2026-10-08
 
 ### 修复
