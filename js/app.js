@@ -53,6 +53,56 @@
     });
   }
 
+  /* ---------- 2b. 桌面端导航下拉（通用照明 → 家居/商业/户外） ----------
+     ⚠️ 为什么不用纯 CSS :hover 作为唯一机制：
+        纯 CSS 版本靠 opacity + visibility 过渡，而 visibility 是**离散属性**，
+        鼠标快速进出、或页面从 bfcache 恢复时状态可能残留，
+        表现为"下拉只在第一次 hover 时能展开"。
+        改由 JS 显式加 .is-open（display 切换，无中间态），
+        关闭再加 160ms 延迟 —— 鼠标从触发器移进菜单的途中不会断线。
+        CSS 里的 :hover 规则保留，仅作为无 JS 时的兜底。 */
+  document.querySelectorAll('.nav__dropdown').forEach(function (dd) {
+    var closeTimer = null;
+
+    var open = function () {
+      clearTimeout(closeTimer);
+      dd.classList.add('is-open');
+    };
+    var closeSoon = function () {
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(function () { dd.classList.remove('is-open'); }, 160);
+    };
+
+    dd.addEventListener('mouseenter', open);
+    dd.addEventListener('mouseleave', closeSoon);
+    dd.addEventListener('focusin', open);       // 键盘 Tab 进入也展开
+    dd.addEventListener('focusout', closeSoon);
+
+    // 触屏设备没有 hover：第一次点触发器先展开，再点才跳转
+    var trigger = dd.querySelector('.nav__dropdown-trigger');
+    if (trigger) {
+      trigger.addEventListener('click', function (e) {
+        if (window.matchMedia('(hover: none)').matches && !dd.classList.contains('is-open')) {
+          e.preventDefault();
+          open();
+        }
+      });
+    }
+  });
+
+  // 点击下拉以外的区域、或按 Esc，收起所有下拉
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('.nav__dropdown.is-open').forEach(function (dd) {
+      if (!dd.contains(e.target)) dd.classList.remove('is-open');
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.nav__dropdown.is-open').forEach(function (dd) {
+      dd.classList.remove('is-open');
+    });
+  });
+
   /* ---------- 3. 滚动入场（IntersectionObserver） ---------- */
   var revealObserver = null;
 

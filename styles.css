@@ -366,37 +366,40 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .nav__burger svg{ width:20px; height:20px; }
 
-/* 导航下拉菜单（通用照明 → 家居/商业/户外） */
+/* 导航下拉菜单（通用照明 → 家居/商业/户外）
+   ⚠️ 显隐由 js/app.js 加/去 .is-open 控制，**不要**改回纯 :hover --
+      之前用 opacity+visibility 过渡实现，依赖的是「离散属性」，
+      鼠标快速进出或从 bfcache 返回时状态可能残留，表现为"只有第一次能展开"。
+      display 切换没有中间态，配 JS 的延迟关闭最稳。
+      :hover 规则保留，仅作为**无 JS 时的兜底**。 */
 .nav__dropdown{ position:relative; }
 .nav__dropdown-trigger{ display:inline-flex; align-items:center; gap:4px; }
 .nav__dropdown-menu{
   position:absolute;
-  /* ⚠️ 必须 top:100% 紧贴触发器。若再加间距（如 calc(100% + 8px)），
-     鼠标从导航项移到菜单的途中会经过那几像素空白 —— 此时既不在触发器上、
-     也还没进菜单，hover 断开 → 菜单消失，且**无法用 JS 补救**（鼠标已离开）。
-     视觉上的悬浮感改由 margin-top 提供，配合下方 ::before 桥接区补回 hover。 */
+  /* top:100% 紧贴触发器，视觉悬浮感交给 margin-top；
+     下方 ::before 桥接区把那几像素空隙接住，鼠标移入菜单时不会断线。 */
   top:100%; margin-top:6px; left:0;
   min-width:172px; background:#fff;
   border:1px solid var(--border-subtle); border-radius:var(--radius-md);
   box-shadow:0 12px 32px rgba(9,14,20,.12);
   padding:8px 0;
-  opacity:0; visibility:hidden; pointer-events:none;
-  transform:translateY(-6px);
-  /* 隐藏时给 visibility 加 0.2s 延迟：鼠标在边缘抖动/斜着移入时不会瞬间消失 */
-  transition:opacity .2s var(--ease-standard), transform .2s var(--ease-out-soft),
-             visibility 0s linear .2s;
+  display:none;
   z-index:100;
 }
-/* 桥接区：向上覆盖 margin-top 造成的空隙，让鼠标「不断线」。
-   透明、只占那 12px，不会挡住下方正文。 */
+/* 桥接区：向上覆盖 margin-top 造成的空隙。透明，不挡下方正文。 */
 .nav__dropdown-menu::before{
   content:""; position:absolute; left:0; right:0; top:-12px; height:12px;
 }
-.nav__dropdown:hover .nav__dropdown-menu,
-.nav__dropdown:focus-within .nav__dropdown-menu{
-  opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
-  transition:opacity .18s var(--ease-out-soft), transform .18s var(--ease-out-soft),
-             visibility 0s;
+.nav__dropdown.is-open .nav__dropdown-menu,
+.nav__dropdown:hover .nav__dropdown-menu{
+  display:block;
+}
+.nav__dropdown.is-open .nav__dropdown-menu{
+  animation:dropdownIn .16s var(--ease-out-soft) both;
+}
+@keyframes dropdownIn{
+  from{ opacity:0; transform:translateY(-6px); }
+  to{ opacity:1; transform:none; }
 }
 .nav__dropdown-menu a{
   display:block; padding:9px 18px;
