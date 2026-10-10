@@ -69,6 +69,23 @@ function sh(args, opts = {}) {
 
 function log(msg) { console.log('  ' + msg); }
 
+/**
+ * 取「工作区里改动的文件路径」。
+ *
+ * ⚠️ 这里**不能用 sh()** —— 它内部对整段输出做了 `.trim()`，
+ *    而 porcelain 的**第一行以空格开头**（" M cn/news.html"），
+ *    那个空格会被 trim 吃掉，第一行就变成 "M cn/news.html"，
+ *    再按固定位数切前缀就会切出 "n/news.html" 这种**截错的文件名**
+ *    （实测踩到：闸门报"暂存了不该提交的文件 cn/news.html"，
+ *     因为允许列表里存的是 n/news.html）。
+ *    → 用 `-z`（NUL 分隔）且**不做任何 trim**，既避免首行被吃，也避免路径被引号包住。
+ */
+function changedPaths(paths) {
+  const out = execFileSync('git', ['-C', REPO, 'status', '--porcelain', '-z', '--', ...paths],
+    { encoding: 'utf8', timeout: 60000 });
+  return out.split('\0').filter(Boolean).map(e => e.slice(3).trim());
+}
+
 function setQueue(id, status, extra = '') {
   const logTxt = String(extra || '').slice(0, 4000);
   db.run(
@@ -159,7 +176,10 @@ function processOne(task) {
   if (!isNews && !fs.existsSync(absFile)) throw new Error('仓库里找不到目标文件 ' + relFile);
 
   // ── 取最新 main 与待审分支 ──
+  // ⚠️ 必须**连待审分支一起 fetch**：否则本地看不到它上面的旧提交，
+  //    「分支收敛回 main」那一步会误判成"没有过期提交"而不执行（实测踩到）。
   sh(['fetch', '--quiet', 'origin', 'main']);
+  try { sh(['fetch', '--quiet', 'origin', BRANCH]); } catch { /* 首次发布时分支还不存在 */ }
   const mainSha = sh(['rev-parse', 'origin/main']);
   log(`origin/main = ${mainSha.slice(0, 8)}`);
 
@@ -233,20 +253,22 @@ function processOne(task) {
       } else if (DRY) {
         // ⚠️ 生成脚本**没有 dry-run 模式，它总是写盘**（`--check` 是个空参数）。
         //    所以这里“生成完再还原”，保证干跑不留痕 —— 干跑就该是只读的。
-        const before = sh(['status', '--porcelain', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
+        const NEWS = ['news.html', 'cn/news.html', 'news/', 'cn/news/'];
+        const before = changedPaths(NEWS);
         N.regenerate(REPO);
-        const after = sh(['status', '--porcelain', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
-        newsChanged.push(...after.split('\n').filter(Boolean).map(l => l.slice(3).trim()));
+        newsChanged.push(...changedPaths(NEWS));
         sh(['checkout', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
         log(`[dry-run] 新闻：会有 ${newsChanged.length} 个文件改动（已还原，未留痕）`
           + (before.split('\n').filter(Boolean).length ? '；注意生成前仓库里本就有改动' : ''));
       } else {
         N.regenerate(REPO);
-        const st = sh(['status', '--porcelain', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
-        newsChanged.push(...st.split('\n').filter(Boolean).map(l => l.slice(3).trim()));
+        newsChanged.push(...changedPaths(['news.html', 'cn/news.html', 'news/', 'cn/news/']));
       }
     }
   }
+
+  log(`新闻再生成：${newsChanged.length} 个文件改动${newsChanged.length ? ' → ' + newsChanged.slice(0, 4).join(', ') : ''}`
+    + (newsSkipped ? '（已跳过）' : ''));
 
   const managed = db.all('SELECT id, slug FROM pages ORDER BY slug');
   const changed = [];
@@ -277,6 +299,26 @@ function processOne(task) {
   }
 
   if (!changed.length && !newsChanged.length) {
+    // ⚠️ 没有待审改动时**不能直接返回** —— 若 creator 上还残留着早先的提交
+    //    （例如那批改动后来被撤销了），分支就会一直挂着过期的内容，
+    //    开 PR 会把这些过期改动再次带进 main。
+    //    所以这里把分支**收敛回 main**，维持不变量：creator = main + 待审改动。
+    if (hasRemoteBranch) {
+      const stale = sh(['rev-list', '--count', `${mainSha}..origin/${BRANCH}`]);
+      if (Number(stale) > 0) {
+        log(`待审分支上有 ${stale} 个已无对应改动的提交，收敛回 main`);
+        if (!DRY) {
+          sh(['checkout', '--quiet', '-B', BRANCH, 'origin/main']);
+          try {
+            sh(['push', '--quiet', '--force', PUSH_URL, `${mainSha}:refs/heads/${BRANCH}`]);
+            log('待审分支已回到 main 的状态');
+          } catch (e) {
+            log('收敛失败（不影响本次）：' + String(e.stderr || e.message).slice(0, 120));
+          }
+        }
+        return { status: 'done', note: `内容与线上一致，已把待审分支 ${BRANCH} 收敛回 main（清掉 ${stale} 个过期提交）` };
+      }
+    }
     return { status: 'done', note: '内容与线上一致，无需发布（未产生提交）' };
   }
   log(`待提交 ${changed.length} 个页面：${changed.join(', ')}`);
