@@ -11,6 +11,60 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.21.1] - 2026-10-10
+
+### 🧭 导航当前栏目高亮（新增）+ 人数口径全站统一为 600+
+
+#### ① 人数口径统一（客户指定：公司人数 600+）
+
+**问题**：about 页数据带写 `600+ 员工`，而 OEM 页数据带另有一块 **`500+ 熟练工人`** ——
+两者都是"人数型"数字，访客会读成互相矛盾。
+
+| 位置 | 旧 | 新 |
+|---|---|---|
+| `oem.html` 数据带 | `500+` / Skilled workers | **`600+` / Employees** |
+| `cn/oem.html` 数据带 | `500+` / 熟练工人 | **`600+` / 员工** |
+| `cn/oem.html` meta | 「…十万级洁净车间，500+ 熟练工人，月产能 100 万 PCS」 | 「…十万级洁净车间，**600+ 员工**，月产能 100 万 PCS」 |
+| 两页「组装线」卡片 | 「…500+ skilled workers with a monthly capacity of 1 million PCS」 | 「…with a monthly capacity of 1 million PCS」（**人数移除，产能保留**） |
+
+**出处说明**：`600+` 取自源站 About Us 的 `a workforce of over 600 employees`；
+源站 Facilities 另有 `More than 500 skillful workers…`（与月产能绑在同一句）。
+本页**不再引用其中的 500+ 人数**（否则与 600+ 冲突），**月产能 100 万 PCS 保留**。
+两点均写入两页文件头注释留痕。
+
+#### ② 导航当前栏目高亮（新增）
+
+**此前站内没有任何"当前栏目"机制**（`.nav__links a` 只有 hover 态）。
+
+| 层 | 改动 |
+|---|---|
+| `styles.css` | `.nav__links a[aria-current="page"]` 着色 + 下划线；抽屉 `.drawer a[aria-current="page"]` |
+| `js/app.js` | 新增**第 9 节**：按 `location.pathname` 打 `aria-current="page"` |
+
+**设计要点**：
+- 用**标准属性 `aria-current`** 而非自建类名 —— 读屏可播报「当前页」，且**无 JS 时不误标任何项**；
+- **跳过带 query 的项** —— 下拉里的 `/lighting?scene=outdoor` 是栏目内筛选，否则会「三项同时高亮」；
+- 同级多命中取**最长路径**（`/cn/news/<slug>` → 高亮 `/cn/news`），并把该长度上所有匹配项一起标注
+  （桌面导航与移动抽屉各一份）。
+
+**实测（真实路径：本地干净 URL 服务 + 无头 Chrome 读回 DOM，12 条路径）**：
+
+| 路径 | 高亮项 | 结果 |
+|---|---|---|
+| `/` | （无） | ✓ 首页无对应导航项 |
+| `/about` `/odm` `/oem` `/news` `/lighting` | 对应项 | ✓ |
+| `/lighting?scene=outdoor` | **通用照明（仅栏目，不含 3 个筛选子项）** | ✓ |
+| `/cn` | （无） | ✓ |
+| `/cn/about` `/cn/odm` `/cn/news` `/cn/lighting` | 对应中文项 | ✓ |
+
+#### ③ 待确认：自动化产线配图（本轮未改动）
+
+客户要求「从源站抓取 **wafer 自动化生产线** 替换」。**核查结果：源站不存在 "wafer" 这一标识** ——
+已逐项查过源站全部页面 HTML 文本、全部 **91 张** 图片的文件名与 `alt`、以及 `sitemap.xml`（404）。
+故本轮**未改动**，待客户指认具体是哪一张（对照图与候选见交付记录）。
+
+---
+
 ## [v0.21.0] - 2026-10-10
 
 ### 🎠 首页「精选产品」改为按客户指定型号轮播

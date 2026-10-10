@@ -256,4 +256,39 @@
     });
     start();
   });
+
+  /* ---------- 9. 导航当前栏目高亮 ----------
+     按 location.pathname 给当前栏目打 aria-current="page"（styles.css 用属性选择器着色）。
+     · 只认站内绝对路径，且**跳过带 query 的项** —— 下拉里的 /lighting?scene=xx 是栏目内筛选，
+       否则会出现"三项同时高亮"
+     · 同等命中时取**最长路径**（如 /cn/news/<slug> 命中 /cn/news），
+       并把该长度上**所有**匹配项一起标注（桌面导航与移动抽屉各有一份）
+     · 用标准属性而非自建类名：读屏可播报"当前页"，且**无 JS 时不误标任何项** */
+  (function () {
+    var links = document.querySelectorAll('.nav__links a, .drawer a');
+    if (!links.length) return;
+    var path = location.pathname.replace(/\/+$/, '');
+    var bestLen = -1, i, a, href, p;
+    for (i = 0; i < links.length; i++) {
+      a = links[i];
+      if (a.classList.contains('btn')) continue;
+      href = a.getAttribute('href') || '';
+      if (href.charAt(0) !== '/' || href.indexOf('?') !== -1) continue;
+      p = href.replace(/\/+$/, '');
+      if (path === p || (p && path.indexOf(p + '/') === 0)) {
+        if (p.length > bestLen) bestLen = p.length;
+      }
+    }
+    if (bestLen < 0) return;
+    for (i = 0; i < links.length; i++) {
+      a = links[i];
+      if (a.classList.contains('btn')) continue;
+      href = a.getAttribute('href') || '';
+      if (href.charAt(0) !== '/' || href.indexOf('?') !== -1) continue;
+      if (href.replace(/\/+$/, '').length === bestLen &&
+          (path === href.replace(/\/+$/, '') || path.indexOf(href.replace(/\/+$/, '') + '/') === 0)) {
+        a.setAttribute('aria-current', 'page');
+      }
+    }
+  })();
 })();
