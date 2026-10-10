@@ -13,6 +13,23 @@
    结构沿用 v1 的 class 命名，便于逐页平滑迁移。
    ============================================================================ */
 
+/* ───────────────────────────  0. 自托管字体（v0.28.10）────────────────
+   · Inter / JetBrains Mono 可变字体（latin 子集，WOFF2，共约 88KB）——
+     解决"栈里声明了 Inter 却从未加载、实际全靠系统字体"的名存实亡问题
+   · 中文仍走系统栈（PingFang SC / 微软雅黑），latin 子集不含 CJK 字形、互不干扰
+   · font-display:swap：字体未到时先用系统字体渲染，不阻塞首屏
+   · 自托管不走任何 CDN：国内访问无 Google Fonts 可达性问题             */
+@font-face{
+  font-family:"Inter";
+  src:url("assets/fonts/inter-vf.woff2") format("woff2-variations");
+  font-weight:100 900; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:"JetBrains Mono";
+  src:url("assets/fonts/jbmono-vf.woff2") format("woff2-variations");
+  font-weight:100 800; font-style:normal; font-display:swap;
+}
+
 /* ───────────────────────────  1. 设计令牌  ─────────────────────────── */
 :root {
   /* ——— 品牌蓝（实测自 Logo 风车，主色 #0070C0）——— */
@@ -43,7 +60,8 @@
 
   /* ——— 文字 ——— */
   --text-primary: #14171C;    --text-secondary: #6B7480;
-  --text-tertiary: #9AA3AE;   --text-brand: var(--brand-500);
+  /* tertiary 由 #9AA3AE 加深到 #69727D：白底对比度 2.8:1 → 4.6:1（过 WCAG AA） */
+  --text-tertiary: #69727D;   --text-brand: var(--brand-500);
   --text-brand-deep: var(--brand-700);
   --text-on-dark: #F1F3F5;    --text-on-dark-muted: #9AA3AE;
 
@@ -94,12 +112,15 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 ::selection{ background:var(--brand-100); color:var(--brand-900); }
 
 /* ───────────────────────────  3. 版式  ─────────────────────────── */
-.display-xl{ font-family:var(--font-heading); font-size:clamp(2.8rem,6.2vw,5.4rem); font-weight:600; line-height:1.02; letter-spacing:-.035em; }
-.display{ font-family:var(--font-heading); font-size:clamp(2.15rem,4.8vw,3.8rem); font-weight:600; line-height:1.08; letter-spacing:-.03em; }
-.h1{ font-family:var(--font-heading); font-size:clamp(2rem,3.8vw,2.9rem); font-weight:600; line-height:1.14; letter-spacing:-.025em; }
+/* 字重层次（v0.28.10）：Display 700 重磅压场（大气），H1 650，向下 600 递减。
+   配合自托管 Inter 可变字体，650 这类中间重量在英文下真实生效；
+   中文落在系统字体上按可用字重就近渲染（雅黑/PingFang 的 Bold/Semibold）。 */
+.display-xl{ font-family:var(--font-heading); font-size:clamp(2.8rem,6.2vw,5.4rem); font-weight:700; line-height:1.02; letter-spacing:-.036em; }
+.display{ font-family:var(--font-heading); font-size:clamp(2.15rem,4.8vw,3.8rem); font-weight:700; line-height:1.08; letter-spacing:-.03em; }
+.h1{ font-family:var(--font-heading); font-size:clamp(2rem,3.8vw,2.9rem); font-weight:650; line-height:1.14; letter-spacing:-.024em; }
 .h2{ font-family:var(--font-heading); font-size:clamp(1.75rem,3.2vw,2.6rem); font-weight:600; line-height:1.16; letter-spacing:-.024em; }
 .h3{ font-family:var(--font-heading); font-size:clamp(1.3rem,2.2vw,1.7rem); font-weight:600; line-height:1.28; letter-spacing:-.016em; }
-.h4{ font-family:var(--font-heading); font-size:1.0625rem; font-weight:600; line-height:1.4; letter-spacing:-.005em; }
+.h4{ font-family:var(--font-heading); font-size:1.125rem; font-weight:600; line-height:1.4; letter-spacing:-.005em; }
 .body-l{ font-size:1.1875rem; line-height:1.8; }
 .body-s{ font-size:.9375rem; line-height:1.65; }
 .small{ font-size:.8125rem; line-height:1.6; color:var(--text-secondary); }
@@ -110,6 +131,15 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   font-size:.6875rem; font-weight:600; letter-spacing:.16em;
   text-transform:uppercase; color:var(--brand-500);
 }
+
+/* 中文排版修正（v0.28.10）：CJK 不适用西文的负字距与过紧行高 ——
+   负字距会让汉字笔画相叠发闷，1.02~1.16 的行高会让多行中文标题几乎相碰。
+   :lang(zh) 命中 <html lang="zh-CN"> 的整棵子树，英文页不受影响。 */
+:lang(zh) .display-xl{ letter-spacing:0; line-height:1.14; }
+:lang(zh) .display{ letter-spacing:0; line-height:1.18; }
+:lang(zh) .h1{ letter-spacing:0; line-height:1.24; }
+:lang(zh) .h2{ letter-spacing:0; line-height:1.28; }
+:lang(zh) .h3{ letter-spacing:0; }
 
 /* ─────────────  3b. 品牌图形层（取自 Logo 的视觉基因）─────────────
    Logo 实测特征 → 设计语言：
@@ -250,7 +280,8 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 /* 深色区块 */
 .dark{ background:var(--ink-900); color:var(--text-on-dark); }
 .dark .text-secondary{ color:var(--text-on-dark-muted); }
-.dark .text-tertiary{ color:#5E6B7A; }
+/* 深底三级文字同步提亮：#5E6B7A 在 --ink-900 上仅约 3.2:1 → #7E8A99 约 5.2:1 */
+.dark .text-tertiary{ color:#7E8A99; }
 .dark .overline{ color:var(--brand-200); }
 .dark .divider{ background:var(--ink-700); }
 .darker{ background:var(--ink-950); }
