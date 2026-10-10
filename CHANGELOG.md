@@ -11,6 +11,49 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.19.2] - 2026-10-10
+
+### 🏷 实验室名称全站改为「CSA 集团授权实验室」+ 英文术语改用 HI-POT TEST
+
+**需求（客户三点裁定）**：
+
+1. `EMS` = **电磁抗扰度**，中文站保持 `EMS` 不另译 → **无需改动**；
+2. 英文 `dielectric withstand test` → 业内简称 **`HI-POT TEST`**；
+3. 实验室名称**以实体门牌为准** —— 门牌原文「CSA集团授权实验室 / CSA AUTHORIZED
+   TESTING LABORATORY」，故用**授权（Authorized）**，不是老站旧标签的「见证 / 目击（Witness）」。
+
+🔴 **第 3 点是全站术语变更，不是改一处图注。** 只改设施页会造成首页写 `Witness`、
+设施页写 `Authorized`，站内自相矛盾。故 **8 个页面同步替换，共 31 处**。
+
+| 侧 | 旧 | 新 |
+|---|---|---|
+| 英文 | `CSA Witness Lab` | **`CSA Authorized Testing Laboratory`** |
+| 英文（概述句） | `a CSA-witnessed testing laboratory` | **`a CSA Authorized Testing Laboratory`** |
+| 中文 | `CSA 目击实验室` | **`CSA 集团授权实验室`** |
+| 英文图注（第 5 张） | `EMS and dielectric withstand test` | **`EMS and HI-POT TEST`** |
+
+**替换范围（31 处 / 8 文件）**：
+
+| 文件 | 处数 | 落点 |
+|---|---|---|
+| `facilities.html` | 9 | meta / og / 概述段 / 章节注释 / `<h2>` / 导语段 / 卡片 `<h3>` / 内容纪律注释 / 第 5 张图注 |
+| `cn/facilities.html` | 9 | 同上（中文侧）+ 导语段内的英文括注 |
+| `index.html` | 3 | badge / `<h2>` / 正文段 |
+| `cn/index.html` | 3 | badge / `<h2>` / 正文段（含内嵌英文名） |
+| `about.html` | 3 | meta / og / `spec-box` |
+| `cn/about.html` | 1 | `spec-box` |
+| `oem.html` | 1 | 内容纪律注释 |
+| `cn/oem.html` | 1 | 内容纪律注释 |
+
+**刻意保留**：两页文件头「配图纪律」对照表里的**大写**旧标签 `CSA WITNESS LAB` ——
+那是对**老站原始标签**的引用，属史料，不能抹掉。同时把「有意偏离」说明由第 2、5 项
+扩为**第 1、2、5 项**，并写明第 1 项的理由（门牌口径）与「后续审计不得当作回归缺陷」。
+
+**验证**：全站 `CSA Witness Lab` / `目击实验室` / `dielectric withstand` 残留**均为 0**；
+大写 `CSA WITNESS LAB` 保留 2 处（仅注释对照表）；8 个改动文件 CRLF **0**。
+
+---
+
 ## [v0.19.1] - 2026-10-10
 
 ### 🔀 首页「两条业务线」按「业务模式」重构 + 首页口径同步（中英共 6 处）
