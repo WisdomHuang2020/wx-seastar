@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<!--
+  页面：设施与研发能力 facilities.html
+  ─────────────────────────────────────────────────────────────
+  内容纪律（必读）：
+    本页事实性内容**全部来自原官网 www.wx-seastar.com 的 FACILITIES 页**
+    （实测抓取，2026-10-10），包括：
+      · 45+ 工程师团队，覆盖驱动（硬件与软件）、结构、光学、包装
+      · 驱动经验：TRIAC / 0-10V / Tri-mode / BLE / WIFI / BLE-WIFI 无线驱动
+      · CSA Witness Lab 分 6 个区（电气性能、光学、环境、可靠性等测试）
+      · 实验室设备：积分球、配光机、恒温恒湿试验箱、冷热冲击试验箱、
+        雷击浪涌发生器、脉冲群发生器、振铃波发生器、EMI 测试设备
+      · 质量方针 "continuous improvement for customer satisfaction"
+      · 认证 ISO9001 / ISO14001 / IATF16949；设独立质量监督检查部门
+    【不得添加】原官网没有的认证、设备型号、客户名或产能数字。
+
+  与 oem.html 的分工（避免重复）：
+    · 制造产线（SMT / 波峰焊 / 组装 / 注塑 / 冲压 / 洁净室 / 产能）
+      已在 oem.html 完整承载，本页**不复述**，仅做指引链接。
+    · 本页聚焦 oem.html 未覆盖的部分：**研发团队、驱动技术谱系、
+      实验室与检测能力、质量体系**。
+
+  配图说明（均已目视核对，避免名不副实）：
+    · scene-csa.jpg         —— CSA 集团授权实验室门牌（实拍）
+    · scene-lab-sphere.jpg  —— 积分球与色温测试台（实拍，含 ANSI C78.377 测试表）
+    · scene-lab-chamber.jpg —— 可靠性实验室
+    · scene-env-chamber.jpg —— 环境试验箱（原名 scene-cleanroom.jpg 名不副实，已另存）
+    · scene-test-rack.jpg   —— 灯具测试架 · 老化车间
+    · ems-csa-lab.jpg       —— 实验室与可靠性测试
+
+  设计系统：沿用站点 v2（白底大图 + 品牌蓝），与 oem.html / odm.html 同一套令牌。
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilities · Engineering &amp; Testing · SEA☆STAR</title>
+<meta name="description" content="SEA☆STAR engineering and testing facilities: a team of 45+ engineers, a CSA Witness Lab with six testing areas, and a quality system certified to ISO 9001 / 14001 / IATF 16949.">
+<link rel="canonical" href="https://www.wx-seastar.cn/facilities">
+<meta name="theme-color" content="var(--ink-900)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SEA☆STAR 实益达">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Facilities · Engineering &amp; Testing · SEA☆STAR">
+<meta property="og:description" content="SEA☆STAR engineering and testing facilities: a team of 45+ engineers, a CSA Witness Lab with six testing areas, and a quality system certified to ISO 9001 / 14001 / IATF 16949.">
+<meta property="og:url" content="https://www.wx-seastar.cn/facilities">
+<meta property="og:image" content="https://www.wx-seastar.cn/assets/seastar-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>window.__SEASTAR_LANG__='en';</script>
+<link rel="stylesheet" href="styles.css">
+<!-- 无 JS 兜底：.reveal 元素默认 opacity:0，由 IntersectionObserver 加 .is-in 显形。 -->
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+</head>
+<body>
+
+<!-- ==================== Nav ==================== -->
+<header class="nav nav--transparent" id="nav" data-nav-transparent="false" style="color:var(--text-primary);">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/">
+      <span class="brand-swap"><img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="Main navigation">
+      <div class="nav__dropdown">
+        <a href="/lighting" class="nav__dropdown-trigger">General Lighting</a>
+        <div class="nav__dropdown-menu">
+          <a href="/lighting?scene=home">Residential</a>
+          <a href="/lighting?scene=commercial">Commercial</a>
+          <a href="/lighting?scene=outdoor">Outdoor</a>
+        </div>
+      </div>
+      <a href="/grow-light">Horticulture</a>
+      <a href="/odm">ODM</a>
+      <a href="/oem">OEM</a>
+      <a href="/facilities" class="is-active">Facilities</a>
+      <a href="/docs">Documents</a>
+      <a href="/about">About Us</a>
+      <a href="/contact">Contact Us</a>
+    </nav>
+    <div class="nav__right">
+      <a class="lang-switch" href="/cn/facilities" title="中文版">中文</a>
+      <a class="btn btn--primary btn--sm" href="/contact">Get a quote</a>
+      <button class="nav__burger" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== Hero ==================== -->
+<section class="hero-split hero-light hero-light--sub">
+  <div class="container relative">
+    <nav class="hero-breadcrumb" aria-label="面包屑">
+      <a href="/">Home</a><span>/</span><span>Facilities</span>
+    </nav>
+    <div class="reveal" style="max-width:820px;">
+      <span class="overline">FACILITIES · ENGINEERING · TESTING · QUALITY</span>
+      <h1 class="display mt-md">Engineering &amp; Testing Facilities</h1>
+      <p class="body-l mt-lg text-secondary measure">
+        In-house engineering, a CSA-witnessed testing laboratory and a certified quality system — the capability that stands behind every product we ship. The facility data on this page is taken from publicly available information on the SEA☆STAR official website.
+      </p>
+      <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">
+        <a class="btn btn--primary btn--lg" href="/contact">Discuss a project</a>
+        <a class="btn btn--secondary btn--lg" href="/oem">See manufacturing capacity</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 01 Engineering ==================== -->
+<section class="section-tight" aria-labelledby="rd-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">01 / Engineering</span>
+      <h2 class="h2" id="rd-title">An engineering team of 45+</h2>
+      <p class="body-l mt-md text-secondary measure">
+        Wuxi Seastar is a firm advocate of technological and product innovation. More than 45 engineers work across the disciplines below, supported by professional sales consultancy and personalised service.
+      </p>
+    </div>
+
+    <div class="grid grid-4 mt-3xl">
+      <article class="card reveal">
+        <h3 class="h4">Driver hardware</h3>
+        <p class="small text-secondary mt-sm">Power-stage and control-circuit design for mains-powered LED drivers.</p>
+      </article>
+      <article class="card reveal reveal-d1">
+        <h3 class="h4">Driver software</h3>
+        <p class="small text-secondary mt-sm">Firmware for dimming, sensing and wireless-controlled drivers.</p>
+      </article>
+      <article class="card reveal reveal-d2">
+        <h3 class="h4">Structure</h3>
+        <p class="small text-secondary mt-sm">Mechanical design, thermal path and enclosure engineering.</p>
+      </article>
+      <article class="card reveal reveal-d3">
+        <h3 class="h4">Optics</h3>
+        <p class="small text-secondary mt-sm">Optical design and photometric performance of luminaires.</p>
+      </article>
+    </div>
+
+    <div class="flex gap-sm mt-xl" style="flex-wrap:wrap;">
+      <span class="badge badge--brand">Packaging engineering</span>
+      <span class="badge badge--neutral">Sales consultancy</span>
+      <span class="badge badge--neutral">Personalised service</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 02 Driver technology ==================== -->
+<section class="section-tight" aria-labelledby="drv-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">02 / Technology</span>
+      <h2 class="h2" id="drv-title">Driver technology we have built</h2>
+      <p class="body-l mt-md text-secondary measure">
+        Our team has extensive experience across the mainstream LED driver families, both wired and wireless-controlled.
+      </p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="card reveal">
+        <h3 class="h4">TRIAC</h3>
+        <p class="small text-secondary mt-sm">Phase-cut dimming compatible with legacy wall dimmers.</p>
+      </article>
+      <article class="card reveal reveal-d1">
+        <h3 class="h4">0–10 V</h3>
+        <p class="small text-secondary mt-sm">Analogue dimming widely used in commercial and industrial lighting.</p>
+      </article>
+      <article class="card reveal reveal-d2">
+        <h3 class="h4">Tri-mode</h3>
+        <p class="small text-secondary mt-sm">Multi-protocol dimming in a single driver platform.</p>
+      </article>
+      <article class="card reveal">
+        <h3 class="h4">BLE</h3>
+        <p class="small text-secondary mt-sm">Bluetooth Low Energy wireless control.</p>
+      </article>
+      <article class="card reveal reveal-d1">
+        <h3 class="h4">WiFi</h3>
+        <p class="small text-secondary mt-sm">WiFi-connected drivers for smart-building and residential control.</p>
+      </article>
+      <article class="card reveal reveal-d2">
+        <h3 class="h4">BLE + WiFi</h3>
+        <p class="small text-secondary mt-sm">Dual-radio wireless-controlled drivers.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 CSA Witness Lab ==================== -->
+<section class="section dark" aria-labelledby="lab-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">03 / Testing</span>
+      <h2 class="h2" id="lab-title">CSA Witness Lab</h2>
+      <p class="body-l mt-md measure" style="color:var(--text-on-dark-muted);">
+        Wuxi Seastar has established a CSA Witness Lab with rigorous testing procedures. The laboratory is divided into six areas, including electrical performance, optical, environmental and reliability testing, and is equipped with the instruments listed below.
+      </p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="media-card reveal">
+        <img src="assets/img/scene-csa.jpg" alt="CSA 集团授权实验室门牌" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">CSA authorised testing laboratory</h3>
+          <p class="small" style="color:var(--text-on-dark-muted);">Laboratory authorised by CSA Group; testing is witnessed under rigorous procedures.</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d1">
+        <img src="assets/img/scene-lab-sphere.jpg" alt="积分球与色温测试台" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">Light source analysis</h3>
+          <p class="small" style="color:var(--text-on-dark-muted);">Integrating spheres and a photometric bench, with reference to ANSI C78.377 colour-temperature requirements.</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d2">
+        <img src="assets/img/scene-lab-chamber.jpg" alt="可靠性实验室" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">Reliability testing</h3>
+          <p class="small" style="color:var(--text-on-dark-muted);">Reliability assessment of drivers and luminaires under controlled conditions.</p>
+        </div>
+      </article>
+      <article class="media-card reveal">
+        <img src="assets/img/scene-env-chamber.jpg" alt="环境试验箱" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">Environmental testing</h3>
+          <p class="small" style="color:var(--text-on-dark-muted);">Constant-temperature-and-humidity and thermal-shock chambers.</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d1">
+        <img src="assets/img/ems-csa-lab.jpg" alt="实验室与可靠性测试" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">Electrical performance</h3>
+          <p class="small" style="color:var(--text-on-dark-muted);">Electrical performance testing, together with lightning-surge, burst-pulse and ringing-wave immunity equipment.</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d2">
+        <img src="assets/img/scene-test-rack.jpg" alt="灯具测试架 · 老化车间" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">Long-life aging</h3>
+          <p class="small" style="color:var(--text-on-dark-muted);">Long-duration aging racks, plus QUIET ROOM and EMI testing.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 04 Quality ==================== -->
+<section class="section" aria-labelledby="qc-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">04 / Quality</span>
+      <h2 class="h2" id="qc-title">Quality assurance</h2>
+      <p class="body-l mt-md text-secondary measure">
+        Adhering to the quality policy of “continuous improvement for customer satisfaction”, the company has established a dedicated quality supervision and inspection department, equipped with testing instruments and structured test methods. The department works on the pre-control of quality risks rather than end-of-line detection alone.
+      </p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="card card-lum reveal">
+        <h3 class="h4">ISO 9001</h3>
+        <p class="small text-secondary mt-sm">Quality management system certification.</p>
+      </article>
+      <article class="card card-lum reveal reveal-d1">
+        <h3 class="h4">ISO 14001</h3>
+        <p class="small text-secondary mt-sm">Environmental management system certification.</p>
+      </article>
+      <article class="card card-lum reveal reveal-d2">
+        <h3 class="h4">IATF 16949</h3>
+        <p class="small text-secondary mt-sm">Automotive quality management system certification.</p>
+      </article>
+    </div>
+
+    <p class="body-l mt-xl text-secondary measure">
+      Manufacturing assets — high-speed SMT and wave-soldering lines, final assembly, injection moulding, stamping, the Class 100,000 clean room and monthly capacity — are described on the <a href="/oem">OEM electronics manufacturing</a> page.
+    </p>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="section dark">
+  <div class="container">
+    <div class="reveal" style="max-width:720px;">
+      <span class="overline">NEXT STEP</span>
+      <h2 class="h2 mt-md">Need engineering support or certified testing?</h2>
+      <p class="body-l mt-lg measure" style="color:var(--text-on-dark-muted);">
+        Tell us the project — driver development, luminaire design, or product that has to pass testing before it ships.
+      </p>
+      <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">
+        <a class="btn btn--primary btn--lg" href="/contact">Contact us</a>
+        <a class="btn btn--secondary btn--lg" href="/docs">Browse documents</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">A complete lighting solutions provider. General lighting · ODM · OEM.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Business lines</h4>
+        <a href="/lighting">General Lighting</a>
+        <a href="/lighting?scene=home" class="drawer__sub">Residential</a>
+        <a href="/lighting?scene=commercial" class="drawer__sub">Commercial</a>
+        <a href="/lighting?scene=outdoor" class="drawer__sub">Outdoor</a>
+        <a href="/grow-light">Horticulture Lighting</a>
+        <a href="/odm">ODM Drivers &amp; Control Boards</a>
+        <a href="/oem">OEM Electronics Manufacturing</a>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <a href="/about">About Us</a>
+        <a href="/about#history">Milestones</a>
+        <a href="/facilities">Facilities</a>
+        <a href="/about#factory">Factory &amp; Capacity</a>
+        <a href="/contact">Contact Us</a>
+      </div>
+      <div class="footer__col">
+        <h4>Contact</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="/contact">West of Jing 11th Rd, North of Jing 13th Rd, South of the planned canal, Hongshan Sub-district, Xinwu District, Wuxi, Jiangsu, PRC</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 Wuxi Seastar Lighting Co., Ltd. All rights reserved.</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">ICP Filing No. 19020304-1</a>
+      <span class="mono">Wuxi Seastar Lighting Co., Ltd. · SEA☆STAR</span>
+      <button type="button" class="footer__cc" data-cookie-settings>Cookie settings</button>
+    </div>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/site.js" defer></script>
+<script src="js/consent.js" defer></script>
+</body>
+</html>

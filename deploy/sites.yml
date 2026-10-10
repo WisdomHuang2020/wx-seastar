@@ -46,6 +46,7 @@ sites:
       - index.html
       - odm.html
       - oem.html
+      - facilities.html
       - cn
       - lighting.html
       - grow-light.html

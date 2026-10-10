@@ -27,7 +27,7 @@ STATE_FILE="/var/lib/wx-seastar/.last-deployed-sha"
 
 # 发布白名单 —— 与 .github/workflows/deploy-lighthouse.yml 的 FILES 保持一致
 FILES=(
-  index.html odm.html oem.html lighting.html grow-light.html about.html contact.html docs.html 404.html
+  index.html odm.html oem.html facilities.html lighting.html grow-light.html about.html contact.html docs.html 404.html
   styles.css js assets cn favicon.ico apple-touch-icon.png robots.txt sitemap.xml
 )
 

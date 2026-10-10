@@ -109,6 +109,25 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/oem"/>
   </url>
 
+  <url>
+    <loc>https://www.wx-seastar.cn/facilities</loc>
+    <lastmod>2026-10-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/facilities"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/facilities"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/facilities"/>
+  </url>
+  <url>
+    <loc>https://www.wx-seastar.cn/cn/facilities</loc>
+    <lastmod>2026-10-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.wx-seastar.cn/facilities"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.wx-seastar.cn/cn/facilities"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.wx-seastar.cn/facilities"/>
+  </url>
+
   <!-- ═══════════ 资料中心 ═══════════ -->
   <url>
     <loc>https://www.wx-seastar.cn/docs</loc>

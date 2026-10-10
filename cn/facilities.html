@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<!--
+  页面：研发与检测设施 cn/facilities.html
+  ─────────────────────────────────────────────────────────────
+  内容纪律（必读）：
+    本页事实性内容**全部来自原官网 www.wx-seastar.com 的 FACILITIES 页**
+    （实测抓取，2026-10-10），包括：
+      · 45+ 工程师团队，覆盖驱动（硬件与软件）、结构、光学、包装
+      · 驱动经验：TRIAC / 0-10V / Tri-mode / BLE / WIFI / BLE-WIFI 无线驱动
+      · CSA Witness Lab 分 6 个区（电气性能、光学、环境、可靠性等测试）
+      · 实验室设备：积分球、配光机、恒温恒湿试验箱、冷热冲击试验箱、
+        雷击浪涌发生器、脉冲群发生器、振铃波发生器、EMI 测试设备
+      · 质量方针 "continuous improvement for customer satisfaction"
+      · 认证 ISO9001 / ISO14001 / IATF16949；设独立质量监督检查部门
+    【不得添加】原官网没有的认证、设备型号、客户名或产能数字。
+
+  与 cn/oem.html 的分工（避免重复）：
+    · 制造产线（SMT / 波峰焊 / 组装 / 注塑 / 冲压 / 洁净室 / 产能）
+      已在 cn/oem.html 完整承载，本页**不复述**，仅做指引链接。
+    · 本页聚焦 cn/oem.html 未覆盖的部分：**研发团队、驱动技术谱系、
+      实验室与检测能力、质量体系**。
+
+  配图说明（均已目视核对，避免名不副实）：
+    · scene-csa.jpg         —— CSA 集团授权实验室门牌（实拍）
+    · scene-lab-sphere.jpg  —— 积分球与色温测试台（实拍，含 ANSI C78.377 测试表）
+    · scene-lab-chamber.jpg —— 可靠性实验室
+    · scene-env-chamber.jpg —— 环境试验箱（原名 scene-cleanroom.jpg 名不副实，已另存）
+    · scene-test-rack.jpg   —— 灯具测试架 · 老化车间
+    · ems-csa-lab.jpg       —— 实验室与可靠性测试
+
+  设计系统：沿用站点 v2（白底大图 + 品牌蓝），与 cn/oem.html 同一套令牌。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>研发与检测设施 · SEA☆STAR 实益达</title>
+<meta name="description" content="SEA☆STAR 实益达研发与检测能力：45 人以上工程师团队，覆盖驱动硬件与软件、结构、光学；建 CSA 见证实验室，分 6 个测试区；质量体系通过 ISO 9001 / ISO 14001 / IATF 16949 认证。">
+<link rel="canonical" href="https://www.wx-seastar.cn/cn/facilities">
+<meta name="theme-color" content="var(--ink-900)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SEA☆STAR 实益达">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="研发与检测设施 · SEA☆STAR 实益达">
+<meta property="og:description" content="45+ 工程师团队 · 驱动技术谱系 · CSA 见证实验室（6 个测试区）· ISO 9001 / 14001 / IATF 16949。">
+<meta property="og:url" content="https://www.wx-seastar.cn/cn/facilities">
+<meta property="og:image" content="https://www.wx-seastar.cn/assets/seastar-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<script>window.__SEASTAR_LANG__='zh';</script>
+<link rel="stylesheet" href="../styles.css">
+<!-- 无 JS 兜底：.reveal 元素默认 opacity:0，由 IntersectionObserver 加 .is-in 显形。 -->
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+</head>
+<body>
+
+<!-- ==================== 导航 ==================== -->
+<header class="nav nav--transparent" id="nav" data-nav-transparent="false" style="color:var(--text-primary);">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/cn/">
+      <span class="brand-swap"><img src="../assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="../assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <div class="nav__dropdown">
+        <a href="/cn/lighting" class="nav__dropdown-trigger">通用照明</a>
+        <div class="nav__dropdown-menu">
+          <a href="/cn/lighting?scene=home">家居照明</a>
+          <a href="/cn/lighting?scene=commercial">商业照明</a>
+          <a href="/cn/lighting?scene=outdoor">户外照明</a>
+        </div>
+      </div>
+      <a href="/cn/grow-light">植物灯具</a>
+      <a href="/cn/odm">ODM</a>
+      <a href="/cn/oem">OEM</a>
+      <a href="/cn/facilities" class="is-active">研发与设施</a>
+      <a href="/cn/docs">资料中心</a>
+      <a href="/cn/about">关于我们</a>
+      <a href="/cn/contact">联系我们</a>
+    </nav>
+    <div class="nav__right">
+      <a class="lang-switch" href="/facilities" title="English">EN</a>
+      <a class="btn btn--primary btn--sm" href="/cn/contact">获取报价</a>
+      <button class="nav__burger" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== Hero ==================== -->
+<section class="hero-split hero-light hero-light--sub">
+  <div class="container relative">
+    <nav class="hero-breadcrumb" aria-label="面包屑">
+      <a href="/cn/">首页</a><span>/</span><span>研发与设施</span>
+    </nav>
+    <div class="reveal" style="max-width:820px;">
+      <span class="overline">设施 · 研发 · 检测 · 质量</span>
+      <h1 class="display mt-md">研发与检测设施</h1>
+      <p class="body-l mt-lg text-secondary measure">
+        自有研发团队、CSA 见证实验室与已认证的质量体系——这构成我们交付每一款产品的能力底座。本页设施数据取自 SEA☆STAR 原官网公开信息。
+      </p>
+      <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">
+        <a class="btn btn--primary btn--lg" href="/cn/contact">洽谈项目</a>
+        <a class="btn btn--secondary btn--lg" href="/cn/oem">查看制造产能</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 01 研发 ==================== -->
+<section class="section-tight" aria-labelledby="rd-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">01 / 研发</span>
+      <h2 class="h2" id="rd-title">45 人以上工程师团队</h2>
+      <p class="body-l mt-md text-secondary measure">
+        无锡实益达坚持技术与产品创新。45 名以上工程师分布在以下专业方向，并配有专业销售咨询与个性化服务。
+      </p>
+    </div>
+
+    <div class="grid grid-4 mt-3xl">
+      <article class="card reveal">
+        <h3 class="h4">驱动硬件</h3>
+        <p class="small text-secondary mt-sm">市电供电 LED 驱动的功率级与控制电路设计。</p>
+      </article>
+      <article class="card reveal reveal-d1">
+        <h3 class="h4">驱动软件</h3>
+        <p class="small text-secondary mt-sm">调光、传感与无线控制驱动的固件开发。</p>
+      </article>
+      <article class="card reveal reveal-d2">
+        <h3 class="h4">结构</h3>
+        <p class="small text-secondary mt-sm">机械设计、散热路径与外壳工程。</p>
+      </article>
+      <article class="card reveal reveal-d3">
+        <h3 class="h4">光学</h3>
+        <p class="small text-secondary mt-sm">灯具光学设计与光度性能。</p>
+      </article>
+    </div>
+
+    <div class="flex gap-sm mt-xl" style="flex-wrap:wrap;">
+      <span class="badge badge--brand">包装工程</span>
+      <span class="badge badge--neutral">销售咨询</span>
+      <span class="badge badge--neutral">个性化服务</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 02 驱动技术 ==================== -->
+<section class="section-tight" aria-labelledby="drv-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">02 / 技术</span>
+      <h2 class="h2" id="drv-title">已积累的驱动技术</h2>
+      <p class="body-l mt-md text-secondary measure">
+        团队在主流 LED 驱动品类上具备丰富经验，涵盖有线调光与无线控制两类。
+      </p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="card reveal">
+        <h3 class="h4">TRIAC</h3>
+        <p class="small text-secondary mt-sm">兼容传统墙壁调光器的相位切割调光。</p>
+      </article>
+      <article class="card reveal reveal-d1">
+        <h3 class="h4">0–10V</h3>
+        <p class="small text-secondary mt-sm">商业与工业照明中广泛使用的模拟调光。</p>
+      </article>
+      <article class="card reveal reveal-d2">
+        <h3 class="h4">Tri-mode</h3>
+        <p class="small text-secondary mt-sm">单一驱动平台支持多协议调光。</p>
+      </article>
+      <article class="card reveal">
+        <h3 class="h4">BLE</h3>
+        <p class="small text-secondary mt-sm">低功耗蓝牙无线控制。</p>
+      </article>
+      <article class="card reveal reveal-d1">
+        <h3 class="h4">WiFi</h3>
+        <p class="small text-secondary mt-sm">接入 WiFi 的驱动，用于智能楼宇与家居控制。</p>
+      </article>
+      <article class="card reveal reveal-d2">
+        <h3 class="h4">BLE + WiFi</h3>
+        <p class="small text-secondary mt-sm">双无线制式的受控驱动。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 CSA 见证实验室 ==================== -->
+<section class="section dark" aria-labelledby="lab-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">03 / 检测</span>
+      <h2 class="h2" id="lab-title">CSA 见证实验室</h2>
+      <p class="body-l mt-md measure" style="color:var(--text-on-dark-muted);">
+        无锡实益达建有 CSA 见证实验室（CSA Witness Lab），执行严格的测试流程。实验室分为 6 个区，涵盖电气性能、光学、环境与可靠性等测试，并配备下列仪器设备。
+      </p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="media-card reveal">
+        <img src="../assets/img/scene-csa.jpg" alt="CSA 集团授权实验室门牌" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">CSA 授权实验室</h3>
+          <p class="small text-secondary">经 CSA 集团授权的实验室，测试在严格流程下实施见证。</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d1">
+        <img src="../assets/img/scene-lab-sphere.jpg" alt="积分球与色温测试台" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">光源分析测试</h3>
+          <p class="small text-secondary">积分球与光度测试台，色温要求参照 ANSI C78.377。</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d2">
+        <img src="../assets/img/scene-lab-chamber.jpg" alt="可靠性实验室" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">可靠性测试</h3>
+          <p class="small text-secondary">在受控条件下评估驱动与灯具的可靠性。</p>
+        </div>
+      </article>
+      <article class="media-card reveal">
+        <img src="../assets/img/scene-env-chamber.jpg" alt="环境试验箱" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">环境测试</h3>
+          <p class="small text-secondary">恒温恒湿试验箱与冷热冲击试验箱。</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d1">
+        <img src="../assets/img/ems-csa-lab.jpg" alt="实验室与可靠性测试" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">电气性能测试</h3>
+          <p class="small text-secondary">电气性能测试，并配备雷击浪涌、脉冲群与振铃波抗扰度设备。</p>
+        </div>
+      </article>
+      <article class="media-card reveal reveal-d2">
+        <img src="../assets/img/scene-test-rack.jpg" alt="灯具测试架 · 老化车间" loading="lazy" decoding="async">
+        <div class="media-card__label">
+          <h3 class="h4">长寿命老化</h3>
+          <p class="small text-secondary">长时老化测试架，另设静音室与 EMI 测试。</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 04 质量 ==================== -->
+<section class="section" aria-labelledby="qc-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="overline">04 / 质量</span>
+      <h2 class="h2" id="qc-title">质量保证</h2>
+      <p class="body-l mt-md text-secondary measure">
+        秉持「以持续改进赢得客户满意」的质量方针，公司设有独立的质量监督检查部门，配备完善的检测设备与方法，致力于质量风险的**事前控制**，而非仅靠出货前检验。
+      </p>
+    </div>
+
+    <div class="grid grid-3 mt-3xl">
+      <article class="card card-lum reveal">
+        <h3 class="h4">ISO 9001</h3>
+        <p class="small text-secondary mt-sm">质量管理体系认证。</p>
+      </article>
+      <article class="card card-lum reveal reveal-d1">
+        <h3 class="h4">ISO 14001</h3>
+        <p class="small text-secondary mt-sm">环境管理体系认证。</p>
+      </article>
+      <article class="card card-lum reveal reveal-d2">
+        <h3 class="h4">IATF 16949</h3>
+        <p class="small text-secondary mt-sm">汽车行业质量管理体系认证。</p>
+      </article>
+    </div>
+
+    <p class="body-l mt-xl text-secondary measure">
+      制造资产——高速 SMT 与波峰焊产线、整机组装、注塑、冲压、十万级洁净车间与月产能——详见 <a href="/cn/oem">OEM 电子制造服务</a>页。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="section dark">
+  <div class="container">
+    <div class="reveal" style="max-width:720px;">
+      <span class="overline">下一步</span>
+      <h2 class="h2 mt-md">需要研发支持或认证检测？</h2>
+      <p class="body-l mt-lg measure" style="color:var(--text-on-dark-muted);">
+        告诉我们项目情况——驱动开发、灯具设计，或需要在出货前完成检测认证的产品。
+      </p>
+      <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">
+        <a class="btn btn--primary btn--lg" href="/cn/contact">联系我们</a>
+        <a class="btn btn--secondary btn--lg" href="/cn/docs">浏览资料中心</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="../assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">照明整体解决方案提供商。通用照明 · ODM · OEM。</p>
+      </div>
+      <div class="footer__col">
+        <h4>业务线</h4>
+        <a href="/cn/lighting">通用照明灯具</a>
+        <a href="/cn/grow-light">植物照明灯具</a>
+        <a href="/cn/odm">ODM 驱动与控制板</a>
+        <a href="/cn/oem">OEM 电子制造服务</a>
+      </div>
+      <div class="footer__col">
+        <h4>公司</h4>
+        <a href="/cn/about">关于我们</a>
+        <a href="/about#history">发展历程</a>
+        <a href="/cn/facilities">研发与设施</a>
+        <a href="/about#factory">工厂与产能</a>
+        <a href="/cn/contact">联系我们</a>
+      </div>
+      <div class="footer__col">
+        <h4>联系</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="/cn/contact">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
+      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+      <button type="button" class="footer__cc" data-cookie-settings>Cookie 设置</button>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/app.js"></script>
+<script src="../js/site.js" defer></script>
+<script src="../js/consent.js" defer></script>
+</body>
+</html>
