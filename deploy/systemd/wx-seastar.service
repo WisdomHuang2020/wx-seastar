@@ -1,0 +1,35 @@
+[Unit]
+Description=SEA☆STAR 官网内容管理服务
+Documentation=https://www.wx-seastar.cn/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/wx-seastar/server
+EnvironmentFile=/etc/wx-seastar.env
+ExecStart=/usr/bin/node src/index.js
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=wx-seastar
+
+# ── 安全加固：即使服务被攻破，也限制其影响面 ──
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+# 只允许写这两处（数据库与上传目录）
+ReadWritePaths=/var/lib/wx-seastar /var/www/wx-seastar/uploads
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=SEA☆STAR 官网 拉取式自动部署（检查 GitHub 有无新提交）
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/wx-seastar/deploy/auto-deploy.sh
+TimeoutStartSec=900
+Nice=10

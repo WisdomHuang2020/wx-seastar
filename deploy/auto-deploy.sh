@@ -24,6 +24,21 @@ REPO_DIR="/opt/wx-seastar/repo"
 WEB_ROOT="/var/www/wx-seastar"
 SERVER_DIR="/opt/wx-seastar/server"
 STATE_FILE="/var/lib/wx-seastar/.last-deployed-sha"
+LOCK_FILE="/var/lock/wx-seastar-deploy.lock"
+
+log() { echo "[$(date '+%F %T')] $*"; }
+
+# ── 并发锁 ──────────────────────────────────────────────────────────────────
+# ⚠️ timer 每 2 分钟触发一次，而上一次运行不一定已经结束。
+#    首次引入大体积资源时（2026-10-10 新增 news 板块，约 28 MB 图片），
+#    `git fetch` 会跑很久；此时新实例不断叠加，多个 fetch 抢同一个仓库，
+#    互相拖慢直至全部撞上 systemd 的 TimeoutStartSec 被杀。
+#    故用 flock -n：后到的实例**立即退出**，不排队、不叠加。
+exec 9>"${LOCK_FILE}"
+if ! flock -n 9; then
+    log "已有部署在进行中，本次跳过"
+    exit 0
+fi
 
 # 发布白名单 —— 与 .github/workflows/deploy-lighthouse.yml 的 FILES 保持一致
 FILES=(
@@ -31,7 +46,6 @@ FILES=(
   styles.css js assets cn news favicon.ico apple-touch-icon.png robots.txt sitemap.xml
 )
 
-log() { echo "[$(date '+%F %T')] $*"; }
 
 cd "$REPO_DIR"
 

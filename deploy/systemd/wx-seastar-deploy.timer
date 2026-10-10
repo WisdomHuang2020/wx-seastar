@@ -1,0 +1,10 @@
+[Unit]
+Description=每 2 分钟检查一次是否有新提交
+
+[Timer]
+OnBootSec=90
+OnUnitActiveSec=2min
+Unit=wx-seastar-deploy.service
+
+[Install]
+WantedBy=timers.target
