@@ -55,4 +55,5 @@ server/.env
 # ⚠️ 必须带前导斜杠限死根目录 —— 写成 __cc_probe*.js 会连 probe 的源文件
 #    deploy/__cc_probe.js 一起忽略掉，而那是要入库的验收资产。
 /__cc_probe*.js
-/__*_probe*.html
+# 受验页面的临时副本：命名是 __<轮次>_<语言>.html，如 __r1_en.html
+/__*.html

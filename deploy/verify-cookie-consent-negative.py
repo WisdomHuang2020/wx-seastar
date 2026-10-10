@@ -86,7 +86,10 @@ def main():
                                       throttle=throttle)
             dom = VCC.dump_dom('%s/%s' % (VCC.BASE_URL, rel), stamp, wait=12000)
             res = VCC.parse(dom)
-            VCC.TMP[:] = [f for f in VCC.TMP if not os.path.exists(f)]   # 记录清理
+            # 每个用例跑完就清理，别留一堆临时页在仓库里。
+            # ⚠️ 不要写成 [f for f in TMP if not os.path.exists(f)] ——
+            # 那会把"仍存在的文件"从待清理列表里剔除，于是谁也删不掉它们。
+            _cleanup_tmp(VCC)
 
             n_fail = 0
             if res is None:
