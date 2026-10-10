@@ -244,3 +244,33 @@ CREATE TABLE IF NOT EXISTS featured_targets (
   UNIQUE(field_id, slug, block_hint, idx)
 );
 CREATE INDEX IF NOT EXISTS idx_ft_field ON featured_targets(field_id);
+
+
+-- ── 新闻（v0.28.0 起入库，此前由 deploy/news-data.json 生成）──────────
+--  动机：56 篇文章页此前全靠改 JSON + 重跑脚本，运维加一篇新闻要找开发。
+--
+--  ⚠️ 为什么中英**段落数组一一对应**而不合并成"双语富文本"：
+--     生成器按 `paras[i]` ↔ `paras_zh[i]` 逐段渲染，这是既有版式的既定事实；
+--     允许自由增删段落会让中英错位。入库后仍保持"数组对齐"，
+--     编辑界面也按段落成对编辑。
+CREATE TABLE IF NOT EXISTS news (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  src_id      TEXT,                          -- 老站 id（译文按它对齐）
+  slug        TEXT    NOT NULL,              -- URL 片段
+  date        TEXT    NOT NULL,              -- YYYY-MM-DD
+  title       TEXT    NOT NULL,              -- 英文标题
+  title_zh    TEXT,                          -- 中文标题
+  summary     TEXT,                          -- 英文摘要（列表卡片与详情导语）
+  summary_zh  TEXT,
+  paras       TEXT    NOT NULL DEFAULT '[]', -- 英文段落，JSON 数组
+  paras_zh    TEXT    NOT NULL DEFAULT '[]', -- 中文段落，与英文**一一对应**
+  images      TEXT    NOT NULL DEFAULT '[]', -- 正文配图（本地路径），JSON 数组
+  thumb       TEXT,                          -- 列表卡片缩略图
+  cover       TEXT,                          -- 老站封面 URL（仅溯源，不渲染）
+  nchar       INTEGER,                       -- 老站正文字数（仅溯源）
+  published   INTEGER NOT NULL DEFAULT 1,
+  sort_order  INTEGER NOT NULL DEFAULT 0,    -- 越小越靠前；同值为日期倒序
+  updated_at  TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_news_slug ON news(slug);
+CREATE INDEX IF NOT EXISTS idx_news_order ON news(published, sort_order, date DESC);

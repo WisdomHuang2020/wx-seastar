@@ -9,9 +9,13 @@ build-news.py —— 由结构化数据生成新闻板块页面（幂等）
     cn/news.html                中文列表页
     cn/news/<slug>.html         中文详情页 × N
 
-输入：
-    deploy/news-data.json       英文原文（由老站抓取，含 slug / images / thumb）
-    deploy/cn-translations.json 中文译文（与英文段落一一对应）
+数据源（v0.28.0 起新闻已入库，**优先读数据库**）：
+    SQLite  news 表              —— 后台 /admin/ 维护的就是这张表
+    兜底    deploy/news-data.json + deploy/cn-translations.json
+            （数据库不可用时回落到 JSON，保证老流程仍能跑）
+
+    ⚠️ 两种来源必须产出**逐字节相同**的页面；改动任一渲染逻辑后，
+       都要用 `--check` 在两种来源下各跑一次。
 
 内容纪律：
     正文全部来自原官网 www.wx-seastar.com 的 NEWS CENTER（实测抓取）。
@@ -29,6 +33,7 @@ import io
 import json
 import os
 import re
+import sqlite3
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -431,14 +436,69 @@ def article_page(lang, a, prev_a, next_a, up, tr=None):
 """ + footer(lang, up))
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true")
-    args = ap.parse_args()
+DB_PATH = os.environ.get("WX_DB", "/var/lib/wx-seastar/data.db")
 
+
+def load_from_db():
+    """从 SQLite 的 news 表读出 (data, tr)，字段语义与 JSON 来源完全一致。
+
+    ⚠️ 返回的 `tr` 结构必须与 cn-translations.json 一致：
+       { src_id: {"title":…, "summary":…, "paras":[…] } }
+       下面的渲染函数直接沿用，模板一行都不用改 —— 这是"零回归"的前提。
+    """
+    con = sqlite3.connect("file:%s?mode=ro" % DB_PATH, uri=True)
+    con.row_factory = sqlite3.Row
+    try:
+        rows = con.execute(
+            "SELECT * FROM news WHERE published = 1 "
+            "ORDER BY sort_order ASC, date DESC, id ASC").fetchall()
+    finally:
+        con.close()
+
+    data, tr = [], {}
+    for r in rows:
+        data.append({
+            "id": r["src_id"],
+            "slug": r["slug"],
+            "date": r["date"],
+            "title": r["title"],
+            "summary": r["summary"] or "",
+            "thumb": r["thumb"],
+            "images": json.loads(r["images"] or "[]"),
+            "paras": json.loads(r["paras"] or "[]"),
+        })
+        # 只要该条有任何中文内容，就建译文项（与 JSON 里"存在该键"等价）
+        paras_zh = json.loads(r["paras_zh"] or "[]")
+        if r["title_zh"] is not None or r["summary_zh"] is not None or paras_zh:
+            tr[r["src_id"]] = {
+                "title": r["title_zh"],
+                "summary": r["summary_zh"],
+                "paras": paras_zh,
+            }
+    return data, tr
+
+
+def load_from_json():
     data = json.load(io.open(os.path.join(REPO, "deploy", "news-data.json"), encoding="utf-8"))
     trpath = os.path.join(REPO, "deploy", "cn-translations.json")
     tr = json.load(io.open(trpath, encoding="utf-8")) if os.path.exists(trpath) else {}
+    return data, tr
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true")
+    ap.add_argument("--from-json", action="store_true",
+                    help="强制用 JSON 兜底来源（默认：数据库可用则用数据库）")
+    args = ap.parse_args()
+
+    use_db = (not args.from_json) and os.path.exists(DB_PATH)
+    if use_db:
+        data, tr = load_from_db()
+        print("数据源：数据库 %s（%d 条）" % (DB_PATH, len(data)))
+    else:
+        data, tr = load_from_json()
+        print("数据源：JSON（%d 条）%s" % (len(data), "" if args.from_json else " —— 未找到数据库，已回落"))
 
     data.sort(key=lambda a: a["date"], reverse=True)
     os.makedirs(os.path.join(REPO, "news"), exist_ok=True)
