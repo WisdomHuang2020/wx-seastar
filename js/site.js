@@ -56,6 +56,7 @@
     zh: {
       mediaEmpty: '素材待补充',
       downloadSpec: '规格书 (PDF)',
+      watch: '播放',
       noProduct: '该分类下暂无产品',
       noDoc: '该分类下暂无资料',
       searchNone: '未找到匹配项 —— 换个型号或关键词试试',
@@ -87,6 +88,7 @@
     en: {
       mediaEmpty: 'Image pending',
       downloadSpec: 'Datasheet (PDF)',
+      watch: 'Watch',
       noProduct: 'No products in this category yet',
       noDoc: 'No documents in this category yet',
       searchNone: 'No matches — try another model or keyword',
@@ -123,13 +125,16 @@
 
   /* 资料类型标签：随语言切换（原来只有中文，英文站会漏成中文） */
   var KIND_LABEL = {
-    zh: { spec: '规格书', manual: '说明书', ies: 'IES 光度文件', drawing: '图纸', other: '其他资料' },
-    en: { spec: 'Datasheet', manual: 'User manual', ies: 'IES photometric file', drawing: 'Drawing', other: 'Other' },
+    zh: { spec: '规格书', manual: '说明书', ies: 'IES 光度文件', drawing: '图纸', video: '视频', other: '其他资料' },
+    en: { spec: 'Datasheet', manual: 'User manual', ies: 'IES photometric file', drawing: 'Drawing', video: 'Video', other: 'Other' },
   };
   function kindLabel(d) {
-    if (d.kind_label) return d.kind_label;
+    // ⚠️ 顺序：**先本语言词表**，再用接口返回的 kind_label 兜底。
+    //   原来反过来（优先 kind_label）—— 那是接口写死的中文，会让英文站显示「规格书」这类中文标签。
     var pack = KIND_LABEL[LANG] || KIND_LABEL.zh;
-    return pack[d.kind] || (KIND_LABEL.zh[d.kind] || d.kind);
+    if (pack[d.kind]) return pack[d.kind];
+    if (d.kind_label) return d.kind_label;
+    return KIND_LABEL.zh[d.kind] || d.kind;
   }
 
   /* ───────────  产品渲染  ─────────── */
@@ -558,8 +563,12 @@
           '<td><span class="badge badge--brand">' + esc(kindLabel(d)) + '</span></td>' +
           '<td>' + (d.product ? esc(d.product.title) : '<span style="color:var(--text-tertiary)">' + esc(t('genericDoc')) + '</span>') + '</td>' +
           '<td class="mono">' + esc(humanSize(d.size)) + '</td>' +
-          '<td style="text-align:right"><a class="link-arrow" href="' + esc(d.url) + '">' + esc(t('download')) +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M6 12l6 6 6-6M4 20h16"/></svg>' +
+          '<td style="text-align:right"><a class="link-arrow" href="' + esc(d.url) + '"' +
+            (d.kind === 'video' ? ' target="_blank" rel="noopener"' : '') + '>' +
+            esc(d.kind === 'video' ? t('watch') : t('download')) +
+            (d.kind === 'video'
+              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l11 7-11 7z"/></svg>'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M6 12l6 6 6-6M4 20h16"/></svg>') +
           '</a></td>' +
         '</tr>';
       }).join('') + '</tbody></table></div>';

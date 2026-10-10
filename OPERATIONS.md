@@ -207,6 +207,12 @@ journalctl -u wx-seastar-deploy -n 100 --no-pager   # 自动部署
   前台 `js/site.js` 里的 `setLang('en')` 即可切换；只需要再做一套英文页面。
 - **换数据库**：只改 `server/src/lib/db.js` 一个文件（全项目唯一接触 SQL 的地方）。
 - **上传到对象存储**：`server/src/lib/upload.js` 是唯一的上传落盘处，可改为写入腾讯云 COS。
+- **技术资料里的视频上传**（2026-10-10 起支持）：
+  资料中心可上传 **mp4 / m4v / mov / webm / avi / mkv**，前台对应行显示「播放」并可直接播放（支持拖动进度）。
+  **改单文件体积上限要动两处，缺一处就会 413**：
+  ① 后端 `/etc/wx-seastar.env` 的 `MAX_VIDEO_MB`（默认 300）
+  ② nginx 站点的 `client_max_body_size`（当前 `320m`，需 ≥ ① + multipart 余量），改完 `nginx -t && systemctl reload nginx`
+  ⚠️ 磁盘余量决定能放多少：当前余约 24G，按 300MB/条约 80 条；量大会需要扩容或改对象存储。
 - **加留言通知**：在 `public.routes.js` 的留言插入处挂钩子（`config.js` 已预留 `NOTIFY_TO`）。
 - **调整自动部署频率**：改 `/etc/systemd/system/wx-seastar-deploy.timer` 里的
   `OnUnitActiveSec=2min`，然后 `systemctl daemon-reload && systemctl restart wx-seastar-deploy.timer`。

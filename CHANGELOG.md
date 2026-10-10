@@ -11,6 +11,50 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.28.6] - 2026-10-10
+
+### 🎬 技术资料支持视频上传（端到端）
+
+**需求**：「技术资料增加视频上传的诉求」。
+
+**仓库内改动（4 层）**：
+
+| 层 | 文件 | 改动 |
+|---|---|---|
+| 上传白名单 | `server/src/lib/upload.js` | 新增 `VIDEO_EXT`（mp4/m4v/mov/webm/avi/mkv）并并入 `DOC_EXT`；单文件上限改为 **`max(maxDocMB, maxVideoMB)`**（资料与视频共用入口，上传前不知类型，类型仍由扩展名把关） |
+| 体积上限 | `server/src/config.js` | 新增 **`maxVideoMB`**（默认 300，env `MAX_VIDEO_MB` 覆盖） |
+| 类型表 | `server/src/routes/documents.routes.js` | `KINDS` 增 `video: '视频'`（`kind` 是纯 TEXT **无 CHECK 约束 → 不需改表/迁移**） |
+| 后台 | `server/public/admin.js` | 类型下拉与列表筛选加「视频」；上传区提示改为「… / **视频(mp4·mov·webm·avi·mkv)**，单个不超过 300 MB」 |
+| 前台词表 | `js/site.js` | `KIND_LABEL` 中英各加 video；**并修正 `kindLabel()` 取值顺序** —— 原来优先用接口返回的**中文** `kind_label`，导致**英文站显示中文类型名**；改为优先本语言词表 |
+| 前台展示 | `js/site.js` `paintDocs` | 视频行改为 **「播放 / Watch」+ 播放图标 + 新窗口打开**（其余仍是「下载」） |
+| 类型 Tab | `docs.html` / `cn/docs.html` | 各加一个 `Video` / 视频 pill |
+| 公开下载 | `server/src/routes/public.routes.js` | 视频改 **`Content-Disposition: inline`**（浏览器直接播放）；**新增 Range 支持**（206 + `Content-Range`）——视频才能拖进度条，顺带支持断点续传 |
+
+**服务器侧（不在仓库，已操作并留档）**：
+
+| 项 | 旧 → 新 |
+|---|---|
+| `/etc/wx-seastar.env` | 新增 **`MAX_VIDEO_MB=300`** |
+| nginx `client_max_body_size` | `96m` → **`320m`**（2 处 + 注释同步） |
+| 备份 | `/root/wx-seastar.env.bak-20261010-194007`、`/root/nginx-wx-seastar.bak-20261010-194007` |
+| 生效方式 | `nginx -t` 通过 → `systemctl reload nginx`（平滑，不中断） |
+
+**验证**：
+
+| 检查 | 结果 |
+|---|---|
+| 前端类型名（真实页面 + 本地 API 快照） | EN `kindLabel({kind:'video'})` = **`Video`**、CN = **`视频`**；未知类型回退接口中文 ✓ |
+| 类型 Tab | 两页均渲染出 `video:Video` / `video:视频` ✓ |
+| 上传白名单（服务器上 require 真实模块跑单测；本机无 `multer` 依赖） | 视频扩展名全放行、`.exe/.sh/.php` 全拒绝（见交付记录） |
+| nginx 体积 | 向上传接口发 **>96MB** 请求 → **401（已穿过 nginx，不再 413）** |
+| Range | `curl -r 0-99` 下载既有资料 → **206 + `Content-Range` + 100 字节** |
+
+⚠️ **容量提醒**：磁盘 40G / 已用 15G / **余 24G**（`uploads/doc` 现仅 41MB）。
+按 300MB/条估算剩余约 **~80 条视频**；到量需扩容或改走对象存储
+（`server/src/lib/upload.js` 是唯一落盘点，扩展指引见 `OPERATIONS.md` §7）。
+
+---
+
 ## [v0.28.5] - 2026-10-10
 
 ### 🖼 about「SMT产线」格换为源站 SMT 全景原图（客户现场指认）
