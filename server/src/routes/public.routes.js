@@ -143,6 +143,14 @@ router.get('/documents', wrap(async (req, res) => {
   })), { total, page, size });
 }));
 
+/** 浏览器能自行渲染、可在线打开的类型（与前台 js/site.js 的 docView() 保持一致） */
+const VIEWABLE_EXT = new Set([
+  'pdf',
+  'jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif',
+  'mp4', 'm4v', 'mov', 'webm', 'avi', 'mkv',
+  'ies', 'ldt', 'txt', 'csv',
+]);
+
 /** GET /api/public/download/:id —— 转发文件并计数（原始文件名通过 Content-Disposition 还原） */
 router.get('/download/:id', wrap(async (req, res) => {
   const d = db.get('SELECT * FROM documents WHERE id = ?', [req.params.id]);
@@ -153,15 +161,19 @@ router.get('/download/:id', wrap(async (req, res) => {
 
   db.run('UPDATE documents SET downloads = downloads + 1 WHERE id = ?', [d.id]);
 
-  const isVideo = d.kind === 'video' || /^video\//i.test(d.mime || '');
   const size = fs.statSync(abs).size;
   res.setHeader('Content-Type', d.mime || 'application/octet-stream');
   res.setHeader('Accept-Ranges', 'bytes');
   // ASCII 回退名 + RFC 5987 的 UTF-8 名，保证各浏览器都能拿到正确中文名
   const ascii = d.original_name.replace(/[^\x20-\x7e]/g, '_');
-  // 视频用 inline：浏览器直接播放；其余仍 attachment（避免 PDF/图纸被"预览"而非下载）
+  // 浏览器**能自己渲染**的格式走 inline（含 PDF/图片/视频/光度文本）→ 可在网页里直接打开；
+  // 其余（Office / CAD / 压缩包）浏览器渲染不了，仍 attachment。
+  // 加 ?dl=1 可强制下载 —— 前台「下载」按钮用它，浏览器的"另存为"不受影响。
+  let ext = String(d.filename || '').split('.').pop().toLowerCase();
+  if (!/[a-z0-9]{1,8}/.test(ext)) ext = '';
+  const inline = VIEWABLE_EXT.has(ext) && req.query.dl !== '1';
   res.setHeader('Content-Disposition',
-    `${isVideo ? 'inline' : 'attachment'}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(d.original_name)}`);
+    `${inline ? 'inline' : 'attachment'}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(d.original_name)}`);
 
   // Range 支持：视频拖动进度条必需（也为大文件断点续传留路）
   const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');

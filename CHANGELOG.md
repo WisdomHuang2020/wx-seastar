@@ -11,6 +11,39 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.28.8] - 2026-10-10
+
+### 📖 技术资料可**直接在网页上打开**（规格书 / 图纸 / IES / 视频）
+
+**需求**：「规格书、图纸、IES 文件、视频等这些要能直接在网页上打开。」
+
+**此前**：除视频外**全部** `Content-Disposition: attachment` → 点开只会**下载**，不能在线看 ✗。
+
+**改动**：
+
+| 层 | 文件 | 改动 |
+|---|---|---|
+| 服务端 | `server/src/routes/public.routes.js` | 新增 **`VIEWABLE_EXT`** 名单；**浏览器能自己渲染的格式走 `inline`**（PDF / 图片 / 视频 / IES·LDT·TXT·CSV），其余（Office / CAD / 压缩包）仍 `attachment`；新增 **`?dl=1`** 强制下载（前台「下载」按钮用它）；Range 支持保留 |
+| 前台判定 | `js/site.js` | 新增 **`docView(d)`**（与后端 `VIEWABLE_EXT` **同一份名单**）、`docActionsHtml()`、`openDocViewer()`、`mountDocViewer()` |
+| 操作列 | 同上 | 可预览 → **「查看 / 播放」+「下载」**两个入口；不可预览 → **只给「下载」**（不假装能预览） |
+| 弹层 | `js/site.js` + `styles.css` | **页内弹层直接打开**：PDF 用 `iframe`、图片用 `img`、视频用 `<video controls playsinline>`、IES/LDT/TXT/CSV 取回后按**纯文本**显示；Esc / 点遮罩 / 关闭按钮均可关；顶部带文件名与「下载」 |
+
+**关键约束**：前端 `docView()` 与后端 `VIEWABLE_EXT` **必须保持一致** ——
+后端决定响应是 `inline` 还是 `attachment`，前端决定给不给「查看」按钮；
+两边不一致就会出现**"给了按钮、点开却变下载"**的错位（已在两处注释里互相标注）。
+
+**实测（真实页面 + 真实 76 份资料 + 真点击）**：
+
+| 检查 | 结果 |
+|---|---|
+| 类型判定 | `pdf→pdf`、`mp4→video`、`ies→text`、`dwg→''`、`zip→''` ✓ |
+| 表格 | 76 行 / **76 个「查看」按钮**（线上资料当前全是 PDF）✓ |
+| 点「查看」 | **弹层打开 ✓ / `iframe` 存在 ✓ / 标题正确 ✓ / Esc 关闭 ✓** |
+| 不可预览（dwg） | 由 `docView→''` + 代码分支判定：操作列只输出下载链接 ✓（线上无真实 dwg 样本，故未做端到端 fixture） |
+| 中英两页 | `/docs` 与 `/cn/docs` 结果一致 ✓ |
+
+---
+
 ## [v0.28.7] - 2026-10-10
 
 ### 🔧 更正 v0.28.6 的体积验证结论 + 补齐 `:80` 块的 body 上限

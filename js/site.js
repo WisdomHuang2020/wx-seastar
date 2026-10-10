@@ -57,6 +57,10 @@
       mediaEmpty: '素材待补充',
       downloadSpec: '规格书 (PDF)',
       watch: '播放',
+      view: '查看',
+      close: '关闭',
+      loading: '加载中…',
+      cantPreview: '该格式浏览器无法在线打开，请下载后查看',
       noProduct: '该分类下暂无产品',
       noDoc: '该分类下暂无资料',
       searchNone: '未找到匹配项 —— 换个型号或关键词试试',
@@ -89,6 +93,10 @@
       mediaEmpty: 'Image pending',
       downloadSpec: 'Datasheet (PDF)',
       watch: 'Watch',
+      view: 'View',
+      close: 'Close',
+      loading: 'Loading…',
+      cantPreview: 'This format cannot be opened in the browser — please download it.',
       noProduct: 'No products in this category yet',
       noDoc: 'No documents in this category yet',
       searchNone: 'No matches — try another model or keyword',
@@ -537,6 +545,89 @@
         '</div>';
   }
 
+  /* ───────────  资料在线预览（v0.28.8）  ───────────
+     需求：规格书 / 图纸 / IES / 视频等**要能直接在网页上打开**，而不是只能下载。
+     · 浏览器能自己渲染的格式 → 页内弹层直接打开（PDF 用 iframe、图片用 img、
+       视频用 <video controls>、IES/LDT/TXT/CSV 取回后按纯文本显示）
+     · 浏览器渲染不了的（Office / CAD / 压缩包）→ 只给「下载」，并说明原因，不假装能预览
+     · ⚠️ 类型判定必须与后端 public.routes.js 的 VIEWABLE_EXT 保持一致：
+       后端按同一份名单决定 Content-Disposition 是 inline 还是 attachment ——
+       两边不一致就会出现"按钮给了、打开却变下载"的错位。 */
+  var DOC_VIEW_EXT = {
+    pdf: 'pdf',
+    jpg: 'image', jpeg: 'image', png: 'image', webp: 'image', gif: 'image', svg: 'image', avif: 'image',
+    mp4: 'video', m4v: 'video', mov: 'video', webm: 'video', avi: 'video', mkv: 'video',
+    ies: 'text', ldt: 'text', txt: 'text', csv: 'text',
+  };
+  function docView(d) {
+    var ext = String(d.filename || '').split('.').pop().toLowerCase();
+    return DOC_VIEW_EXT[ext] || '';
+  }
+  function docActionsHtml(d) {
+    var v = docView(d);
+    var dl = '<a class="link-arrow" href="' + esc(d.url) + '?dl=1" download>' + esc(t('download')) +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M6 12l6 6 6-6M4 20h16"/></svg></a>';
+    if (!v) return dl;                       // 不可预览 → 只给下载
+    var icon = v === 'video'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l11 7-11 7z"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/></svg>';
+    return '<button type="button" class="link-arrow doc-open" data-doc-open="' + esc(d.id) + '">' +
+      esc(v === 'video' ? t('watch') : t('view')) + icon + '</button>' +
+      '<span class="doc-actions__sep" aria-hidden="true">·</span>' + dl;
+  }
+  function openDocViewer(d) {
+    var v = docView(d);
+    var inner;
+    if (v === 'pdf') inner = '<iframe class="docview__frame" src="' + esc(d.url) + '" title="' + esc(d.title) + '"></iframe>';
+    else if (v === 'image') inner = '<img class="docview__img" src="' + esc(d.url) + '" alt="' + esc(d.title) + '">';
+    else if (v === 'video') inner = '<video class="docview__video" src="' + esc(d.url) + '" controls playsinline preload="metadata"></video>';
+    else if (v === 'text') inner = '<pre class="docview__text">' + esc(t('loading')) + '</pre>';
+    else inner = '<div class="docview__fallback">' + esc(t('cantPreview')) + '</div>';
+    var box = document.createElement('div');
+    box.className = 'docview';
+    box.innerHTML =
+      '<div class="docview__mask" data-doc-close></div>' +
+      '<div class="docview__panel" role="dialog" aria-modal="true" aria-label="' + esc(d.title) + '">' +
+        '<div class="docview__hd">' +
+          '<span class="docview__title">' + esc(d.title) + '</span>' +
+          '<a class="docview__dl" href="' + esc(d.url) + '?dl=1" download>' + esc(t('download')) + '</a>' +
+          '<button type="button" class="docview__close" data-doc-close aria-label="' + esc(t('close')) + '">&#10005;</button>' +
+        '</div>' +
+        '<div class="docview__bd">' + inner + '</div>' +
+      '</div>';
+    document.body.appendChild(box);
+    document.body.style.overflow = 'hidden';
+    function close() {
+      box.remove();
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onKey);
+    box.addEventListener('click', function (e) {
+      if (e.target && e.target.hasAttribute && e.target.hasAttribute('data-doc-close')) close();
+    });
+    if (v === 'text') {                       // IES/LDT/TXT/CSV：取回纯文本直接看
+      fetch(d.url).then(function (r) { return r.text(); }).then(function (txt) {
+        var pre = box.querySelector('.docview__text');
+        if (pre) pre.textContent = txt.slice(0, 200000);
+      }).catch(function () {
+        var pre = box.querySelector('.docview__text');
+        if (pre) pre.textContent = t('cantPreview');
+      });
+    }
+  }
+  /** 事件委托：资料表里所有「查看/播放」按钮（表格会重绘，故绑在 document 上） */
+  function mountDocViewer() {
+    document.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('[data-doc-open]') : null;
+      if (!btn) return;
+      var id = Number(btn.getAttribute('data-doc-open'));
+      var d = (window.__SeaStarDocs || []).filter(function (x) { return x.id === id; })[0];
+      if (d) openDocViewer(d);
+    });
+  }
+
   function paintDocs(el, list, kind) {
     var q = el.__q || '';                              // 检索词挂在容器上，pills 与检索共用一套状态
     var filtered = list.filter(function (d) {
@@ -563,13 +654,7 @@
           '<td><span class="badge badge--brand">' + esc(kindLabel(d)) + '</span></td>' +
           '<td>' + (d.product ? esc(d.product.title) : '<span style="color:var(--text-tertiary)">' + esc(t('genericDoc')) + '</span>') + '</td>' +
           '<td class="mono">' + esc(humanSize(d.size)) + '</td>' +
-          '<td style="text-align:right"><a class="link-arrow" href="' + esc(d.url) + '"' +
-            (d.kind === 'video' ? ' target="_blank" rel="noopener"' : '') + '>' +
-            esc(d.kind === 'video' ? t('watch') : t('download')) +
-            (d.kind === 'video'
-              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l11 7-11 7z"/></svg>'
-              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v12M6 12l6 6 6-6M4 20h16"/></svg>') +
-          '</a></td>' +
+          '<td style="text-align:right" class="doc-actions">' + docActionsHtml(d) + '</td>' +
         '</tr>';
       }).join('') + '</tbody></table></div>';
     return filtered.length;
@@ -822,6 +907,8 @@
     renderDocuments: renderDocuments,
     renderProductDetail: renderProductDetail,
     mountDocFilter: mountDocFilter,
+    openDocViewer: openDocViewer,
+    docView: docView,
     mountProductFilter: mountProductFilter,
     mountContactForm: mountContactForm,
     setLang: function (l) {
@@ -876,6 +963,7 @@
     // 资料中心：data-documents 指定表格容器
     var docBox = document.querySelector('[data-documents]');
     if (docBox) {
+      mountDocViewer();
       renderDocuments(docBox).then(function () {
         mountDocFilter('[data-doc-filter]', docBox);
         if (window.__SeaStarSearchRefresh) window.__SeaStarSearchRefresh();
