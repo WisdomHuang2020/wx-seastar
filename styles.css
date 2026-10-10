@@ -360,6 +360,10 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .nav__links a:hover{ color:var(--brand-600); }
 .nav__links a:hover::after{ transform:scaleX(1); }
+/* 当前所在栏目高亮 —— 由 js/app.js 第 9 节按 location.pathname 打上 aria-current="page"。
+   用属性选择器而非自建类名：语义化（读屏可播报"当前页"）+ 无 JS 时不误标任何项。 */
+.nav__links a[aria-current="page"]{ color:var(--brand-600); font-weight:600; }
+.nav__links a[aria-current="page"]::after{ transform:scaleX(1); }
 .nav__right{ display:flex; align-items:center; gap:var(--space-sm); flex-shrink:0; }
 .nav__burger{
   display:none; width:42px; height:42px;
@@ -445,6 +449,7 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .drawer.is-open a:not(.btn){ opacity:1; transform:none; }
 .drawer a:not(.btn):hover{ color:var(--brand-200); }
+.drawer a[aria-current="page"]{ color:var(--brand-200); }
 .drawer__close{
   position:absolute; top:20px; right:clamp(24px,6vw,48px);
   width:44px; height:44px; display:flex; align-items:center; justify-content:center;
@@ -1214,4 +1219,20 @@ body.cc-locked{ overflow:hidden; }
   margin-top:var(--space-lg); padding-left:var(--space-lg);
   border-left:2px solid var(--brand-300);
   color:var(--text-secondary); font-style:normal;
+}
+
+/* ── 产线构成：无实景照片时的占位卡（内容有出处，素材待补）───────────────
+   用于「十万级洁净车间」这类**老站只有文字清单、没有配图**的条目。
+   刻意做成斜纹占位而不是借用别的照片 —— 图注必须与照片实际内容一致。 */
+.media-card--empty{
+  aspect-ratio:16/9;
+  background:repeating-linear-gradient(45deg,var(--neutral-50) 0 10px,var(--neutral-100) 10px 20px);
+}
+.media-card__pending{
+  position:absolute; inset:0 0 34% 0;
+  display:grid; place-items:center;
+  color:var(--text-tertiary); font-size:.8125rem; letter-spacing:.04em;
+}
+.media-card--empty .media-card__label{
+  background:linear-gradient(180deg,transparent 0%,rgba(11,16,21,.88) 62%);
 }
