@@ -633,12 +633,70 @@ $('#btnPublish').onclick = async () => {
 };
 $('#pubX').onclick = $('#pubCancel').onclick = () => $('#pubMask').classList.remove('on');
 $('#pubOk').onclick = async () => {
+  const btn = $('#pubOk');
+  btn.disabled = true;
+  btn.textContent = '已入队，等待处理…';
+  let qid = null;
   try {
     const d = await api('/' + state.page.id + '/publish', { method: 'POST', body: {} });
+    qid = d.data.queue_id;
     $('#pubMask').classList.remove('on');
-    toast('已提交到分支 ' + d.data.branch + '。等待特权服务处理并开 PR。');
-  } catch (e) { toast(e.message, true); }
+    // ⚠️ 这里**不能**说"已提交到分支" —— 入队 ≠ 已推送。
+    //    真正的 git 操作由发布服务执行，可能因为基线冲突/闸门不通过而**被拒**。
+    //    所以必须回查队列状态，否则运维会以为发布成功了。
+    toast('已入队（#' + qid + '），正在处理…');
+    const r = await waitQueue(qid);
+    showPublishResult(r, d.data.branch);
+  } catch (e) {
+    toast(e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '提交到分支并发起评审';
+  }
 };
+
+/** 轮询队列，等发布服务处理完（最多约 75 秒 —— 定时器 30 秒一轮） */
+async function waitQueue(id, tries = 25) {
+  for (let i = 0; i < tries; i++) {
+    await new Promise(r => setTimeout(r, 3000));
+    try {
+      const d = await api('/publish-queue');
+      const q = (d.data || []).find(x => x.id === id);
+      if (q && q.status !== 'pending' && q.status !== 'running') return q;
+    } catch { /* 单次失败继续等 */ }
+  }
+  return { status: 'timeout', log: '发布服务还没处理完（可能未安装或未启动）。' };
+}
+
+/** 把发布结果明确告诉用户 —— 成功、被拒、还是失败 */
+function showPublishResult(q, branch) {
+  if (q.status === 'done') {
+    toast('已推送分支 ' + branch + '。去 GitHub 开 Pull Request 并评审合并。');
+    return;
+  }
+  const why = String(q.log || '');
+  const box = document.createElement('div');
+  box.className = 'pg-mask on';
+  box.innerHTML = `
+    <div class="pg-modal" style="width:600px">
+      <div class="pg-modal__hd"><h3>${q.status === 'conflict' ? '发布被拦下' : '发布未完成'}</h3></div>
+      <div class="pg-modal__bd">
+        <div class="note warn"><b>没有产生任何提交，线上内容未变。</b>
+          ${q.status === 'conflict'
+            ? '原因：本页在你编辑之后**被开发改过**，库里的内容已过期。直接发布会把开发者的改动覆盖掉，所以系统拒绝了。'
+            : '原因见下方日志。'}</div>
+        <pre style="background:var(--n100);padding:12px;border-radius:var(--radius);font-size:12px;
+                    white-space:pre-wrap;word-break:break-all;max-height:240px;overflow:auto">${escapeHtml(why)}</pre>
+        <div class="note"><b>怎么修</b>
+          如果确认是"开发改了页面"，需要把改动同步进编辑器后才能发布
+          （这一步要开发执行 <span class="mono">seed-pages.js --reset ${escapeHtml(state.slug)}</span>）。
+          同步之后再重新编辑、再次发布即可。</div>
+      </div>
+      <div class="pg-modal__ft"><button class="btn" id="pubResClose">知道了</button></div>
+    </div>`;
+  document.body.appendChild(box);
+  box.querySelector('#pubResClose').onclick = () => box.remove();
+}
 
 /* ───────────────  离开前提醒  ─────────────── */
 window.addEventListener('beforeunload', (e) => {
