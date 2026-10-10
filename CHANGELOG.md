@@ -11,6 +11,80 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.22.0] - 2026-10-10
+
+### 🖥 Creator 设计者模式 · Stage 2：编辑器界面（`/Creator/` 可用了）
+
+Stage 1 只有 API 与数据；本版把界面做出来并跑通「改字 → 保存 → 只变那几个字」的闭环。
+
+#### 交付
+
+| 文件 | 作用 |
+|---|---|
+| `server/creator/index.html` | 编辑器外壳（登录浮层 / 三栏 / 发布弹窗） |
+| `server/creator/creator.css` | 编辑器样式（复用站点设计令牌，与画布互不干扰） |
+| `server/creator/creator.js` | 全部交互逻辑（约 620 行） |
+| `server/src/lib/fragment.js` | **片段补丁器**（见下，本版的技术核心） |
+| `server/src/lib/render-page.js` | 由积木渲染整页，**画布预览与 build-pages 共用**，不允许各写一份 |
+| `server/src/routes/creator.routes.js` | 新增 `GET /pages/:slug/preview`、`GET /pages/:id/revisions` |
+| `deploy/patch-nginx-creator.py` | nginx 增加 `/Creator` 反代（**配置不在仓库，须手工跑**） |
+
+#### 🔑 技术核心：为什么不能整段替换
+
+浏览器把 DOM 序列化成 `outerHTML` 时会**规范化标记**（自闭合 `/>` 被去掉、
+实体 `&amp;` 解码、引号形式变化）。若直接存回，**每次保存都会把整段重排版**，
+Stage 1 好不容易验出来的「拼回去逐字节一致」当场作废，git diff 也没法看了。
+
+故改为：**客户端提交整段 HTML，服务端只把真正变了的文字与图片打补丁回原文**
+（`lib/fragment.js` 的 `patchFragment`）。实测结果：
+
+```
+改一个段落后，往返差异只出现在 1 个位置（第 6982 字节）—— 恰是被改的那几个字
+15 个文字节点里只有 1 个变化，其余全部原样
+自闭合标签、实体编码均未被规范化
+审计日志：content · section-tight · 补丁 1 处
+```
+
+#### 界面
+
+- **三栏**：模块大纲（可拖动排序 / 可隐藏 / 🔒 标记全局组件）│ 画布 │ 属性面板
+- **画布**是同源 iframe，直接加载 `/preview`，**与将来 build-pages 生成的是同一套渲染代码**
+  —— 画布所见即发布所得
+- **就地编辑**：双击画布上的文字直接改；点图片可换图（上传或从图库选）
+- **角色自适应**：`editor` 看到的结构性按钮（隐藏/复制/删除、发布）**全部置灰**
+  （但真正的拦截在服务端，见 v0.21.6）
+
+#### 🔴 踩到的一个只有截图才能发现的坑
+
+`.gate{display:grid}` / `.app{display:flex}` / `.mask{display:grid}` 的
+**特异性高于 HTML `hidden` 属性自带的 `display:none`**，导致 JS 明明设了 `hidden`，
+登录浮层**依旧盖在编辑器上面**。
+
+DOM 检查读到 `hidden=true`、`/api/*` 全 200、无 JS 报错 —— **一切"正常"**，
+只有截图才暴露。修复：显式加 `[hidden]{display:none !important}`。
+
+> 又一次印证：**HTTP 200 + DOM 断言 不等于 界面可用，必须看图。**
+
+#### 验证
+
+- **端到端改字**（真实派发 dblclick → 改字 → blur → `PUT /blocks/39 → 200` → 「已保存 ✓」）
+- 改完**往返校验**：差异**只有 1 处**，恰是被编辑的字；恢复后**两页重新逐字节一致**
+- **权限矩阵**（v0.21.6 起）8 项仍全绿
+- 两种角色各截图一张确认：`creator` 可发布、`editor` 全部结构性按钮置灰
+- 线上站点 7 个前台页面 200，未受影响
+
+#### 仍未做（Stage 3–4）
+
+- **发布仍只入队，不会真的推仓库** —— 特权 systemd 服务 + Deploy Key 未实施
+- 版本回滚、多语言对照编辑
+- 目前只接入 `oem` / `cn/oem` 两页（试点）
+- ⚠️ 通过 Creator 上传的图片走 `/uploads/`，**该目录不在 git 里**
+  （与现有产品图同一现状），故「仓库完整描述站点」这一点尚不成立
+
+---
+
+---
+
 ## [v0.21.6] - 2026-10-10
 
 ### 🧱 Creator 设计者模式 · Stage 1（数据模型 + 权限 + 拆页/回写闭环）

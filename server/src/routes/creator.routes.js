@@ -24,6 +24,8 @@ const express = require('express');
 const A = require('../lib/auth');
 const db = require('../lib/db');
 const { wrap } = require('../lib/util');
+const { patchFragment } = require('../lib/fragment');
+const { renderPage } = require('../lib/render-page');
 
 const router = express.Router();
 
@@ -121,9 +123,20 @@ router.put('/blocks/:id', wrap(async (req, res) => {
       const v = isContentOnlyEdit(b.content, content);
       if (!v.ok) return res.status(403).json({ ok: false, error: v.reason, code: 'CONTENT_ONLY' });
     }
+    // ⚠️ 不建议整段替换：浏览器序列化会规范化标记（自闭合、实体、引号），
+    //    整段存回等于每次保存都把该段重排版，Stage 1 好不容易验出来的
+    //    「拼回去逐字节一致」当场作废。故此处**只把真正变了的文字/图片打补丁回原文**。
+    const p = patchFragment(b.content, content);
+    if (!p.ok) {
+      return res.status(400).json({
+        ok: false, code: 'PATCH_REJECTED',
+        error: '内容变动方式不被支持：' + p.reason + '。Creator 只允许修改文字与图片，不改页面结构。',
+      });
+    }
     db.run('UPDATE page_blocks SET content = ?, updated_at = datetime(\'now\',\'localtime\') WHERE id = ?',
-      [content, b.id]);
-    A.audit(req, 'update', 'page_blocks:' + b.id, 'content · ' + b.kind + ' · ' + b.content.length + '→' + content.length + ' 字节');
+      [p.html, b.id]);
+    A.audit(req, 'update', 'page_blocks:' + b.id,
+      'content · ' + b.kind + ' · 补丁 ' + p.changes.length + ' 处');
   }
 
   if (visible !== undefined) {
@@ -234,6 +247,35 @@ router.post('/pages/:id/publish', A.requireRole(...R_CREATOR), wrap(async (req, 
       message: '已入队。真正的 git 提交由特权服务执行，提交到分支后需经评审合并才会上线。',
     },
   });
+}));
+
+/**
+ * 预览 —— 用**当前草稿**渲染整页，供编辑器画布内嵌。
+ *
+ * 刻意与 build-pages.js 共用同一个 renderPage，**不允许各写一份**：
+ * 画布看到的必须与将来生成出来的完全一致，否则编辑等于盲改。
+ *
+ * 页内相对路径靠注入 <base href="/"> 解决（见下方），
+ * 这样 DOM 里的 src 仍是原文的相对写法，回写时不会凭空产生「改图」差异。
+ */
+router.get('/pages/:slug/preview', wrap(async (req, res) => {
+  const page = db.get('SELECT * FROM pages WHERE slug = ?', [req.params.slug]);
+  if (!page) return res.status(404).send('页面不存在');
+  let html;
+  try { html = renderPage(page.id); } catch (e) { return res.status(500).send('渲染失败：' + e.message); }
+  // 注入 <base> —— 让页面里的相对路径（assets/…、../assets/…）在 /Creator/ 下也能解析
+  html = html.replace(/<head([^>]*)>/i, '<head$1>\n<base href="/">');
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  res.set('Cache-Control', 'no-store');
+  res.send(html);
+}));
+
+/** 版本快照列表（回滚在 Stage 4） */
+router.get('/pages/:id/revisions', wrap(async (req, res) => {
+  const rows = db.all(
+    `SELECT id, note, author_id, created_at, length(snapshot) AS bytes
+       FROM page_revisions WHERE page_id = ? ORDER BY id DESC LIMIT 40`, [req.params.id]);
+  res.json({ ok: true, data: rows });
 }));
 
 /** 发布队列（给前端看进度） */

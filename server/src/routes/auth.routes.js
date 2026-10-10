@@ -86,6 +86,8 @@ router.get('/me', wrap(async (req, res) => {
     username: s.username,
     display_name: s.display_name,
     must_change: !!s.must_change,
+    // Creator 用它决定界面显示哪些操作（**真正的拦截在服务端**，这里只是别让人白点）
+    role: s.role || 'admin',
   });
 }));
 
