@@ -11,6 +11,44 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.17.2] - 2026-10-10
+
+### 🖼 修正 facilities 页配图图注 —— 曾与照片张冠李戴
+
+**起因**：用户质疑「环境测试」的配图与图片内容不符，问依据是什么、源网站是否这样写。
+
+**核查结论**：问题不是「图不对文」，而是**图注与照片张冠李戴**。
+逐张打开老站原图目视核对后确认，老站该段 6 张图的真实图注是：
+
+`CSA WITNESS LAB` · `LIGHT SOURCE ANALYSIS TEST` · `LIGHTNING SURGE TEST` ·
+`QUIET ROOM AND EMI TEST` · `RELIABILITY ENVIRONMENT TEST` · `LONG LIFE AGING`
+
+而本站曾把第 4 张（两台白色步入式箱体，老站注为 **QUIET ROOM AND EMI TEST**）
+写成「环境测试 / 恒温恒湿试验箱与冷热冲击试验箱」；
+第 5 张「电气性能测试」还**与第 1 张用了同一张照片**，
+真正的雷击浪涌测试区实拍则**从未被使用**。
+
+**根因**：把老站 RD 段的**整间实验室设备清单**（"It is equipped with … constant temperature
+and humidity test chambers, thermal shock test chambers …"）当成了**单张照片的说明**。
+🔴 **文字有出处 ≠ 该照片有出处** —— 绑定关系同样必须可溯源。
+
+**改动**：
+
+| 项目 | 变更 |
+|---|---|
+| 图注 | 6 张卡改为**与老站原图注一一对应**；删除全部照片无法自证的副注 |
+| 用图 | 新增 `assets/img/scene-surge-test.jpg`（老站雷击浪涌测试区实拍，此前漏用） |
+| 用图 | `scene-env-chamber.jpg` → 更名 `scene-quiet-room.jpg`（原文件名与内容不符） |
+| 段落 | 设备清单回归其本位：CSA 段总述（照抄老站原文），不再充当图注 |
+| 注释 | 两页文件头的配图说明改为**图 ↔ 老站图注**对照表，并写入配图纪律 |
+
+**范围**：`facilities.html` 与 `cn/facilities.html` 同步；**未新增页面，无需改部署白名单**
+（`assets` 目录本就在四处白名单内）。
+
+**验证**：两页各 6 张图引用全部可解析；图注 6/6 与老站标签一致；副注残留 0；CRLF 0。
+
+---
+
 ## [v0.17.1] - 2026-10-10
 
 ### 🧹 全站页脚移除 ICP 备案号
