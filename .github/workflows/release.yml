@@ -1,0 +1,44 @@
+# 发布闭环：每次推 tag 就自动把「有 tag 但没 Release」的版本补齐，
+# 并让 GitHub 的 Latest 指向最高版本。
+#
+# 为什么需要它：Release 只能走 REST API —— SSH 远端（git@github.com:）推不了；
+# 而「手工补 Release」每发一版都要再来一次，缺口会反复出现
+# （2026-10-10 实测：一度缺 34 个 Release、Latest 停在 v0.11.0）。
+#
+# 🔑 这里用仓库**内置的 GITHUB_TOKEN**（见下方 permissions），
+#    **不需要任何 PAT / secret** —— 所以它不会过期、不用交接到别人手里。
+#
+# 手动补建某个版本：Actions → Release → Run workflow（本工作流无需输入，
+# 每次都会自动扫描并补齐所有缺口）。
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write          # 创建 Release 必需；不声明会被 403 拒绝
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # 需要拿到全部 tag
+
+      - name: 自检（凭据有效性 + 写权限）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 deploy/release-create.py --check
+
+      - name: 补齐缺失的 Release，并把 Latest 指向最高版
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 deploy/release-create.py --apply

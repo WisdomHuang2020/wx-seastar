@@ -11,6 +11,34 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.22.1] - 2026-10-10
+
+### 🤖 新增「推 tag 即自动建 Release」工作流 —— 发布闭环不再需要人工补 Release
+
+**用户拍板**：选 A（加工作流），从此不再每发一版手工补一次 Release。
+
+**背景**：本仓库远端是 SSH（`git@github.com:`），**SSH 无法创建 Release** ——
+Release 只能走 REST API。于是「每发一版都要人工补 Release」成了发布流程的固定负担，
+缺口反复出现（2026-10-10 实测一度 **缺 34 个 Release**、Release Latest 停在 v0.11.0）。
+
+| 新增 | 作用 |
+|---|---|
+| `.github/workflows/release.yml` | 推 `v*` tag（或手动 dispatch）即运行；声明 `permissions: contents: write` |
+| `deploy/release-create.py` | 与 `release-audit.py` 并列的**补建工具**：扫描「有 tag 没 Release」的版本并补齐，最后把 **Latest 指向最高版** |
+
+- 🔑 工作流用的是**仓库内置的 `GITHUB_TOKEN`** —— **不需要任何 PAT / secret**：
+  不会过期，也不用交接到别人手里。
+- 工具**免鉴权即可列出**已有 Release（公开仓库可匿名读）→ **只有"写"才需要凭据**；
+  凭据**只从环境变量读**，绝不入库（本仓库是公开仓库）。
+- `--check` 带**写能力探针**：用一个**非法 ref 名**（含空格）POST `/releases` ——
+  有写权限回 422、没有回 403，**两种都不会创建任何东西**。
+  这是被现实教育出来的：fine-grained PAT 的 `Contents` **默认是 Read-only**，
+  而 `GET /repos/{repo}` 里的 `permissions.push` 是**用户账号**的权限、**不代表 token** ——
+  曾据此误判"能写"，白跑 34 次全 403。
+- 手动补建：Actions → **Release** → Run workflow（会自动扫描并补齐所有缺口）。
+
+---
+
 ## [v0.22.0] - 2026-10-10
 
 ### 🖥 Creator 设计者模式 · Stage 2：编辑器界面（`/Creator/` 可用了）
@@ -80,8 +108,6 @@ DOM 检查读到 `hidden=true`、`/api/*` 全 200、无 JS 报错 —— **一�
 - 目前只接入 `oem` / `cn/oem` 两页（试点）
 - ⚠️ 通过 Creator 上传的图片走 `/uploads/`，**该目录不在 git 里**
   （与现有产品图同一现状），故「仓库完整描述站点」这一点尚不成立
-
----
 
 ---
 
