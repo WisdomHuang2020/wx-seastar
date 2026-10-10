@@ -38,6 +38,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const db = require('../lib/db');
 const { renderPage } = require('../lib/render-page');
+const N = require('../lib/news');
 
 db.migrate();
 
@@ -142,15 +143,20 @@ function gateScope(allowedFiles) {
 
 function processOne(task) {
   const id = task.id;
-  const page = db.get('SELECT * FROM pages WHERE id = ?', [task.page_id]);
-  if (!page) throw new Error('页面不存在（page_id=' + task.page_id + '）');
+  const isNews = task.kind === 'news';
+  const page = isNews ? null : db.get('SELECT * FROM pages WHERE id = ?', [task.page_id]);
+  if (!isNews && !page) throw new Error('页面不存在（page_id=' + task.page_id + '）');
+  // 新闻与页面**走同一条主流程**：都是"重建 creator = main + 全部待审改动"，
+  // 只是新闻任务没有单一目标页，跳过页面的漂移校验。
 
-  const relFile = page.slug + '.html';
-  const absFile = path.join(REPO, relFile);
-  log(`任务 #${id} · ${page.slug} · 待审分支 ${BRANCH}`);
+  // ⚠️ 新闻任务没有目标页，这些只能在判过 isNews 之后再取 —— 顺序反了会
+  //    在 `page.slug` 上抛 "Cannot read properties of null"（实测踩到）。
+  const relFile = isNews ? null : page.slug + '.html';
+  const absFile = relFile ? path.join(REPO, relFile) : null;
+  log(`任务 #${id} · ${isNews ? '新闻' : page.slug} · 待审分支 ${BRANCH}`);
 
   if (!fs.existsSync(REPO)) throw new Error('找不到仓库目录 ' + REPO);
-  if (!fs.existsSync(absFile)) throw new Error('仓库里找不到目标文件 ' + relFile);
+  if (!isNews && !fs.existsSync(absFile)) throw new Error('仓库里找不到目标文件 ' + relFile);
 
   // ── 取最新 main 与待审分支 ──
   sh(['fetch', '--quiet', 'origin', 'main']);
@@ -158,8 +164,10 @@ function processOne(task) {
   log(`origin/main = ${mainSha.slice(0, 8)}`);
 
   // ── ① 目标页的基线校验（**本次任务的页面**：漂移了就拒绝）──
-  const base = page.base_sha || task.base_sha;
-  if (!base) {
+  const base = isNews ? null : (page.base_sha || task.base_sha);
+  if (isNews) {
+    log('新闻任务：跳过单页漂移校验（新闻的漂移在生成阶段单独判）');
+  } else if (!base) {
     log('⚠️ 未记录基线（pages.base_sha 为空），跳过漂移检测');
   } else if (base !== mainSha) {
     // main 前进了不要紧，**只有当目标文件本身被改过才拦** ——
@@ -203,6 +211,43 @@ function processOne(task) {
   //       这样分支相对 main 的差异永远只有内容改动，不会让 main 的新提交"被回退"。
   if (!DRY) sh(['checkout', '--quiet', '-B', BRANCH, 'origin/main']);
 
+  // ── 新闻：先重新生成（**生成 + 同步抽屉必须一起跑**，见 lib/news.js 头注释）──
+  const newsChanged = [];
+  let newsSkipped = null;
+  {
+    const rows = N.ordered();
+    if (rows.length) {
+      // 新闻的漂移基线存在 settings 里：dev 若改过 news/ 下的文件就不能覆盖
+      const nb = db.get("SELECT value FROM settings WHERE key='news.base_sha'");
+      const nbase = nb && nb.value;
+      let ndrift = [];
+      if (nbase && nbase !== mainSha) {
+        try {
+          ndrift = sh(['log', '--oneline', `${nbase}..origin/main`, '--',
+            'news.html', 'cn/news.html', 'news/', 'cn/news/']).split('\n').filter(Boolean);
+        } catch { ndrift = ['（基线不在历史中）']; }
+      }
+      if (ndrift.length) {
+        newsSkipped = '库里的新闻已被开发改过（' + ndrift.length + ' 个提交），本次保留 main 的版本';
+        log('⚠ ' + newsSkipped);
+      } else if (DRY) {
+        // ⚠️ 生成脚本**没有 dry-run 模式，它总是写盘**（`--check` 是个空参数）。
+        //    所以这里“生成完再还原”，保证干跑不留痕 —— 干跑就该是只读的。
+        const before = sh(['status', '--porcelain', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
+        N.regenerate(REPO);
+        const after = sh(['status', '--porcelain', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
+        newsChanged.push(...after.split('\n').filter(Boolean).map(l => l.slice(3).trim()));
+        sh(['checkout', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
+        log(`[dry-run] 新闻：会有 ${newsChanged.length} 个文件改动（已还原，未留痕）`
+          + (before.split('\n').filter(Boolean).length ? '；注意生成前仓库里本就有改动' : ''));
+      } else {
+        N.regenerate(REPO);
+        const st = sh(['status', '--porcelain', '--', 'news.html', 'cn/news.html', 'news/', 'cn/news/']);
+        newsChanged.push(...st.split('\n').filter(Boolean).map(l => l.slice(3).trim()));
+      }
+    }
+  }
+
   const managed = db.all('SELECT id, slug FROM pages ORDER BY slug');
   const changed = [];
   const skipped = [];
@@ -231,7 +276,7 @@ function processOne(task) {
     changed.push(p.slug + '.html');
   }
 
-  if (!changed.length) {
+  if (!changed.length && !newsChanged.length) {
     return { status: 'done', note: '内容与线上一致，无需发布（未产生提交）' };
   }
   log(`待提交 ${changed.length} 个页面：${changed.join(', ')}`);
@@ -240,16 +285,18 @@ function processOne(task) {
   if (DRY) return { status: 'done', note: 'dry-run 通过（未提交未推送）' };
 
   // ── ④ 闸门（范围必须是已纳管的页面）──
-  const scope = gateScope(changed);
+  const allowed = [...changed, ...newsChanged];
+  const scope = gateScope(allowed);
   if (!scope.files.length) return { status: 'done', note: '内容与线上一致，无需发布（未产生提交）' };
   log('✓ 闸门：行尾 / 引用完整性 / 渲染确定性 / 变更范围 全部通过');
 
   // ── ⑤ 提交 ──
-  const msg = `content(pages): 后台发布 ${changed.length} 个页面\n\n`
+  const msg = `content(pages): 后台发布 ${changed.length} 个页面${newsChanged.length ? ` + ${newsChanged.length} 个新闻页` : ''}\n\n`
     + `来源：/admin/pages 页面内容编辑器（起草人 admin_id=${task.author_id || '-'}）\n`
     + `渲染：server/src/lib/render-page.js（与画布预览同一套代码）\n`
     + `闸门：行尾 LF / 引用完整性 / 渲染确定性 / 变更范围 全部通过\n\n`
-    + `改动页面：\n` + changed.map(f => `  - ${f}`).join('\n') + '\n'
+    + (changed.length ? `改动页面：\n` + changed.map(f => `  - ${f}`).join('\n') + '\n' : '')
+    + (newsChanged.length ? `改动新闻页：\n` + newsChanged.map(f => `  - ${f}`).join('\n') + '\n' : '')
     + (skipped.length ? `\n因积木过期而跳过（保留了 main 的版本）：\n` + skipped.map(s => `  - ${s}`).join('\n') + '\n' : '')
     + `\n本提交由发布服务自动生成，位于待审分支 ${BRANCH}，需评审合并后才会上线。\n`;
 
@@ -283,6 +330,10 @@ function processOne(task) {
         [sha, now, slug]);
     }
   });
+  if (newsChanged.length) {
+    db.run(`INSERT INTO settings (key, value) VALUES ('news.base_sha', ?)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value`, [sha]);
+  }
   log('已回写基线 base_sha=' + sha.slice(0, 8));
 
   return {

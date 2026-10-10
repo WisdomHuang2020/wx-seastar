@@ -202,8 +202,11 @@ CREATE INDEX IF NOT EXISTS idx_rev_page ON page_revisions(page_id, created_at DE
 --  Web 进程**不持有仓库写权限** —— 即使站点被攻破也拿不到 GitHub 写权限。
 CREATE TABLE IF NOT EXISTS publish_queue (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  page_id    INTEGER NOT NULL,
-  branch     TEXT    NOT NULL,              -- creator/<slug>-<时间戳>
+  page_id    INTEGER NOT NULL,              -- kind='page' 时为页面 id；
+                                            -- kind='news' 时固定填 0（SQLite 改 NOT NULL 要重建表，
+                                            -- 而 0 不是合法页面 id，用它代替 NULL 代价最小）
+  kind       TEXT    NOT NULL DEFAULT 'page', -- page | news
+  branch     TEXT    NOT NULL,
   base_sha   TEXT,                          -- 提交时 main 的 SHA（基线）
   status     TEXT    NOT NULL DEFAULT 'pending', -- pending|running|done|failed|conflict
   log        TEXT,

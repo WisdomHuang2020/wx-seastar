@@ -45,6 +45,7 @@ app.use('/api/documents', require('./routes/documents.routes').router);
 app.use('/api/messages', require('./routes/messages.routes').router);
 app.use('/api/public', require('./routes/public.routes'));
 app.use('/api/pages', require('./routes/pages.routes').router);
+app.use('/api/news', require('./routes/news.routes').router);
 
 app.get('/api/health', (_req, res) => res.json({
   ok: true,

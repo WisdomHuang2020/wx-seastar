@@ -69,6 +69,14 @@ function migrate() {
     }
   }
 
+  // 新闻入库：发布队列区分任务类型（页面 / 新闻）
+  if (d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='publish_queue'").get().n) {
+    const qcols = new Set(d.prepare('PRAGMA table_info(publish_queue)').all().map(c => c.name));
+    if (!qcols.has('kind')) {
+      d.exec("ALTER TABLE publish_queue ADD COLUMN kind TEXT NOT NULL DEFAULT 'page'");
+    }
+  }
+
   return d;
 }
 
