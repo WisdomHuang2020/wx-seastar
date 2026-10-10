@@ -11,6 +11,84 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.27.0] - 2026-10-10
+
+### 🔀 发布目标改为固定的 `creator` 分支（用户定：审完合 main）
+
+**用户要求**：不再每次一个新分支，**所有后台更新都推到 `creator`**，审核后合并进 main。
+
+#### 🔑 关键：`creator` 每次都被**重建**为「origin/main + 全部待审改动」
+
+只是"不断往同一个分支叠加提交"是不行的：长命分支会逐渐落后于 main，
+此时开 PR 会把 main 上的新提交显示成**被回退掉** —— 一合并就把别人的工作抹了。
+
+所以每次发布都：
+1. `git checkout -B creator origin/main`（重建）
+2. 遍历**全部**已纳管页面，从数据库重新渲染；与 main 不同才写文件
+3. 提交、推送
+
+**为什么重建不丢东西**：待审改动**不在分支里，而在数据库里**（`page_blocks`）。
+分支只是数据库当前状态的一个投影 —— 这也是为什么可以放心重建。
+
+因为要重建，推送是 `--force`。但**先检查 `creator` 上有没有不是本服务提交的
+commit**（按作者名 `wx-seastar-publish` 识别），有就拒绝，避免把人工改动冲掉。
+
+#### 🐛 顺带修掉一个"每页只能发布一次"的 bug
+
+原实现发布成功后**不回写 `pages.base_sha`**。于是下次再发布同一页时，
+基线校验会把**自己上次的提交**当成"他人改动"而拒绝 ✗。
+这个 bug 至今没暴露，纯粹是因为之前**没有任何一次发布成功过**。
+→ 现在发布成功后回写 `base_sha`（并把该页标记 `published`）。
+
+#### 🔴 踩到一条 Git 的硬限制
+
+```
+fatal: cannot lock ref 'refs/heads/creator': 'refs/heads/creator/oem-realtest' exists
+```
+
+**`creator` 与 `creator/<xxx>` 不能共存** —— git 的 ref 是**目录树**结构。
+而旧命名（v0.23~v0.26）恰好是 `creator/<slug>-<时间戳>`，正好撞上。
+已在代码里写明：**今后绝不要再建 `creator/*` 形式的分支**。
+
+#### 发布范围内的其它改动
+
+- 单次发布现在会一并提交**所有页面**的待审改动（因为重建 = 全量重渲染），
+  提交信息里逐个列出改了哪些页面
+- 某些页面积木过期时**只跳过那一页**（保留 main 的版本）并在日志里说明，
+  不再让一页的问题阻塞整批
+- 编辑器界面：发布弹窗与提示改为显示固定分支 `creator`
+
+#### ⚠️ 唯一仍卡住的地方：**发布密钥还没加到 GitHub**
+
+实测推送被拒：
+
+```
+git@github.com: Permission denied (publickey).
+```
+
+只读那把能认证（`Hi WisdomHuang2020/wx-seastar!`），说明**网络与 SSH 别名都正常**，
+**只是 `creator_publish` 这把公钥还没登记到仓库的 Deploy keys**。
+
+需要把这一行加到 GitHub → Settings → Deploy keys → Add deploy key
+（**必须勾 Allow write access**）：
+
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIMGgG/soMFo+wiBqwfRH8yXE7IhLiwdewJsvJ9FRL2i wx-seastar-creator-publish@VM-0-12-ubuntu
+```
+
+加好后自检：`bash /opt/wx-seastar/repo/deploy/check-publish-key.sh`
+
+#### 验证
+
+- 重建后本地 `creator` 分支相对 main **只含内容改动**；提交 `dadb7b6d` 已生成
+  （仅 `cn/oem.html` 一个文件，闸门四道全过）
+- 推送因密钥未登记被拒 —— **报错明确、可直接照做**
+- 测试痕迹已清理，全站 20 页往返**逐字节一致**
+
+---
+
+---
+
 ## [v0.26.1] - 2026-10-10
 
 ### 🩹 修掉「发布」给出的误导性反馈（用户提问引出）

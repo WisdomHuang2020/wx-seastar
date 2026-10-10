@@ -9,18 +9,29 @@
  *   真正的 git 操作全部由本服务（以 root 运行、持有专用写权限密钥）执行。
  *   这是本设计里**最重要的一条安全边界**。
  *
- * ── 铁律 ──────────────────────────────────────────────────────────────
- *   ① **绝不推 main** —— 只推 creator/<slug>-<时间戳>，由人评审合并
- *   ② **基线校验** —— 目标文件在 base_sha..origin/main 之间被改过，
- *      说明库里的积木已过期（开发者改了页面），此时**拒绝发布**并报冲突，
- *      绝不闷头覆盖别人的提交
- *   ③ **发布前必过闸门** —— 行尾 / 引用完整性 / 渲染确定性 / 变更范围
- *   ④ **变更范围只准是目标页面** —— 多改一个文件就中止（防止误伤全站）
+ * ── 发布模型（用户 2026-10-10 定）──────────────────────────────────────
+ *   所有后台更新都推到**一个固定的 `creator` 分支**，人工审核后合并进 main。
+ *   **不是**每次一个新分支。
  *
- * 用法：
- *   node src/tools/publish-worker.js --once            # 处理一条待办
- *   node src/tools/publish-worker.js --once --dry-run  # 走完全流程但不提交/不推送
- *   node src/tools/publish-worker.js --list            # 只看队列
+ *   ⚠️ 关键：`creator` 每次都被**重建为「origin/main + 全部待审改动」**。
+ *      为什么必须这样：长命分支若只是不断叠加提交，会逐渐落后于 main，
+ *      此时开 PR 会把 main 上的新提交显示成"被回退掉" —— 一合并就把别人的工作抹了。
+ *      重建之后，`creator` 相对 main 的差异**永远只有待审的内容改动**。
+ *
+ *      重建不丢东西：待审改动**不在分支里，而在数据库里**（page_blocks）。
+ *      分支只是数据库当前状态的一个投影。所以每次重建都从 DB 重新渲染一遍。
+ *
+ *   ⚠️ 因为要重建，推送是 `--force`。但会先检查 `creator` 上有没有
+ *      **不是本服务提交的** commit —— 有就拒绝，避免把人工改动冲掉。
+ *
+ * ── 铁律 ──────────────────────────────────────────────────────────────
+ *   ① **绝不推 main** —— 只推 `creator`
+ *   ② **基线校验** —— 目标页在 base_sha..origin/main 之间被开发改过，
+ *      说明库里的积木已过期 → **拒绝发布**，绝不覆盖别人的提交
+ *   ③ **发布前必过闸门** —— 行尾 / 引用完整性 / 渲染确定性 / 变更范围
+ *   ④ **变更范围只准是已纳管的页面** —— 多改一个文件就中止
+ *   ⑤ **发布成功后回写 base_sha** —— 否则下次发布会把**自己上次的提交**
+ *      误判成"他人改动"，导致每个页面只能成功发布一次
  */
 const fs = require('node:fs');
 const path = require('node:path');
@@ -34,7 +45,18 @@ const REPO = process.env.WX_REPO_DIR || '/opt/wx-seastar/repo';
 /** 推送用**有写权限**的别名；仓库里的 origin 是只读别名，不能用来推 */
 const PUSH_URL = process.env.WX_PUSH_URL
   || 'git@github-wxseastar-publish:WisdomHuang2020/wx-seastar.git';
-const BRANCH_PREFIX = 'creator/';
+/** 固定的待审分支（用户 2026-10-10 定：都推这里，审完合 main） */
+const BRANCH = process.env.WX_PUBLISH_BRANCH || 'creator';
+/**
+ * ⚠️ 绝不要再建 `creator/<xxx>` 形式的分支。
+ *    git 的 ref 是**目录树**：`refs/heads/creator` 与 `refs/heads/creator/xxx`
+ *    不能共存 —— 建后者会让前者报
+ *    `cannot lock ref ... 'refs/heads/creator/xxx' exists`。
+ *    （v0.23~v0.26 的旧命名就是 `creator/<slug>-<时间戳>`，实测踩到过。）
+ */
+/** 本服务提交时用的作者，用于识别"这个分支上的提交是不是我们自己的" */
+const BOT_NAME = 'wx-seastar-publish';
+const BOT_EMAIL = 'publish@wx-seastar.local';
 
 const DRY = process.argv.includes('--dry-run');
 
@@ -76,14 +98,14 @@ function gateRefs(file) {
   let m;
   while ((m = re.exec(html))) {
     const u = m[1];
-    if (/^(https?:|mailto:|tel:|#|javascript:|\/\/)/.test(u)) continue;
+    if (/^(https?:|mailto:|tel:|#|javascript:|\/\/|\/)/.test(u)) continue;
     refs.add(u.split('#')[0].split('?')[0]);
   }
   const dir = path.dirname(file);
   const bad = [];
   for (const r of refs) {
     if (!r) continue;
-    const p = r.startsWith('/') ? path.join(REPO, r.slice(1)) : path.resolve(dir, r);
+    const p = path.resolve(dir, r);
     if (!fs.existsSync(p) && !fs.existsSync(p + '.html') && !fs.existsSync(path.join(p, 'index.html'))) {
       bad.push(r);
     }
@@ -98,24 +120,22 @@ function gateDeterministic(pageId, expected) {
 }
 
 /**
- * ④ 变更范围只准是目标页面
+ * ④ 变更范围只准是已纳管的页面文件
  *
  * ⚠️ 不能看 `git status --porcelain` —— 部署副本里**随时可能有与本次无关的
  *    未跟踪文件**（运维手工放的脚本、上一次部署的残留等），
- *    那样每个发布都会被自己的闸门挡死。所以先 add 再看**暂存区差异**，
- *    这样只关心"这次到底要提交什么"。
+ *    那样每个发布都会被自己的闸门挡死。所以先 add 再看**暂存区差异**。
  */
-function gateScope(pageFile) {
-  sh(['add', '--', pageFile]);
+function gateScope(allowedFiles) {
+  const allow = new Set(allowedFiles);
+  sh(['add', '-A', '--', '.']);
   const staged = sh(['diff', '--cached', '--name-only']).split('\n').filter(Boolean);
-  const extra = staged.filter(f => f !== pageFile);
+  const extra = staged.filter(f => !allow.has(f));
   if (extra.length) {
     sh(['reset', '--quiet']);
     throw new Error('闸门/越界：本次暂存了不该提交的文件 ' + extra.slice(0, 5).join(', '));
   }
-  // 「没有变化」不是错误 —— 内容与线上一致本来就无需发布，返回信号让上层记 done
-  if (!staged.length) return { empty: true };
-  return { empty: false };
+  return { files: staged };
 }
 
 /* ───────────────  主流程  ─────────────── */
@@ -127,17 +147,17 @@ function processOne(task) {
 
   const relFile = page.slug + '.html';
   const absFile = path.join(REPO, relFile);
-  log(`任务 #${id} · ${page.slug} · 分支 ${task.branch}`);
+  log(`任务 #${id} · ${page.slug} · 待审分支 ${BRANCH}`);
 
   if (!fs.existsSync(REPO)) throw new Error('找不到仓库目录 ' + REPO);
   if (!fs.existsSync(absFile)) throw new Error('仓库里找不到目标文件 ' + relFile);
 
-  // ── 取最新 main ──
+  // ── 取最新 main 与待审分支 ──
   sh(['fetch', '--quiet', 'origin', 'main']);
   const mainSha = sh(['rev-parse', 'origin/main']);
   log(`origin/main = ${mainSha.slice(0, 8)}`);
 
-  // ── 基线校验：目标文件在 base_sha 之后被改过吗 ──
+  // ── ① 目标页的基线校验（**本次任务的页面**：漂移了就拒绝）──
   const base = page.base_sha || task.base_sha;
   if (!base) {
     log('⚠️ 未记录基线（pages.base_sha 为空），跳过漂移检测');
@@ -162,57 +182,85 @@ function processOne(task) {
     log('main 已前进但目标文件未变，可安全发布');
   }
 
-  // ── 建分支 ──
-  const branch = task.branch || (BRANCH_PREFIX + page.slug.replace(/\//g, '-') + '-' + Date.now());
-  if (!DRY) {
-    sh(['checkout', '--quiet', '-B', branch, 'origin/main']);
-  }
-  log(`分支 ${branch}（基于 origin/main，**不推 main**）`);
-
-  // ── 渲染并写文件 ──
-  const html = renderPage(page.id);
-  gateDeterministic(page.id, html);
-  if (DRY) {
-    log(`[dry-run] 渲染 ${html.length} 字节，未写盘`);
-  } else {
-    fs.writeFileSync(absFile, html.replace(/\r\n/g, '\n'), 'utf8');
-  }
-
-  // ── 闸门 ──
-  if (!DRY) {
-    gateLF(absFile);
-    gateRefs(absFile);
-    const scope = gateScope(relFile);
-    if (scope.empty) {
-      return { status: 'done', note: '内容与线上一致，无需发布（未产生提交）' };
+  // ── ② 保护：creator 上有没有**不是本服务提交的** commit ──
+  let hasRemoteBranch = false;
+  try { sh(['rev-parse', '--verify', '--quiet', `origin/${BRANCH}`]); hasRemoteBranch = true; } catch { }
+  if (hasRemoteBranch) {
+    const foreign = sh(['log', '--format=%an\t%h\t%s', `${mainSha}..origin/${BRANCH}`])
+      .split('\n').filter(Boolean)
+      .filter(l => !l.startsWith(BOT_NAME + '\t'));
+    if (foreign.length) {
+      throw Object.assign(new Error(
+        `待审分支 ${BRANCH} 上有 **不是发布服务提交的** 内容，重建会把它冲掉：\n    `
+        + foreign.slice(0, 5).join('\n    ')
+        + `\n  处理办法：先把这些提交合并进 main（或移走），再重新发布。`
+        + `\n  **本次拒绝发布。**`), { conflict: true });
     }
-    log('✓ 闸门：行尾 / 引用完整性 / 渲染确定性 / 变更范围 全部通过');
   }
 
-  // ── 提交 ──
-  const msg = `content(${page.slug}): 由 Creator 发布\n\n`
-    + `来源：/Creator 设计者模式（起草人 admin_id=${task.author_id || '-'}）\n`
+  // ── ③ 重建待审分支 = origin/main + 全部待审改动 ──
+  //    ⚠️ 待审改动**不在分支里、在数据库里**，所以每次从 DB 重新渲染。
+  //       这样分支相对 main 的差异永远只有内容改动，不会让 main 的新提交"被回退"。
+  if (!DRY) sh(['checkout', '--quiet', '-B', BRANCH, 'origin/main']);
+
+  const managed = db.all('SELECT id, slug FROM pages ORDER BY slug');
+  const changed = [];
+  const skipped = [];
+  for (const p of managed) {
+    const f = path.join(REPO, p.slug + '.html');
+    if (!fs.existsSync(f)) { skipped.push(`${p.slug}（仓库里没有该文件）`); continue; }
+
+    // 单独判断这一页有没有漂移：漂移的就不动它，保留 main 的版本
+    let pd = [];
+    const pb = db.get('SELECT base_sha FROM pages WHERE id = ?', [p.id]).base_sha;
+    if (pb && pb !== mainSha) {
+      try {
+        pd = sh(['log', '--oneline', `${pb}..origin/main`, '--', p.slug + '.html']).split('\n').filter(Boolean);
+      } catch { pd = ['（基线不在历史中）']; }
+    }
+    if (pd.length) { skipped.push(`${p.slug}（库里积木已过期，保留了 main 的版本）`); continue; }
+
+    const html = renderPage(p.id);
+    gateDeterministic(p.id, html);
+    const cur = fs.readFileSync(f, 'utf8');
+    if (cur === html) continue;
+    if (DRY) { log(`[dry-run] ${p.slug} 有改动（${html.length} 字节）`); changed.push(p.slug + '.html'); continue; }
+    fs.writeFileSync(f, html.replace(/\r\n/g, '\n'), 'utf8');
+    gateLF(f);
+    gateRefs(f);
+    changed.push(p.slug + '.html');
+  }
+
+  if (!changed.length) {
+    return { status: 'done', note: '内容与线上一致，无需发布（未产生提交）' };
+  }
+  log(`待提交 ${changed.length} 个页面：${changed.join(', ')}`);
+  if (skipped.length) log(`跳过 ${skipped.length} 个：${skipped.join('；')}`);
+
+  if (DRY) return { status: 'done', note: 'dry-run 通过（未提交未推送）' };
+
+  // ── ④ 闸门（范围必须是已纳管的页面）──
+  const scope = gateScope(changed);
+  if (!scope.files.length) return { status: 'done', note: '内容与线上一致，无需发布（未产生提交）' };
+  log('✓ 闸门：行尾 / 引用完整性 / 渲染确定性 / 变更范围 全部通过');
+
+  // ── ⑤ 提交 ──
+  const msg = `content(pages): 后台发布 ${changed.length} 个页面\n\n`
+    + `来源：/admin/pages 页面内容编辑器（起草人 admin_id=${task.author_id || '-'}）\n`
     + `渲染：server/src/lib/render-page.js（与画布预览同一套代码）\n`
     + `闸门：行尾 LF / 引用完整性 / 渲染确定性 / 变更范围 全部通过\n\n`
-    + `本提交由发布服务自动生成，位于分支 ${branch}，需评审合并后才会上线。\n`
-    + (task.base_sha ? `基线：${task.base_sha}\n` : '');
+    + `改动页面：\n` + changed.map(f => `  - ${f}`).join('\n') + '\n'
+    + (skipped.length ? `\n因积木过期而跳过（保留了 main 的版本）：\n` + skipped.map(s => `  - ${s}`).join('\n') + '\n' : '')
+    + `\n本提交由发布服务自动生成，位于待审分支 ${BRANCH}，需评审合并后才会上线。\n`;
 
-  if (DRY) {
-    log('[dry-run] 将要提交：' + msg.split('\n')[0]);
-    return { status: 'done', note: 'dry-run 通过（未提交未推送）' };
-  }
-
-  // 文件已在 gateScope 里 add 过（那一步顺带做了范围校验）
-  sh(['-c', 'user.name=wx-seastar-publish', '-c', 'user.email=publish@wx-seastar.local',
-      'commit', '--quiet', '-m', msg]);
-
+  sh(['-c', `user.name=${BOT_NAME}`, '-c', `user.email=${BOT_EMAIL}`, 'commit', '--quiet', '-m', msg]);
   const sha = sh(['rev-parse', 'HEAD']);
   log(`已提交 ${sha.slice(0, 8)}`);
 
-  // ── 推送（推到专用别名，不是 origin）──
+  // ── ⑥ 推送（重建过，所以是 force；前面已确认无他人提交）──
   try {
-    sh(['push', '--quiet', PUSH_URL, `${sha}:refs/heads/${branch}`]);
-    log('已推送分支 ' + branch);
+    sh(['push', '--quiet', '--force', PUSH_URL, `${sha}:refs/heads/${BRANCH}`]);
+    log(`已推送到待审分支 ${BRANCH}`);
   } catch (e) {
     const out = String(e.stderr || e.stdout || e.message);
     if (/read only|permission|denied/i.test(out)) {
@@ -225,11 +273,23 @@ function processOne(task) {
     throw new Error('推送失败：' + out.slice(0, 300));
   }
 
+  // ── ⑦ 回写基线（**关键**：不回写的话，下次发布会把这次自己的提交
+  //        误判成"他人改动"，导致每个页面只能成功发布一次）──
+  const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  db.tx(() => {
+    for (const f of changed) {
+      const slug = f.replace(/\.html$/, '');
+      db.run('UPDATE pages SET base_sha = ?, published = 1, updated_at = ? WHERE slug = ?',
+        [sha, now, slug]);
+    }
+  });
+  log('已回写基线 base_sha=' + sha.slice(0, 8));
+
   return {
     status: 'done',
-    note: `分支 ${branch} 已推送（${sha.slice(0, 8)}）\n`
-      + '下一步：在 GitHub 上开 Pull Request 并评审合并。合并进 main 后，'
-      + '现有 auto-deploy 会在 2 分钟内自动上线。',
+    note: `已推送到待审分支 ${BRANCH}（${sha.slice(0, 8)}，${changed.length} 个页面）\n`
+      + `下一步：在 GitHub 上开 Pull Request（main ← ${BRANCH}）并评审合并。\n`
+      + '合并进 main 后，现有 auto-deploy 会在 2 分钟内自动上线。',
   };
 }
 

@@ -620,8 +620,8 @@ $('#btnHist').onclick = async () => {
 
 /* ───────────────  发布  ─────────────── */
 $('#btnPublish').onclick = async () => {
-  const ts = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 12);
-  $('#pubBranch').textContent = 'creator/' + state.slug.replace(/\//g, '-') + '-' + ts;
+  // 固定待审分支（用户 2026-10-10 定：都推 creator，审完合 main）
+  $('#pubBranch').textContent = 'creator';
   const un = state.blocks.filter(b => !b.locked);
   $('#pubDiff').innerHTML =
     `<span class="m">本次将提交：${state.slug}（${state.page.lang === 'zh' ? '中文' : '英文'}）</span>\n` +
@@ -671,7 +671,7 @@ async function waitQueue(id, tries = 25) {
 /** 把发布结果明确告诉用户 —— 成功、被拒、还是失败 */
 function showPublishResult(q, branch) {
   if (q.status === 'done') {
-    toast('已推送分支 ' + branch + '。去 GitHub 开 Pull Request 并评审合并。');
+    toast('已推送到待审分支 ' + branch + '。去 GitHub 开 PR 评审合并。');
     return;
   }
   const why = String(q.log || '');

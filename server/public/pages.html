@@ -78,8 +78,8 @@
       <ol class="steps">
         <li><b>生成静态页</b> —— 由当前草稿渲染（与画布预览同一套渲染代码）</li>
         <li><b>安全闸门</b> —— 引用完整性、行尾、渲染确定性、变更范围；不过不给提交</li>
-        <li><b>提交到分支</b> <span class="mono" id="pubBranch">creator/…</span> —— <b>不会直接推到 main</b></li>
-        <li><b>开 Pull Request</b> —— 由你或开发评审合并，合并后自动部署上线</li>
+        <li><b>提交到待审分支</b> <span class="mono" id="pubBranch">creator</span> —— <b>不会直接推到 main</b></li>
+        <li><b>评审后合并</b> —— 在 GitHub 开 PR（main ← creator）并合并，之后自动部署上线</li>
       </ol>
       <div class="note warn">
         <b>⚠️ 这是一次公开提交</b>
