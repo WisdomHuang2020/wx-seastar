@@ -261,7 +261,7 @@
   }
 
   /* ───────────  精选产品轮播（首页专用）  ───────────
-     HTML: <div class="grid grid-3" data-featured="codes:CDX2,CDX3,…;limit:3;interval:6000">
+     HTML: <div class="grid grid-3" data-featured="codes:CDX2,CDX3,…;limit:3;interval:3000">
      · 只取 category=led-lighting（通用照明）；按**型号前缀**筛选，展示顺序 = codes 给定顺序
      · 每 interval 把窗口整体推进 limit 个并循环
      · 无 JS / 取数失败：**不清空**容器，页面静态兜底继续可用（与 renderProducts 同一纪律）
@@ -269,7 +269,7 @@
      · 鼠标悬浮 / 键盘聚焦 / 标签页隐藏 / **滚出视口**：一律暂停
      ⚠️ 前缀匹配必须防「CDX1 命中 CDX11」—— 要求前缀后一位不是字母或数字。 */
   function mountFeatured(el) {
-    var cfg = { limit: 3, interval: 6000, codes: [] };
+    var cfg = { limit: 3, interval: 3000, codes: [] };
     (el.getAttribute('data-featured') || '').split(';').forEach(function (kv) {
       var i = kv.indexOf(':');
       if (i < 0) return;
@@ -660,7 +660,7 @@
       grids.push(el);
       renderProducts(el, cfg);
     });
-    // 精选产品轮播（首页）：data-featured="codes:CDX2,CDX3,…;limit:3;interval:6000"
+    // 精选产品轮播（首页）：data-featured="codes:CDX2,CDX3,…;limit:3;interval:3000"
     document.querySelectorAll('[data-featured]').forEach(function (el) {
       mountFeatured(el);
     });
