@@ -11,6 +11,41 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.28.0] - 2026-10-10
+
+### 🖼️ 通用照明页 hero 视觉改为「客户指定型号」产品图轮播
+
+**用户指令**：把通用照明页 hero 右侧那张视觉图，也改为从同一批 **18 个型号**
+（CDX2 CDX3 CDX5 CDX8 CDX11 RDX3 RDX5 FMX6 FMX9 FMX11 FMX15 WPX2 BPX3 BPX9 GBX2 VNTX2 WRPX3 CLDX3）
+中选择轮询播放。
+
+| 层 | 改动 |
+|---|---|
+| `lighting.html` / `cn/lighting.html` | hero 视觉容器加 `data-hero-rotate="interval:3000"`；**原示意图留在容器内作兜底** |
+| `js/site.js` | 新增 `mountHeroRotate()`；并把「型号清单 / 前缀匹配 / 筛选排序」抽成**共用件**（`FEATURED_CODES` / `parseCfg` / `startsWithCode` / `pickByCodes`），首页与 hero 共用一套 |
+| `styles.css` | 新增 `.hero-rotate` / `.hero-rotate__cap` |
+
+**三条关键设计**：
+1. **只换一张图** —— 用**两张 `<img>` 交替淡入**（加载完才切，不会闪出空白），
+   而不是把 20 张型号图一次性压进首屏。
+   实测序列：`cdx2-mesh-ble → cdx2-commercial-downlight → cdx3-commercial-downlight
+   → cdx5-commercial-downlight`，每 **~3s** 一张、**严格按清单顺序**、**图注与图同步**。
+2. **渐进增强** —— 无 JS / 取数失败 / 无匹配时**不动容器**，原静态示意图照常显示。
+3. **同一套暂停策略** —— `prefers-reduced-motion`（不轮换）/ 悬浮 / 聚焦 / 标签页隐藏 / 离屏。
+
+**校验**：`node --check js/site.js` 通过；两页 `div/section/main/article` 标签配对 OK；
+把 `IntersectionObserver` **桩化**后确定性采样，验证轮换顺序与间隔。
+
+> ⚠️ **一个取舍要说明**：轮播取的是产品的**白底目录图**（带认证徽标行）。项目自己的配图纪律里
+> 写过"白底目录图慎用作大图门面 —— 像电商详情图"。当前观感尚可；若要改用**实景照片**，
+> 改动点只有 `mountHeroRotate()` 里取图那一处（`p.cover.url`）。
+
+> 📌 型号清单现在有**两处**：`js/site.js` 的 `FEATURED_CODES`（默认值）与
+> `index.html` / `cn/index.html` 的 `data-featured="codes:…"`。后者未合并过来是因为那两页由
+> **页面模板系统**管理，改它会触发模板漂移。**改型号清单必须两处同步。**
+
+---
+
 ## [v0.27.1] - 2026-10-10
 
 ### 🖼 about 页「车间全景」格换为源站组装车间原图（客户指定）

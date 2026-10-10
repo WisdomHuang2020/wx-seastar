@@ -265,53 +265,76 @@
     });
   }
 
-  /* ───────────  精选产品轮播（首页专用）  ───────────
-     HTML: <div class="grid grid-3" data-featured="codes:CDX2,CDX3,…;limit:3;interval:3000">
-     · 只取 category=led-lighting（通用照明）；按**型号前缀**筛选，展示顺序 = codes 给定顺序
-     · 每 interval 把窗口整体推进 limit 个并循环
-     · 无 JS / 取数失败：**不清空**容器，页面静态兜底继续可用（与 renderProducts 同一纪律）
-     · prefers-reduced-motion：不轮换，只显示前 limit 个
-     · 鼠标悬浮 / 键盘聚焦 / 标签页隐藏 / **滚出视口**：一律暂停
-     ⚠️ 前缀匹配必须防「CDX1 命中 CDX11」—— 要求前缀后一位不是字母或数字。 */
-  function mountFeatured(el) {
-    var cfg = { limit: 3, interval: 3000, codes: [] };
-    (el.getAttribute('data-featured') || '').split(';').forEach(function (kv) {
+  /* ───────────  客户指定型号清单（通用照明）  ───────────
+     客户 2026-10-10 指定，用于首页「精选产品」与通用照明页 hero 视觉轮播。
+     ⚠️ index.html / cn/index.html 的 data-featured 里也写着同一份清单 —— 那两页由页面模板
+     系统管理，改它会触发模板漂移，所以这里保留一份默认值兜底。
+     **改型号清单必须两处同步。** */
+  var FEATURED_CODES = ('CDX2,CDX3,CDX5,CDX8,CDX11,RDX3,RDX5,FMX6,FMX9,FMX11,FMX15,'
+    + 'WPX2,BPX3,BPX9,GBX2,VNTX2,WRPX3,CLDX3').split(',');
+
+  /* 解析 "k:v;k:v" 形式的 data-* 配置；codes 缺省时用 FEATURED_CODES */
+  function parseCfg(attr, defaults) {
+    defaults = defaults || {};
+    var cfg = {
+      limit: defaults.limit || 3,
+      interval: defaults.interval || 3000,
+      codes: FEATURED_CODES.slice()
+    };
+    (attr || '').split(';').forEach(function (kv) {
       var i = kv.indexOf(':');
       if (i < 0) return;
       var k = kv.slice(0, i).trim(), v = kv.slice(i + 1).trim();
-      if (k === 'limit') cfg.limit = parseInt(v, 10) || 3;
-      else if (k === 'interval') cfg.interval = parseInt(v, 10) || 6000;
-      else if (k === 'codes') cfg.codes = v.toUpperCase().split(',').map(function (s) {
-        return s.trim();
-      }).filter(Boolean);
+      if (k === 'limit') cfg.limit = parseInt(v, 10) || cfg.limit;
+      else if (k === 'interval') cfg.interval = parseInt(v, 10) || cfg.interval;
+      else if (k === 'codes' && v) {
+        cfg.codes = v.toUpperCase().split(',').map(function (s) { return s.trim(); })
+          .filter(Boolean);
+      }
     });
+    return cfg;
+  }
+
+  /* 型号前缀匹配：防「CDX1 命中 CDX11」—— 要求前缀后一位不是 A-Z0-9 */
+  function startsWithCode(s, c) {
+    if (s.indexOf(c) !== 0) return false;
+    var nx = s.charAt(c.length);
+    return !nx || !/[A-Z0-9]/.test(nx);
+  }
+
+  /* 按型号清单筛选并排序（展示顺序 = 清单给定顺序） */
+  function pickByCodes(all, codes) {
+    return all
+      .map(function (p) {
+        var zh = String(((p.title || {}).zh) || '').toUpperCase();
+        var en = String(((p.title || {}).en) || '').toUpperCase();
+        var hit = null;
+        for (var i = 0; i < codes.length && !hit; i++) {
+          if (startsWithCode(zh, codes[i]) || startsWithCode(en, codes[i])) hit = codes[i];
+        }
+        return { p: p, c: hit };
+      })
+      .filter(function (x) { return x.c; })
+      .sort(function (a, b) { return codes.indexOf(a.c) - codes.indexOf(b.c); })
+      .map(function (x) { return x.p; });
+  }
+
+  /* ───────────  精选产品轮播（首页专用）  ───────────
+     HTML: <div class="grid grid-3" data-featured="limit:3;interval:3000">（codes 可缺省）
+     · 只取 category=led-lighting（通用照明）；按**型号前缀**筛选，展示顺序 = 清单顺序
+     · 每 interval 把窗口整体推进 limit 个并循环
+     · 无 JS / 取数失败：**不清空**容器，页面静态兜底继续可用（与 renderProducts 同一纪律）
+     · prefers-reduced-motion：不轮换，只显示前 limit 个
+     · 鼠标悬浮 / 键盘聚焦 / 标签页隐藏 / **滚出视口**：一律暂停 */
+  function mountFeatured(el) {
+    var cfg = parseCfg(el.getAttribute('data-featured'), { limit: 3, interval: 3000 });
     if (!cfg.codes.length) return Promise.resolve();
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function startsWithCode(s, c) {
-      if (s.indexOf(c) !== 0) return false;
-      var nx = s.charAt(c.length);
-      return !nx || !/[A-Z0-9]/.test(nx);
-    }
-
     return get('/products?size=500&category=led-lighting')
       .then(function (res) {
-        var all = res.data || [];
-
-        var picked = all
-          .map(function (p) {
-            var zh = String(((p.title || {}).zh) || '').toUpperCase();
-            var en = String(((p.title || {}).en) || '').toUpperCase();
-            var hit = null;
-            for (var i = 0; i < cfg.codes.length && !hit; i++) {
-              if (startsWithCode(zh, cfg.codes[i]) || startsWithCode(en, cfg.codes[i])) hit = cfg.codes[i];
-            }
-            return { p: p, c: hit };
-          })
-          .filter(function (x) { return x.c; })
-          .sort(function (a, b) { return cfg.codes.indexOf(a.c) - cfg.codes.indexOf(b.c); })
-          .map(function (x) { return x.p; });
+        var picked = pickByCodes(res.data || [], cfg.codes);
 
         if (!picked.length) return;   // 一个都没匹配上：保留静态兜底，别清空
 
@@ -355,6 +378,80 @@
       })
       .catch(function (err) {
         console.warn('[site] 精选产品加载失败，保留页面静态内容：', err.message);
+      });
+  }
+
+  /* ───────────  通用照明页 hero 视觉轮播（单图交叉淡入）  ───────────
+     HTML: <div data-hero-rotate="interval:3000"> …静态兜底（原示意图）… </div>
+     · 与首页「精选产品」用**同一份型号清单**（FEATURED_CODES）
+     · 只显示**一张图**：两张 <img> 交替淡入 —— 不把 20 张型号图一次性压进首屏
+     · 无 JS / 取数失败 / 无匹配：**不动容器里的静态兜底内容**
+     · reduced-motion / 悬浮 / 聚焦 / 标签页隐藏 / 离屏：一律暂停 */
+  function mountHeroRotate(el) {
+    var cfg = parseCfg(el.getAttribute('data-hero-rotate'), { interval: 3000 });
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    return get('/products?size=500&category=led-lighting')
+      .then(function (res) {
+        var picked = pickByCodes(res.data || [], cfg.codes)
+          .filter(function (p) { return p.cover && p.cover.url; });
+        if (!picked.length) return;
+
+        var box = document.createElement('div');
+        box.className = 'hero-rotate';
+        var imgs = [document.createElement('img'), document.createElement('img')];
+        imgs.forEach(function (im) { im.alt = ''; im.decoding = 'async'; });
+        box.appendChild(imgs[0]);
+        box.appendChild(imgs[1]);
+
+        var cap = document.createElement('div');
+        cap.className = 'hero-rotate__cap';
+
+        el.innerHTML = '';               // 到这里才替换静态兜底
+        el.appendChild(box);
+        el.appendChild(cap);
+
+        var idx = 0, cur = 0, timer = null, paused = false, visible = true;
+
+        function label(p) { return pick(p.title) || p.slug; }
+        imgs[0].classList.add('is-active');
+        imgs[0].src = picked[0].cover.url;
+        cap.textContent = label(picked[0]);
+
+        function step() {
+          idx = (idx + 1) % picked.length;
+          var p = picked[idx];
+          var active = imgs[cur], incoming = imgs[1 - cur];
+          incoming.onload = function () {           // 加载完才切 —— 不会闪出空白
+            incoming.classList.add('is-active');
+            active.classList.remove('is-active');
+            cur = 1 - cur;
+            cap.textContent = label(p);
+          };
+          incoming.src = p.cover.url;
+        }
+        function start() {
+          if (timer || paused || !visible || reduce || picked.length < 2) return;
+          timer = setInterval(step, cfg.interval);
+        }
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+
+        el.addEventListener('mouseenter', function () { paused = true; stop(); });
+        el.addEventListener('mouseleave', function () { paused = false; start(); });
+        el.addEventListener('focusin', function () { paused = true; stop(); });
+        el.addEventListener('focusout', function () { paused = false; start(); });
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) { stop(); } else { start(); }
+        });
+        if (!reduce && 'IntersectionObserver' in window) {
+          new IntersectionObserver(function (es) {
+            es.forEach(function (e) { visible = e.isIntersecting; if (visible) { start(); } else { stop(); } });
+          }, { threshold: 0.15 }).observe(el);
+        }
+        start();
+      })
+      .catch(function (err) {
+        console.warn('[site] hero 视觉轮播加载失败，保留页面静态示意图：', err.message);
       });
   }
 
@@ -752,9 +849,13 @@
       grids.push(el);
       renderProducts(el, cfg);
     });
-    // 精选产品轮播（首页）：data-featured="codes:CDX2,CDX3,…;limit:3;interval:3000"
+    // 精选产品轮播（首页）：data-featured="limit:3;interval:3000"
     document.querySelectorAll('[data-featured]').forEach(function (el) {
       mountFeatured(el);
+    });
+    // 通用照明页 hero 视觉轮播：data-hero-rotate="interval:3000"
+    document.querySelectorAll('[data-hero-rotate]').forEach(function (el) {
+      mountHeroRotate(el);
     });
     // 与之配对的客户端筛选器：data-products-filter="<grid 选择器>"
     document.querySelectorAll('[data-products-filter]').forEach(function (pills) {
