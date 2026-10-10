@@ -11,6 +11,37 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.19.3] - 2026-10-10
+
+### 🖼 OEM 页 `ems-plant.jpg` 图注更正为「电子实验室」（客户裁定）
+
+**起因**：客户指出该图图注（十万级洁净车间 / `Class 100,000 clean room`）与照片内容不符。
+
+**目视核对确认客户判断成立**：照片实为**防静电工作台 + 测试仪器**构成的电子装配 / 检测车间 ——
+画面可见防静电垫、焊接工位、测试仪器、周转箱与在制板件，而且还有**纸箱、布艺座椅、绿植**，
+洁净室不可能长这样。
+
+| 侧 | 旧 | 新 |
+|---|---|---|
+| 中文 | 十万级洁净车间 ／「Class 100,000 洁净环境，保障制程稳定性。」 | **电子实验室** ／「防静电工位与测试仪器，承担电子组件的装配与检测。」 |
+| 英文 | Class 100,000 clean room ／「Class 100,000 clean environment ensuring process stability.」 | **Electronics laboratory** ／「ESD-protected workstations and test instruments for electronic assembly and inspection.」 |
+
+小字描述由客户授权**自拟** —— 措辞严格限于照片中可见之物，
+**不含任何未见于照片的设备型号、认证或产能数字**。
+
+🔴 **`Class 100,000 clean room` / 十万级洁净车间这个事实仍然有效**（出自老站
+FACILITIES-MANUFACTURING 清单），只是**不占这张照片**。它继续由以下位置承载：
+`meta` / `og:description`、oem 页的 `Class 100,000 / Clean room` 数据块、
+`about.html` 里程碑、`facilities.html` 的生产能力段。
+
+**同页新增「配图纪律」注释块**（中英各一）：写明该图为客户指定、原图注错在哪、
+「Class 100,000 事实仍然有效」，以及 —— **不得用"文字清单"去推断某张照片拍的是什么**。
+
+**验证**：两页卡片图注就位；`ems-plant.jpg` 的 `alt` 同步；保留项（meta / og / 数据块 / 里程碑）
+未受影响；CRLF 0。
+
+---
+
 ## [v0.19.2] - 2026-10-10
 
 ### 🏷 实验室名称全站改为「CSA 集团授权实验室」+ 英文术语改用 HI-POT TEST
