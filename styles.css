@@ -699,19 +699,20 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .biz-card__media--cycle img.is-active{ opacity:1; }
 /* 通用照明页 hero 视觉轮播：两张图交替淡入（不把全部型号图一次性压进首屏）
-   容器本身已 position:relative + aspect-ratio:4/3（页面内联样式），这里只负责铺满与淡入 */
+   · 容器 aspect-ratio 与产品封面图**同比例（600/488，见页面内联样式）** →
+     `object-fit:cover` 下图片**像素级填满、零裁剪**（产品图统一 600×488，实测确认）
+   · 图注放在容器**外**的下方：图片填满后若把图注叠在底部，会压住图内的认证徽标行 */
 .hero-rotate{ position:absolute; inset:0; }
 .hero-rotate img{
   position:absolute; inset:0; width:100%; height:100%;
-  object-fit:contain;          /* 型号图是白底产品图 —— contain 才不会把产品裁掉 */
+  object-fit:cover;
   opacity:0;
   transition:opacity .8s var(--ease-out-soft);
 }
 .hero-rotate img.is-active{ opacity:1; }
 .hero-rotate__cap{
-  position:absolute; left:0; right:0; bottom:0; padding:10px 14px;
-  font-size:13px; line-height:1.4; text-align:center; color:var(--text-secondary);
-  background:linear-gradient(transparent, rgba(255,255,255,.88));
+  margin-top:10px; text-align:center;
+  font-size:13px; line-height:1.4; color:var(--text-secondary);
 }
 .biz-card__body{ padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-sm); flex:1; }
 .biz-card__icon{

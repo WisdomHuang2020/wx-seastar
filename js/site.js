@@ -409,7 +409,8 @@
 
         el.innerHTML = '';               // 到这里才替换静态兜底
         el.appendChild(box);
-        el.appendChild(cap);
+        // 图注挂在容器**外**的下方：图片填满容器后，叠在底部会压住图内的认证徽标行
+        (el.parentNode || el).appendChild(cap);
 
         var idx = 0, cur = 0, timer = null, paused = false, visible = true;
 
