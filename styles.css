@@ -1220,19 +1220,3 @@ body.cc-locked{ overflow:hidden; }
   border-left:2px solid var(--brand-300);
   color:var(--text-secondary); font-style:normal;
 }
-
-/* ── 产线构成：无实景照片时的占位卡（内容有出处，素材待补）───────────────
-   用于「十万级洁净车间」这类**老站只有文字清单、没有配图**的条目。
-   刻意做成斜纹占位而不是借用别的照片 —— 图注必须与照片实际内容一致。 */
-.media-card--empty{
-  aspect-ratio:16/9;
-  background:repeating-linear-gradient(45deg,var(--neutral-50) 0 10px,var(--neutral-100) 10px 20px);
-}
-.media-card__pending{
-  position:absolute; inset:0 0 34% 0;
-  display:grid; place-items:center;
-  color:var(--text-tertiary); font-size:.8125rem; letter-spacing:.04em;
-}
-.media-card--empty .media-card__label{
-  background:linear-gradient(180deg,transparent 0%,rgba(11,16,21,.88) 62%);
-}
