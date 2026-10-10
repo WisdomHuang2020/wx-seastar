@@ -11,6 +11,29 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.15.1] - 2026-10-10
+
+### 🍪 Cookie 横幅 UI 按参考图调整
+
+**需求**：cookie 隐私设置参照附图设计。
+
+已上线的功能逻辑（告知 + 授权闸门 + 留痕）不变，仅调整首访横幅布局与文案，
+使其与附图一致：
+
+| 位置 | 变更 |
+|---|---|
+| 标题 | 英文「Your Choices Regarding Cookies on this Site」/ 中文「关于本站 Cookie 使用说明」 |
+| 正文 | 改为参考图风格的隐私说明段落 |
+| 链接行 | 「Cookie notice / Cookie 说明」—— 点击打开偏好中心 |
+| 操作栏 | 左侧「My Preferences / 我的偏好」蓝色链接 + 中间「Only necessary / 仅必要 Cookie」深色按钮 + 右侧「Allow all cookies / 允许所有 Cookie」深色按钮 |
+
+附图中有「Tracker Details Page」链接，但本站实际没有追踪器页面，
+所以不放这个空链接。
+
+验证沿用 v0.15.0 的 6 轮运行时断言 + 反向验证，全部通过。
+
+---
+
 ## [v0.15.0] - 2026-10-09
 
 ### 🍪 Cookie 隐私设置：告知 + 真实授权闸门

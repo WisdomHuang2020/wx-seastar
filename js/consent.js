@@ -46,11 +46,12 @@
 
   var COPY = {
     zh: {
-      bannerTitle: 'Cookie 使用说明',
-      bannerBody: '本站仅使用保障网站正常运行所必需的 Cookie，用于后台登录会话与保存您在此处的偏好选择。我们不使用广告投放类或第三方追踪类 Cookie，也不向第三方出售任何数据。您可随时在页脚「Cookie 设置」中更改选择。',
-      acceptAll: '全部接受',
+      bannerTitle: '关于本站 Cookie 使用说明',
+      bannerBody: '我们尊重您的隐私。本站使用 Cookie 及类似技术来保障网站正常运行、记录您在本处的偏好选择，并为您提供更好的浏览体验。点击「允许所有 Cookie」即表示您同意我们使用全部 Cookie；点击「仅必要 Cookie」则只加载维持网站基本功能所必需的 Cookie。如需自定义，请点击「我的偏好」。',
+      acceptAll: '允许所有 Cookie',
       essentialOnly: '仅必要 Cookie',
-      customize: '偏好设置',
+      customize: '我的偏好',
+      cookieNotice: 'Cookie 说明',
       prefsTitle: 'Cookie 偏好设置',
       prefsIntro: '以下按用途列出本站的 Cookie 分类。「必要」类无法关闭；其余类别在您开启前不会写入任何 Cookie。您随时可以回来更改。',
       catEssential: '必要 Cookie',
@@ -71,11 +72,12 @@
       reopenHint: '可随时在页脚重新打开此面板。'
     },
     en: {
-      bannerTitle: 'About cookies on this site',
-      bannerBody: 'This site uses only the cookies required to keep it working — the sign-in session for our back office, and the record of the choice you make here. We run no advertising or third-party tracking cookies, and we never sell your data. You can change your choice at any time via “Cookie settings” in the footer.',
-      acceptAll: 'Accept all',
-      essentialOnly: 'Essential only',
-      customize: 'Preferences',
+      bannerTitle: 'Your Choices Regarding Cookies on this Site',
+      bannerBody: 'We respect your privacy. This site uses cookies and similar technologies to keep the website working, remember the choice you make here, and provide a better browsing experience. By clicking “Allow all cookies”, you consent to our use of all cookies. By clicking “Only necessary”, the website will load only the cookies required for proper functioning. To customize, click “My preferences”.',
+      acceptAll: 'Allow all cookies',
+      essentialOnly: 'Only necessary',
+      customize: 'My Preferences',
+      cookieNotice: 'Cookie notice',
       prefsTitle: 'Cookie preferences',
       prefsIntro: 'Cookies are listed below by purpose. Essential cookies cannot be switched off; nothing else is written to your device until you allow it. You can come back and change this whenever you like.',
       catEssential: 'Essential cookies',
@@ -215,27 +217,33 @@
     var copy = el('div', 'cc-banner__copy');
     copy.appendChild(el('h4', 'cc-banner__title', txt('bannerTitle')));
     copy.appendChild(el('p', 'cc-banner__body', rich(txt('bannerBody'))));
+
+    // 参考图底部链接行：Cookie notice。Tracker Details Page 本站没有，不放。
+    var links = el('div', 'cc-banner__links');
+    var notice = el('button', 'cc-linkbtn', txt('cookieNotice'));
+    notice.type = 'button';
+    notice.setAttribute('data-cc', 'prefs');
+    links.appendChild(notice);
+    copy.appendChild(links);
+
     inner.appendChild(copy);
 
     var actions = el('div', 'cc-banner__actions');
-
-    // 注意：站点的 .btn--ghost 是为深色区设计的（白字半透明），
-    // 在本横幅的浅底上会糊成一片，故统一用 --secondary / 文字按钮。
-    var bEssential = el('button', 'btn btn--secondary cc-btn', txt('essentialOnly'));
-    bEssential.type = 'button';
-    bEssential.setAttribute('data-cc', 'essential');
-
-    var bAll = el('button', 'btn btn--primary cc-btn', txt('acceptAll'));
-    bAll.type = 'button';
-    bAll.setAttribute('data-cc', 'all');
-
-    var bPrefs = el('button', 'cc-btn cc-btn--text', txt('customize'));
+    var bPrefs = el('button', 'cc-linkbtn', txt('customize'));
     bPrefs.type = 'button';
     bPrefs.setAttribute('data-cc', 'prefs');
 
+    var bEssential = el('button', 'btn btn--dark cc-btn', txt('essentialOnly'));
+    bEssential.type = 'button';
+    bEssential.setAttribute('data-cc', 'essential');
+
+    var bAll = el('button', 'btn btn--dark cc-btn', txt('acceptAll'));
+    bAll.type = 'button';
+    bAll.setAttribute('data-cc', 'all');
+
+    actions.appendChild(bPrefs);
     actions.appendChild(bEssential);
     actions.appendChild(bAll);
-    actions.appendChild(bPrefs);
     inner.appendChild(actions);
 
     b.appendChild(inner);

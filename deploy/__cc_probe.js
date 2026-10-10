@@ -158,20 +158,21 @@
     return true;
   });
 
-  later('01-三个按钮齐备且文案双语正确', function () {
-    return !!q('.cc-banner [data-cc="prefs"]');
+  later('01-三个按钮 + Cookie notice 链接 齐备', function () {
+    return !!q('.cc-banner__actions [data-cc="prefs"]');
   }, function () {
-    var essentials = q('.cc-banner [data-cc="essential"]');
-    var all = q('.cc-banner [data-cc="all"]');
-    var prefs = q('.cc-banner [data-cc="prefs"]');
-    ok(!!essentials && !!all && !!prefs, '横幅按钮不齐');
-    var labels = [essentials.textContent, all.textContent, prefs.textContent];
+    var essentials = q('.cc-banner__actions [data-cc="essential"]');
+    var all = q('.cc-banner__actions [data-cc="all"]');
+    var prefs = q('.cc-banner__actions [data-cc="prefs"]');
+    var notice = q('.cc-banner__links [data-cc="prefs"]');
+    ok(!!essentials && !!all && !!prefs && !!notice, '横幅操作控件不齐（含 Cookie notice）');
+    var labels = [essentials.textContent, all.textContent, prefs.textContent, notice.textContent];
     if (EXPECT_ZH) {
-      ok(labels[0].indexOf('必要') >= 0, '中文站此按钮文案不对：' + labels[0]);
-      ok(labels[2].indexOf('偏好') >= 0, '中文站偏好按钮文案不对：' + labels[2]);
+      ok(labels[0].indexOf('必要') >= 0, '中文站「仅必要」文案不对：' + labels[0]);
+      ok(labels[2].indexOf('偏好') >= 0, '中文站「我的偏好」文案不对：' + labels[2]);
     } else {
-      ok(/Essential/i.test(labels[0]), '英文站文案不对：' + labels[0]);
-      ok(/Preference/i.test(labels[2]), '英文站偏好按钮文案不对：' + labels[2]);
+      ok(/necessary/i.test(labels[0]), '英文站文案不对：' + labels[0]);
+      ok(/preference/i.test(labels[2]), '英文站偏好按钮文案不对：' + labels[2]);
     }
     RESULT.bannerLabels = labels;
     return labels;

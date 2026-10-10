@@ -286,6 +286,9 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 
 .btn--ghost{ background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.30); }
 .btn--ghost:hover{ background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.55); }
+.btn--dark{ background:var(--neutral-800); color:#fff; border-color:var(--neutral-800); }
+.btn--dark:hover{ background:var(--neutral-700); border-color:var(--neutral-700); }
+.btn--dark:active{ background:var(--neutral-900); border-color:var(--neutral-900); }
 
 .link-arrow{
   display:inline-flex; align-items:center; gap:6px;
@@ -952,17 +955,21 @@ body.cc-locked{ overflow:hidden; }
   display:flex; align-items:flex-start; gap:var(--space-lg);
   flex-wrap:wrap; justify-content:space-between;
 }
-.cc-banner__copy{ flex:1 1 460px; min-width:0; }
+.cc-banner__copy{ flex:1 1 540px; min-width:0; }
 .cc-banner__title{
-  margin:0 0 var(--space-2xs);
-  font-size:.9375rem; font-weight:600; color:var(--text-primary);
-  letter-spacing:.01em;
+  margin:0 0 var(--space-xs);
+  font-size:1.125rem; font-weight:600; color:var(--text-primary);
+  letter-spacing:-.01em;
 }
 .cc-banner__body{
-  margin:0; font-size:.875rem; line-height:1.65;
+  margin:0; font-size:.9375rem; line-height:1.7;
   color:var(--text-secondary); max-width:78ch;
 }
 .cc-banner__body strong{ color:var(--text-primary); font-weight:600; }
+.cc-banner__links{
+  margin-top:var(--space-sm);
+  display:flex; gap:var(--space-md); flex-wrap:wrap;
+}
 .cc-banner__actions{
   display:flex; align-items:center; gap:var(--space-sm);
   flex-wrap:wrap; flex-shrink:0;
@@ -970,17 +977,23 @@ body.cc-locked{ overflow:hidden; }
 
 /* 统一按钮尺寸：站点的 .btn 默认偏高，这里压缩到横幅能容纳的高度 */
 .cc-btn{
-  height:40px; padding:0 18px; font-size:.875rem; white-space:nowrap;
+  height:42px; padding:0 18px; font-size:.875rem; white-space:nowrap;
 }
+.cc-linkbtn,
 .cc-btn--text{
-  height:40px; padding:0 8px;
+  height:42px; padding:0 6px;
   background:none; border:none; cursor:pointer;
   font-size:.875rem; font-weight:500;
   color:var(--text-brand); font-family:inherit;
   text-decoration:underline; text-underline-offset:3px;
   transition:color .18s ease;
 }
+.cc-linkbtn:hover,
 .cc-btn--text:hover{ color:var(--text-brand-deep); }
+.cc-linkbtn:focus-visible,
+.cc-btn--text:focus-visible{
+  outline:2px solid var(--brand-500); outline-offset:2px; border-radius:var(--radius-sm);
+}
 
 /* ── 遮罩与面板 ──────────────────────────────────────────────────────── */
 .cc-overlay{
