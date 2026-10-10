@@ -1,0 +1,12 @@
+[Unit]
+Description=SEA☆STAR Creator 发布队列轮询（每 30 秒）
+Documentation=file:///opt/wx-seastar/server/src/tools/publish-worker.js
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=30s
+AccuracySec=5s
+Unit=wx-seastar-publish.service
+
+[Install]
+WantedBy=timers.target

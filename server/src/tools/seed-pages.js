@@ -24,8 +24,24 @@
  */
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const db = require('../lib/db');
 const cfg = require('../config');
+
+/**
+ * 取部署副本当前的 origin/main —— 记进 pages.base_sha，作为**基线**。
+ *
+ * 为什么需要它：拆页之后如果开发者又改了 .html，库里的积木就**过期**了。
+ * 发布服务靠这个基线判断"目标文件在这一版之后有没有被改过"，
+ * 被改过就拒绝发布并报冲突，而不是闷头把别人的改动覆盖掉。
+ */
+function originMainSha() {
+  const repo = process.env.WX_REPO_DIR || '/opt/wx-seastar/repo';
+  try {
+    return execFileSync('git', ['-C', repo, 'rev-parse', 'origin/main'],
+      { encoding: 'utf8', timeout: 15000 }).trim();
+  } catch { return null; }
+}
 
 db.migrate();
 
@@ -143,9 +159,10 @@ for (const spec of targets) {
       db.run('DELETE FROM page_blocks WHERE page_id = ?', [exist.id]);
       db.run('DELETE FROM pages WHERE id = ?', [exist.id]);
     }
+    const base = originMainSha();
     const r = db.run(
-      'INSERT INTO pages (slug, lang, title, description, published) VALUES (?,?,?,?,0)',
-      [spec.slug, spec.lang, meta.title, meta.description]);
+      'INSERT INTO pages (slug, lang, title, description, published, base_sha) VALUES (?,?,?,?,0,?)',
+      [spec.slug, spec.lang, meta.title, meta.description, base]);
     const pid = r.lastInsertRowid;
 
     let order = 0;
@@ -166,7 +183,7 @@ for (const spec of targets) {
             VALUES (?,?,?,?,?,?,?,1,1,'{}')`,
       [pid, ++order, 'shell-epilogue', 'shell', '', '页脚', epilogue]);
 
-    console.log(`  ✓ ${spec.slug}  ${sections.length} 个内容模块 + 2 个锁定块`);
+    console.log(`  ✓ ${spec.slug}  ${sections.length} 个内容模块 + 2 个锁定块  基线=${base ? base.slice(0, 8) : '(未取到)'}`);
     sections.forEach((s, i) => console.log(`      ${String(i + 1).padStart(2)}  ${s.kind.padEnd(14)} ${(s.comment || '').slice(0, 40)}`));
   });
 }

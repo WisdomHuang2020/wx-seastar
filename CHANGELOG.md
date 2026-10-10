@@ -11,6 +11,103 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.23.0] - 2026-10-10
+
+### 🚀 Creator 设计者模式 · Stage 3：发布管道（「发布」不再只是入队）
+
+Stage 2 点「发布」只往队列写一行；本版把那条任务变成**真实的分支提交**。
+
+#### 核心：一条不可绕过的安全边界
+
+```
+Web 进程（www-data）—— 不持有仓库写权限，只往 publish_queue 写一行任务
+        ↓
+发布服务（root，systemd timer 每 30s）—— 持专用写权限密钥，执行全部 git 操作
+```
+
+站点被攻破、依赖被投毒、Cookie 被窃 —— **都拿不到能写仓库的凭证**。
+这是整个 Creator 设计里最重要的一条边界，也是本版的主要价值。
+
+#### 交付
+
+| 文件 | 作用 |
+|---|---|
+| `server/src/tools/publish-worker.js` | 发布服务主程序 |
+| `deploy/wx-seastar-publish.service` | systemd oneshot 单元 |
+| `deploy/wx-seastar-publish.timer` | 每 30 秒轮询队列 |
+| `deploy/install-publish-service.sh` | 安装脚本（含密钥生成） |
+| `deploy/check-publish-key.sh` | **写权限自检**（见下） |
+| `server/src/tools/seed-pages.js` | 增记 `base_sha` 基线 |
+
+#### 四条铁律（都实测过）
+
+**① 绝不推 main** —— 只推 `creator/<slug>-<时间戳>`，等人评审合并。
+
+**② 基线校验** —— 目标文件在 `base_sha..origin/main` 之间被改过就拒绝发布。
+实测（把基线改到更早的提交后发布）：
+
+```
+✗ 基线冲突：库里的积木已过期 —— oem.html 在本页拆解之后被改动过：
+    49085c7 fix(nav): v0.21.5 移动端抽屉：修好 60 个"死按钮" + …
+  **本次拒绝发布，不会覆盖它。**
+```
+
+它自动识别出的正是当日那次并行提交 —— **v0.21.6 里发现的"源文件漂移"问题，
+现在被机制挡住了，不再靠人记得。**
+> 注意粒度：main 前进了不要紧，**只有目标文件本身被改过才拦**；
+> 否则任何一个无关提交都会阻塞发布。
+
+**③ 发布前必过四道闸门** —— 行尾 LF / 引用完整性（死链）/ 渲染确定性 / 变更范围。
+实测通过输出：`✓ 闸门：行尾 / 引用完整性 / 渲染确定性 / 变更范围 全部通过`
+
+**④ 变更范围只准是目标页面** —— 多改一个文件即中止。
+实测产生的提交：**`1 file changed, 1 insertion(+), 1 deletion(-)`**，
+即整个发布只改动了被编辑的那几个字。
+
+#### 🔴 四道闸门里藏着一个会让它"永不通过"的写法
+
+`gateScope` 最初用 `git status --porcelain` 判越界 —— 但部署副本里**随时可能有
+与本次无关的未跟踪文件**（运维手工放的脚本、上次部署的残留），
+那样**每个发布都会被自己的闸门挡死**。
+改为先 `git add -- <目标文件>` 再看 `git diff --cached --name-only`，
+只关心"这次到底要提交什么"。
+
+同样地，`gateLF` 初版写成 `buf.filter ? 0 : …` —— **Buffer 是 TypedArray，也有
+`.filter`**，判据恒为 0，闸门形同虚设。改为逐字节数 `0x0D 0x0A`。
+
+#### 🔑 密钥：**刻意不复用**既有的只读部署密钥
+
+服务器上原有 `wx_seastar_deploy` 是**只读**的（GitHub 明确回 "marked as read only"）。
+本版新增 `creator_publish` 并单独配 SSH 别名 `github-wxseastar-publish`：
+**拉取路径保持最小权限，写权限只给发布服务**。
+并提供 `check-publish-key.sh` —— 因为 GitHub 的 Deploy key **默认只读**，
+忘了勾 "Allow write access" **只有真推一次才会发现**；该脚本用 `--dry-run` 提前验出来。
+
+#### ⚠️ 一个必须记住的服务端细节
+
+发布服务以 root 跑，**写库会把 WAL/SHM 文件变成 root 属主，web 进程随后就写不了库**。
+故 service 里加了
+`ExecStartPost=chown -R www-data:www-data /var/lib/wx-seastar`。**这一步不能省。**
+
+#### 验证
+
+- 干跑全流程：基线读取 / 分支创建 / 渲染 21783 字节 / 拟提交 ✓
+- 基线冲突：**正确拦截并指名冲突提交** ✓
+- 端到端发布：改一处文字 → 四闸门通过 → **提交 7685c9b，仅 1 文件 1 行变化** ✓
+- 推送被拒（公钥尚未加到 GitHub）→ **报错可直接照做** ✓
+- 空提交（内容与线上一致）→ 记为 `done` 而非失败 ✓
+- 测试痕迹已清理，两页往返重新逐字节一致 ✓
+
+#### 🔴 尚未完成的一步（需人工）
+
+**推送需要一个有写权限的 Deploy key，这一步只能人工做。**
+公钥与操作步骤见交付说明；加好后跑 `deploy/check-publish-key.sh` 自检。
+在此之前，发布服务会走完「提交」但卡在「推送」，并给出明确提示。
+
+---
+
+---
+
 ## [v0.22.2] - 2026-10-10
 
 ### 🔧 修正 Release 工作流：自检不再误判 Actions 内置 token

@@ -1,0 +1,26 @@
+[Unit]
+Description=SEA☆STAR Creator 发布服务 —— 把发布队列变成分支提交
+Documentation=file:///opt/wx-seastar/server/src/tools/publish-worker.js
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/wx-seastar/server
+
+# ⚠️ 以 root 运行是**刻意**的：它要读只读部署副本、用发布专用密钥推 GitHub。
+#    这条正是本设计的安全边界 —— Web 进程（www-data）**不持有仓库写权限**，
+#    站点被攻破也拿不到能写仓库的凭证。Web 侧只往 publish_queue 写一行任务。
+ExecStart=/usr/bin/flock -n /var/lock/wx-seastar-publish.lock \
+          /usr/bin/node src/tools/publish-worker.js --once
+
+# ⚠️ root 写库会把 WAL/SHM 文件变成 root 属主，**web 进程（www-data）随后就写不了库**。
+#    每次跑完把属主收回去。这一步不能省。
+ExecStartPost=/bin/sh -c 'chown -R www-data:www-data /var/lib/wx-seastar 2>/dev/null || true'
+
+# 失败不需要 systemd 重试（队列还在，下次定时器会再处理）
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
