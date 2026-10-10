@@ -211,7 +211,7 @@ journalctl -u wx-seastar-deploy -n 100 --no-pager   # 自动部署
   资料中心可上传 **mp4 / m4v / mov / webm / avi / mkv**，前台对应行显示「播放」并可直接播放（支持拖动进度）。
   **改单文件体积上限要动两处，缺一处就会 413**：
   ① 后端 `/etc/wx-seastar.env` 的 `MAX_VIDEO_MB`（默认 300）
-  ② nginx 站点的 `client_max_body_size`（当前 `320m`，需 ≥ ① + multipart 余量），改完 `nginx -t && systemctl reload nginx`
+  ② nginx 站点里**所有相关块**的 `client_max_body_size`（当前 `:80` 跳转块 1 处 + `:443` 的 `/api/`、`/admin` 2 处，均 `320m`；需 ≥ ① + multipart 余量），改完 `nginx -t && systemctl reload nginx`。**只改 :443 会让 http 路径仍是默认 1m**
   ⚠️ 磁盘余量决定能放多少：当前余约 24G，按 300MB/条约 80 条；量大会需要扩容或改对象存储。
 - **加留言通知**：在 `public.routes.js` 的留言插入处挂钩子（`config.js` 已预留 `NOTIFY_TO`）。
 - **调整自动部署频率**：改 `/etc/systemd/system/wx-seastar-deploy.timer` 里的
