@@ -45,10 +45,17 @@ function originMainSha() {
 
 db.migrate();
 
-/** 要接入 Creator 的页面（v1 试点只放 OEM 一页，跑通链路再铺开） */
+/**
+ * 接入模板化的页面。
+ *
+ * ⚠️ **不含 `news.html` / `cn/news.html`** —— 那两个是 `deploy/build-news.py`
+ *    生成的，两边同时"拥有"同一份文件必然打架。新闻要走数据库驱动需另案处理。
+ * ⚠️ 也不含 `news/` 下的 56 篇文章页，理由同上。
+ */
+const COLS = ['index', 'lighting', 'grow-light', 'odm', 'oem', 'facilities', 'docs', 'about', 'contact', '404'];
 const PAGES = [
-  { slug: 'oem', lang: 'en', file: 'oem.html' },
-  { slug: 'cn/oem', lang: 'zh', file: 'cn/oem.html' },
+  ...COLS.map(c => ({ slug: c, lang: 'en', file: c + '.html' })),
+  ...COLS.map(c => ({ slug: 'cn/' + c, lang: 'zh', file: 'cn/' + c + '.html' })),
 ];
 
 /** 站点根目录：优先用 web 根，其次用仓库根 */
@@ -80,47 +87,55 @@ function splitPage(html) {
   const me = html.lastIndexOf('</main>');
   if (me < 0) throw new Error('未找到 </main>');
 
-  const preamble = html.slice(0, mi + '<main>'.length);
-  const body = html.slice(mi + '<main>'.length, me);
-  const epilogue = html.slice(me);
+  const mainEnd = mi + '<main>'.length;
+  // preamble 到 <main> 为止；此后每个 section 各自带走"它之前的原文前缀"
+  const preamble = html.slice(0, mainEnd);
 
-  // 逐个提取顶层 <section>（含其前面的 <!-- --> 注释）
   const sections = [];
+  let prevEnd = mainEnd;                 // html 坐标
   const re = /<section\b/g;
+  re.lastIndex = mainEnd;
   let m;
-  while ((m = re.exec(body))) {
+  while ((m = re.exec(html))) {
     const start = m.index;
-    // 括号配平：从该 <section 起，数 <section 与 </section>
-    let depth = 0, i = start, end = -1;
+    if (start >= me) break;
+    // 括号配平找结束位置（防止嵌套 section 切错）
+    let depth = 0, end = -1;
     const tok = /<(\/?)section\b[^>]*>/g;
     tok.lastIndex = start;
-    let t;
-    while ((t = tok.exec(body))) {
-      depth += t[1] ? -1 : 1;
-      if (depth === 0) { end = t.index + t[0].length; break; }
+    let t2;
+    while ((t2 = tok.exec(html))) {
+      depth += t2[1] ? -1 : 1;
+      if (depth === 0) { end = t2.index + t2[0].length; break; }
     }
     if (end < 0) throw new Error('section 未闭合 @' + start);
-    const full = body.slice(start, end);
 
-    // 标签属性
+    // ⚠️ prefix 必须**逐字保留**（空白 + 注释）。
+    //    初版把注释内的换行/缩进规范化掉了，含换行注释的页面（index/lighting）
+    //    重建时对不上 —— 原文空白是内容的一部分，不是装饰。
+    const prefix = html.slice(prevEnd, start);
+    const full = html.slice(start, end);
     const tagEnd = full.indexOf('>');
     const attrs = full.slice('<section'.length, tagEnd).trim();
-    // 内部片段
     const openLen = '<section'.length + (attrs ? attrs.length + 1 : 0) + 1;
     const content = full.slice(openLen, full.lastIndexOf('</section>'));
 
-    // 前面紧邻的 <!-- ... --> 注释（若有）算作模块名，不计入片段。
-    // ⚠️ 必须取**最后一个**注释块：用 /<!--([\s\S]*?)-->$/ 会从第一个 <!-- 开始吞，
-    //    把中间所有内容都算进注释（实测会把整页塞进第 1 个模块的 comment）。
+    // 模块名（仅供界面展示）：取 prefix 里最后一段 <!-- --> 并压平空白
     let comment = null;
-    const before = body.slice(0, start).replace(/\s+$/, '');
-    const k = before.lastIndexOf('<!--');
-    if (k >= 0 && before.slice(k).endsWith('-->')) {
-      comment = before.slice(k + 4, before.length - 3).replace(/\s+/g, ' ').trim();
+    const k = prefix.lastIndexOf('<!--');
+    if (k >= 0) {
+      const e = prefix.indexOf('-->', k);
+      if (e >= 0) comment = prefix.slice(k + 4, e).replace(/\s+/g, ' ').trim();
     }
 
-    sections.push({ attrs, content, comment, kind: kindOf(attrs) });
+    sections.push({ prefix, attrs, content, comment, kind: kindOf(attrs) });
+    prevEnd = end;
+    re.lastIndex = end;
   }
+  // ⚠️ epilogue 必须从**最后一个 section 的结束处**开始，
+  //    而不是从 </main> 开始 —— 否则 `</section>` 与 `</main>` 之间那段空白
+  //    既不属于任何模块的前缀、也不属于 epilogue，会被吞掉。
+  const epilogue = html.slice(prevEnd);
   return { preamble, sections, epilogue };
 }
 
@@ -139,6 +154,7 @@ const root = repoRoot();
 console.log('站点根目录: ' + root);
 
 const targets = PAGES.filter(p => !only.length || only.some(o => p.slug === o || p.slug.endsWith('/' + o)));
+if (only.includes('all')) { /* --all 已在上面覆盖 */ }
 
 for (const spec of targets) {
   const abs = path.join(root, spec.file);
@@ -173,9 +189,9 @@ for (const spec of targets) {
 
     // ② 内容 section —— 可编辑
     for (const s of sections) {
-      db.run(`INSERT INTO page_blocks (page_id, sort_order, kind, tag, attrs, comment, content, visible, locked, style)
-              VALUES (?,?,?,?,?,?,?,1,0,'{}')`,
-        [pid, ++order, s.kind, 'section', s.attrs, s.comment, s.content]);
+      db.run(`INSERT INTO page_blocks (page_id, sort_order, kind, tag, attrs, comment, prefix, content, visible, locked, style)
+              VALUES (?,?,?,?,?,?,?,?,1,0,'{}')`,
+        [pid, ++order, s.kind, 'section', s.attrs, s.comment, s.prefix, s.content]);
     }
 
     // ③ epilogue —— 页脚，锁定

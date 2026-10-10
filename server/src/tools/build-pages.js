@@ -34,14 +34,39 @@ function firstDiff(a, b) {
 const argv = process.argv.slice(2);
 const get = (k) => { const i = argv.indexOf(k); return i < 0 ? null : argv[i + 1]; };
 
+const checkAll = argv.includes('--check-all');
 const slug = get('--slug');
 const out = get('--out');
 const check = get('--check');
 const outDir = get('--out-dir');
 const all = argv.includes('--all');
 
+if (checkAll) {
+  // 全站回归闸门：把每一页重新渲染一遍，与线上文件逐字节比对。
+  // 这是「模板化没有引入视觉回归」的唯一硬证据，改任何渲染逻辑后都该跑。
+  const rows = db.all('SELECT id, slug FROM pages ORDER BY slug');
+  let bad = 0, empty = 0;
+  for (const p of rows) {
+    const f = path.join(process.env.WX_WEB_ROOT || '/var/www/wx-seastar', p.slug + '.html');
+    if (!fs.existsSync(f)) { console.log(`  ? ${p.slug.padEnd(12)} 线上文件不存在: ${f}`); empty++; continue; }
+    const orig = fs.readFileSync(f, 'utf8');
+    const html = renderPage(p.id);
+    const d = firstDiff(orig, html);
+    if (d < 0) {
+      console.log(`  ✓ ${p.slug.padEnd(12)} 逐字节一致（${html.length} 字节）`);
+    } else {
+      bad++;
+      console.log(`  ✗ ${p.slug.padEnd(12)} 不一致 @ 第 ${d} 字节（原 ${orig.length} / 新 ${html.length}）`);
+      console.log('      原: ' + JSON.stringify(orig.slice(Math.max(0, d - 30), d + 50)));
+      console.log('      新: ' + JSON.stringify(html.slice(Math.max(0, d - 30), d + 50)));
+    }
+  }
+  console.log(`\n  共 ${rows.length} 页：一致 ${rows.length - bad - empty} / 不一致 ${bad} / 缺文件 ${empty}`);
+  process.exit(bad ? 2 : 0);
+}
+
 if (!slug && !all) {
-  console.error('用法：--slug <slug> [--out 文件 | --check 原文件]  或  --all --out-dir <目录>');
+  console.error('用法：--slug <slug> [--out 文件 | --check 原文件]  或  --all --out-dir <目录>  或  --check-all');
   process.exit(1);
 }
 

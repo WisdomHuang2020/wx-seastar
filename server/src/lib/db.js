@@ -48,6 +48,16 @@ function migrate() {
     d.exec("ALTER TABLE admins ADD COLUMN role TEXT NOT NULL DEFAULT 'admin'");
   }
 
+  // Creator：page_blocks.prefix —— 存「标签之前的原文逐字前缀」。
+  // 初版把注释里的换行/缩进规范化掉了，导致含换行注释的页面（index/lighting 等）
+  // 重建时对不上。原文空白必须原样保留。
+  if (d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='page_blocks'").get().n) {
+    const bcols = new Set(d.prepare('PRAGMA table_info(page_blocks)').all().map(c => c.name));
+    if (!bcols.has('prefix')) {
+      d.exec("ALTER TABLE page_blocks ADD COLUMN prefix TEXT NOT NULL DEFAULT ''");
+    }
+  }
+
   return d;
 }
 

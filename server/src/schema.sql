@@ -176,7 +176,9 @@ CREATE TABLE IF NOT EXISTS page_blocks (
   kind       TEXT    NOT NULL,              -- hero/section/dark/cta/footer/header …
   tag        TEXT    NOT NULL DEFAULT 'section',
   attrs      TEXT    NOT NULL DEFAULT '',   -- 标签属性（原样保留）
-  comment    TEXT,                          -- 标签前的 <!-- --> 注释（模块名）
+  comment    TEXT,                          -- 模块名（由 prefix 派生，供界面展示）
+  prefix     TEXT    NOT NULL DEFAULT '',   -- 标签**之前的原文逐字前缀**（空白 + 注释），
+                                            -- 重建时必须原样拼回，否则会丢换行/缩进
   content    TEXT    NOT NULL DEFAULT '',   -- 标签内部 HTML
   visible    INTEGER NOT NULL DEFAULT 1,
   locked     INTEGER NOT NULL DEFAULT 0,    -- 全局组件（导航/页脚）不可编辑
