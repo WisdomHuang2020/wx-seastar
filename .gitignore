@@ -61,3 +61,8 @@ server/.env
 # ── 交付文档产物（SOP / 报告等）──
 # 仓库是公开的 —— 交付文档里可能带内部信息，一律不入库。
 /output/
+
+# ── Python 字节码缓存 ──
+# deploy/*.py 会被反复执行，__pycache__ 是执行副产物，不该入库。
+__pycache__/
+*.pyc
