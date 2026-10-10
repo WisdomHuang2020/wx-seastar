@@ -256,22 +256,20 @@ def write(path, html):
 def list_page(lang, arts, up, tr=None):
     if lang == "en":
         title = "News &amp; Events · SEA☆STAR"
-        desc = "Company news, exhibitions and milestones from SEA☆STAR — migrated in full from the official website archive."
+        desc = "Company news, exhibitions and milestones from SEA☆STAR."
         h1 = "News &amp; Events"
         overline = "NEWSROOM"
-        intro = ("Company news, exhibition reports and milestones, migrated in full from the "
-                 "SEA☆STAR official website archive. Oldest at the bottom.")
+        intro = "Company news, exhibition reports and milestones. Newest first."
         crumb_home, crumb_here = "Home", "News"
         cta = ('<a class="btn btn--primary btn--lg" href="/contact">Contact us</a>')
         canonical = SITE + "/news"
         card_href = lambda s: "/news/%s" % s
     else:
         title = "新闻中心 · SEA☆STAR 实益达"
-        desc = "SEA☆STAR 实益达公司新闻、展会动态与里程碑，自原官网归档完整迁移。"
+        desc = "SEA☆STAR 实益达公司新闻、展会动态与里程碑。"
         h1 = "新闻中心"
         overline = "新闻动态"
-        intro = ("公司新闻、展会报道与里程碑，自 SEA☆STAR 原官网归档完整迁移，"
-                 "最新在前、最早在后。")
+        intro = "公司新闻、展会报道与里程碑，最新在前、最早在后。"
         crumb_home, crumb_here = "首页", "新闻中心"
         cta = ('<a class="btn btn--primary btn--lg" href="/cn/contact">联系我们</a>')
         canonical = SITE + "/cn/news"
@@ -338,7 +336,7 @@ def article_page(lang, a, prev_a, next_a, up, tr=None):
         meta_date_label = a["date"]
         back = "All news"
         prev_l, next_l = "Previous", "Next"
-        no_text = "This entry is a photo report — the original posting carried no body text."
+        no_text = "This entry is a photo report; no body text was provided."
         crumb_home = "Home"
         canonical_prefix = "/news/"
     else:
@@ -346,7 +344,7 @@ def article_page(lang, a, prev_a, next_a, up, tr=None):
         meta_date_label = a["date"]
         back = "返回新闻中心"
         prev_l, next_l = "上一篇", "下一篇"
-        no_text = "本篇为图片报道，原官网发布时未附正文。"
+        no_text = "本篇为图片报道，未附文字说明。"
         crumb_home = "首页"
         canonical_prefix = "/cn/news/"
 

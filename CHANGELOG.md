@@ -11,6 +11,59 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.19.5] - 2026-10-10
+
+### 🧹 全站清除「迁移 / 归档 / 原官网」类内部表述（访客可见处）
+
+**用户指令**：网站中这种"历史记录迁移"的字样不要出现。
+
+这些句子本是**内部的溯源说明**（"内容有出处、不是编的"），但对访客而言等于
+**向客户暴露"这站是从别处搬来的"**，且多处在讲"我们的官网如何如何"——
+站在自家官网上说这句本身就不成立。故一律删除或改写。
+
+#### 改动清单（英文 11 处 + 中文 11 处）
+
+| 页面 | 原文（节选） | 处置 |
+|---|---|---|
+| `/news` `/cn/news` | "migrated in full from the SEA☆STAR official website archive" / "自 SEA☆STAR 原官网归档完整迁移" | **删除该半句**，保留"最新在前、最早在后" |
+| `/news` `/cn/news`（meta + og） | 同上表述 | 同步删除 |
+| `/news/<slug>` × 7（中） | "本篇为图片报道，**原官网发布时**未附正文。" | → "本篇为图片报道，未附文字说明。" |
+| `/news/<slug>` × 7（英） | "the original posting carried no body text" | → "no body text was provided" |
+| `/` `/cn/` | "Product names and documents come from the SEA☆STAR official website." / "产品名称与资料来自 SEA☆STAR 实益达官网。" | **删除整句** |
+| `/` `/cn/` | "According to the FACILITIES page of the SEA☆STAR official website, Wuxi Seastar operates…" | → 直接陈述 "Wuxi Seastar operates…" |
+| `/` `/cn/` | "Laboratory section names and management-system certifications come from…" | 删除前半句 |
+| `/lighting` `/cn/lighting` | "The product lines below come from…" / "以下产品线来自…" | 删除整句 |
+| `/lighting` `/cn/lighting` | 认证信息"来自…官网（www.wx-seastar.com）的工厂设施页与首页" | 删除，仅留"认证要求因目标市场而异" |
+| `/odm` `/cn/odm` | "comes from the 「DRIVER AND CONTROL BOARD」section of…" | 删除，直接讲定制驱动与控制板 |
+| `/oem` `/cn/oem` | "capability data…from publicly available factory information on…" | 删除整句 |
+| `/facilities` `/cn/facilities` | "facility data on this page is taken from…" / "本页设施数据取自…原官网公开信息。" | 删除整句 |
+| `/grow-light` `/cn/grow-light` | "Our official website (**www.wx-seastar.com**) currently publishes…" | 改写为"我们目前的产品线为…，植物照明的目录仍在整理中"——**同时去掉了旧域名引用** |
+
+#### 同步项
+
+- **`deploy/build-news.py` 一并修改**（6 处）—— 新闻页由它生成，
+  只改页面不改生成器，下次重新生成会把字样写回来
+- 重新生成 58 个新闻页，已确认新文案生效
+
+#### 未改动（说明）
+
+- `cn/news/…` 里的「**搬迁**」是**真实新闻内容**（2023 年马来西亚工厂搬迁庆典），
+  **与迁移无关，保留**
+- `news/guided-by-light…` 结尾 "please stay tuned to our official website" 是
+  **原新闻正文的译文**，在当前站点语境下依然成立（新站就是官网），保留
+- **HTML 注释**里的维护说明（"内容纪律"等）**访客不可见**，本次未动；
+  如需连注释一并中性化，可另开一版（注意：仓库为公开仓库，注释在源码中本就可见）
+
+#### 验证
+
+- 78 个前台页面 / **2326 个引用：零失效**
+- 全站「访客可见」的 迁移/归档/原官网/migrat/archiv/official website 字样：**残留 0 处**（上述保留项除外）
+- 行尾全部 LF
+
+---
+
+---
+
 ## [v0.19.4] - 2026-10-10
 
 ### 📐 导航 Logo 尺寸对齐源站（34px → 40px）
