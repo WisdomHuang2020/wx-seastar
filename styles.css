@@ -421,7 +421,7 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .brand-swap{ display:grid; }
 .brand-swap img{ grid-area:1/1; }
 .brand-img{ width:auto; object-fit:contain; }
-.brand-img--nav{ height:34px; }
+.brand-img--nav{ height:40px; }
 .brand-img--footer{ height:40px; }
 .brand-img--on-dark{ display:none; }
 .brand-img--on-light{ display:block; }
@@ -886,7 +886,12 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   .display-xl{ font-size:clamp(2rem,9vw,2.6rem); }
   .display{ font-size:clamp(1.7rem,7.5vw,2.1rem); }
 }
-@media (max-width:400px){
+/* 导航 Logo 尺寸对齐源站 www.wx-seastar.com：源站规则 #logo img{max-height:40px}
+   （源图 335×89 → 40px 高 = 151px 宽）。
+   ⚠️ 实测（2026-10-10，iframe 精确视口）：40px 时导航内容需 405px 宽，
+   ≤420px 若不回落会横向溢出（375px 屏溢出 30px）。
+   源站导航没有 CTA 按钮，故它能全断点保持 40px；本站有，故窄屏回落。 */
+@media (max-width:420px){
   .brand-img--nav{ height:28px; }
 }
 
