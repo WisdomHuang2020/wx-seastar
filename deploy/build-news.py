@@ -1,0 +1,461 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+build-news.py —— 由结构化数据生成新闻板块页面（幂等）
+
+产出：
+    news.html                   英文列表页
+    news/<slug>.html            英文详情页 × N
+    cn/news.html                中文列表页
+    cn/news/<slug>.html         中文详情页 × N
+
+输入：
+    deploy/news-data.json       英文原文（由老站抓取，含 slug / images / thumb）
+    deploy/cn-translations.json 中文译文（与英文段落一一对应）
+
+内容纪律：
+    正文全部来自原官网 www.wx-seastar.com 的 NEWS CENTER（实测抓取）。
+    **不添加原文没有的信息**；翻译保持段落一一对应。
+    对纯图集文章（原文无正文）如实只呈现图片，不补写文字。
+
+用法：
+    python3 deploy/build-news.py [--check]
+
+⚠️ 本机 Windows 写文件必须显式 newline='\n'。
+"""
+
+import argparse
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SITE = "https://www.wx-seastar.cn"
+OG_IMAGE = SITE + "/assets/seastar-og.jpg"
+
+NAV_EN = [
+    ("/lighting", "General Lighting", True),   # True = 带下拉菜单
+    ("/grow-light", "Horticulture", False),
+    ("/odm", "ODM", False),
+    ("/oem", "OEM", False),
+    ("/facilities", "Facilities", False),
+    ("/docs", "Documents", False),
+    ("/news", "News", False),
+    ("/about", "About Us", False),
+    ("/contact", "Contact Us", False),
+]
+NAV_CN = [
+    ("/cn/lighting", "通用照明", True),
+    ("/cn/grow-light", "植物灯具", False),
+    ("/cn/odm", "ODM", False),
+    ("/cn/oem", "OEM", False),
+    ("/cn/facilities", "研发与设施", False),
+    ("/cn/docs", "资料中心", False),
+    ("/cn/news", "新闻中心", False),
+    ("/cn/about", "关于我们", False),
+    ("/cn/contact", "联系我们", False),
+]
+
+
+def esc(s):
+    return (s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+             .replace('"', "&quot;"))
+
+
+def head(lang, title, desc, canonical, up, active):
+    """up: 相对站点根的资源前缀（'' / '../' / '../../'）"""
+    nav = NAV_EN if lang == "en" else NAV_CN
+    items = []
+    for href, label, is_dropdown in nav:
+        cls = ' class="is-active"' if label in active else ""
+        if is_dropdown:
+            # 「通用照明 / General Lighting」是下拉项，必须与站点其它页面结构一致
+            sub = [("?scene=home", "Residential", "家居照明"),
+                   ("?scene=commercial", "Commercial", "商业照明"),
+                   ("?scene=outdoor", "Outdoor", "户外照明")]
+            subhtml = "\n".join(
+                '          <a href="%s%s">%s</a>' % (href, q, (en if lang == "en" else cn))
+                for q, en, cn in sub)
+            trig_cls = ' class="nav__dropdown-trigger is-active"' if label in active \
+                else ' class="nav__dropdown-trigger"'
+            items.append(
+                '      <div class="nav__dropdown">\n'
+                '        <a href="%s"%s>%s</a>\n'
+                '        <div class="nav__dropdown-menu">\n%s\n        </div>\n'
+                '      </div>' % (href, trig_cls, label, subhtml))
+        else:
+            items.append('      <a href="%s"%s>%s</a>' % (href, cls, label))
+    nav_html = "\n".join(items)
+    lang_attr = "en" if lang == "en" else "zh-CN"
+    locale = "en_US" if lang == "en" else "zh_CN"
+    # 语言切换：EN ↔ CN 的对应地址
+    if lang == "en":
+        alt_href = canonical.replace(SITE + "/", SITE + "/cn/")
+        switch = '<a class="lang-switch" href="%s" title="中文版">中文</a>' % alt_href
+    else:
+        alt_href = canonical.replace(SITE + "/cn/", SITE + "/")
+        switch = '<a class="lang-switch" href="%s" title="English">EN</a>' % alt_href
+    home = "/" if lang == "en" else "/cn/"
+    logo_href = home
+    cta = "Get a quote" if lang == "en" else "获取报价"
+    cta_href = "/contact" if lang == "en" else "/cn/contact"
+    burger = "打开菜单" if lang == "en" else "打开菜单"
+    return f"""<!DOCTYPE html>
+<html lang="{lang_attr}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{esc(title)}</title>
+<meta name="description" content="{esc(desc)}">
+<link rel="canonical" href="{canonical}">
+<meta name="theme-color" content="var(--ink-900)">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="SEA☆STAR 实益达">
+<meta property="og:locale" content="{locale}">
+<meta property="og:title" content="{esc(title)}">
+<meta property="og:description" content="{esc(desc)}">
+<meta property="og:url" content="{canonical}">
+<meta property="og:image" content="{OG_IMAGE}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="{up}favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="{up}apple-touch-icon.png">
+<script>window.__SEASTAR_LANG__='{"en" if lang == "en" else "zh"}'</script>
+<link rel="stylesheet" href="{up}styles.css">
+<noscript><style>.reveal{{opacity:1;transform:none}}</style></noscript>
+</head>
+<body>
+
+<header class="nav nav--transparent" id="nav" data-nav-transparent="false" style="color:var(--text-primary);">
+  <div class="nav__inner">
+    <a class="nav__logo" href="{logo_href}">
+      <span class="brand-swap"><img src="{up}assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--nav brand-img--on-dark" width="128" height="34" decoding="async"><img src="{up}assets/seastar-logo-conv.png" alt="" aria-hidden="true" class="brand-img brand-img--nav brand-img--on-light" width="128" height="34" decoding="async"></span>
+    </a>
+    <nav class="nav__links" aria-label="{'Main navigation' if lang == 'en' else '主导航'}">
+{nav_html}
+    </nav>
+    <div class="nav__right">
+      {switch}
+      <a class="btn btn--primary btn--sm" href="{cta_href}">{cta}</a>
+      <button class="nav__burger" aria-label="{burger}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+"""
+
+
+def footer(lang, up):
+    if lang == "en":
+        return f"""<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="{up}assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">A complete lighting solutions provider. General lighting · ODM · OEM.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Business lines</h4>
+        <a href="/lighting">General Lighting</a>
+        <a href="/lighting?scene=home" class="drawer__sub">Residential</a>
+        <a href="/lighting?scene=commercial" class="drawer__sub">Commercial</a>
+        <a href="/lighting?scene=outdoor" class="drawer__sub">Outdoor</a>
+        <a href="/grow-light">Horticulture Lighting</a>
+        <a href="/odm">ODM Drivers &amp; Control Boards</a>
+        <a href="/oem">OEM Electronics Manufacturing</a>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <a href="/about">About Us</a>
+        <a href="/about#history">Milestones</a>
+        <a href="/facilities">Facilities</a>
+        <a href="/about#factory">Factory &amp; Capacity</a>
+        <a href="/news">News</a>
+        <a href="/contact">Contact Us</a>
+      </div>
+      <div class="footer__col">
+        <h4>Contact</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="/contact">West of Jing 11th Rd, North of Jing 13th Rd, South of the planned canal, Hongshan Sub-district, Xinwu District, Wuxi, Jiangsu, PRC</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 Wuxi Seastar Lighting Co., Ltd. All rights reserved.</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">ICP Filing No. 19020304-1</a>
+      <span class="mono">Wuxi Seastar Lighting Co., Ltd. · SEA☆STAR</span>
+      <button type="button" class="footer__cc" data-cookie-settings>Cookie settings</button>
+    </div>
+  </div>
+</footer>
+
+<script src="{up}js/app.js"></script>
+<script src="{up}js/site.js" defer></script>
+<script src="{up}js/consent.js" defer></script>
+</body>
+</html>
+"""
+    return f"""<footer class="footer section-tight">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo">
+          <img src="{up}assets/seastar-logo-light.png" alt="SEA☆STAR 实益达" class="brand-img brand-img--footer" width="160" height="43" decoding="async">
+        </div>
+        <p class="small mt-md" style="color:var(--text-on-dark-muted);max-width:36ch;">照明整体解决方案提供商。通用照明 · ODM · OEM。</p>
+      </div>
+      <div class="footer__col">
+        <h4>业务线</h4>
+        <a href="/cn/lighting">通用照明灯具</a>
+        <a href="/cn/grow-light">植物照明灯具</a>
+        <a href="/cn/odm">ODM 驱动与控制板</a>
+        <a href="/cn/oem">OEM 电子制造服务</a>
+      </div>
+      <div class="footer__col">
+        <h4>公司</h4>
+        <a href="/cn/about">关于我们</a>
+        <a href="/about#history">发展历程</a>
+        <a href="/cn/facilities">研发与设施</a>
+        <a href="/about#factory">工厂与产能</a>
+        <a href="/cn/news">新闻中心</a>
+        <a href="/cn/contact">联系我们</a>
+      </div>
+      <div class="footer__col">
+        <h4>联系</h4>
+        <a href="mailto:edison_liu@wx-seastar.com">edison_liu@wx-seastar.com</a>
+        <a href="tel:+8651068506661">0510-68506661</a>
+        <a href="/cn/contact">江苏省无锡市新吴区鸿山街道经十一路以西、经十三路以北、规划河道以南</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="mono" style="color:var(--text-on-dark-muted);">苏ICP备19020304号-1</a>
+      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+      <button type="button" class="footer__cc" data-cookie-settings>Cookie 设置</button>
+    </div>
+  </div>
+</footer>
+
+<script src="{up}js/app.js"></script>
+<script src="{up}js/site.js" defer></script>
+<script src="{up}js/consent.js" defer></script>
+</body>
+</html>
+"""
+
+
+def write(path, html):
+    with io.open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(html)
+
+
+def list_page(lang, arts, up, tr=None):
+    if lang == "en":
+        title = "News &amp; Events · SEA☆STAR"
+        desc = "Company news, exhibitions and milestones from SEA☆STAR — migrated in full from the official website archive."
+        h1 = "News &amp; Events"
+        overline = "NEWSROOM"
+        intro = ("Company news, exhibition reports and milestones, migrated in full from the "
+                 "SEA☆STAR official website archive. Oldest at the bottom.")
+        crumb_home, crumb_here = "Home", "News"
+        cta = ('<a class="btn btn--primary btn--lg" href="/contact">Contact us</a>')
+        canonical = SITE + "/news"
+        card_href = lambda s: "/news/%s" % s
+    else:
+        title = "新闻中心 · SEA☆STAR 实益达"
+        desc = "SEA☆STAR 实益达公司新闻、展会动态与里程碑，自原官网归档完整迁移。"
+        h1 = "新闻中心"
+        overline = "新闻动态"
+        intro = ("公司新闻、展会报道与里程碑，自 SEA☆STAR 原官网归档完整迁移，"
+                 "最新在前、最早在后。")
+        crumb_home, crumb_here = "首页", "新闻中心"
+        cta = ('<a class="btn btn--primary btn--lg" href="/cn/contact">联系我们</a>')
+        canonical = SITE + "/cn/news"
+        card_href = lambda s: "/cn/news/%s" % s
+
+    cards = []
+    for i, a in enumerate(arts):
+        t = (tr or {}).get(a["id"], {})
+        title_txt = t.get("title") or a["title"]
+        thumb = ("../" if up else "") + a["thumb"] if lang == "en" else ("../" + a["thumb"])
+        # up 已含相对前缀；thumb 存的是仓库相对路径
+        thumb = up + a["thumb"]
+        delay = "" if i % 3 == 0 else " reveal-d%d" % (i % 3)
+        media = ('<a class="news-card__media" href="%s" aria-hidden="true" tabindex="-1"><img src="%s" alt="" loading="lazy" decoding="async"></a>'
+                 % (card_href(a["slug"]), thumb)) if a.get("thumb") else ""
+        cards.append(f"""      <article class="news-card reveal{delay}">
+        {media}
+        <div class="news-card__body">
+          <div class="news-card__date">{a['date']}</div>
+          <h2 class="news-card__title h4"><a href="{card_href(a['slug'])}">{esc(title_txt)}</a></h2>
+        </div>
+      </article>""")
+
+    body = "\n".join(cards)
+    return (head(lang, title, desc, canonical, up, {"News" if lang == "en" else "新闻中心"})
+            + f"""
+<main>
+
+<section class="hero-split hero-light hero-light--sub">
+  <div class="container relative">
+    <nav class="hero-breadcrumb" aria-label="面包屑">
+      <a href="{'/' if lang == 'en' else '/cn/'}">{crumb_home}</a><span>/</span><span>{crumb_here}</span>
+    </nav>
+    <div class="reveal" style="max-width:820px;">
+      <span class="overline">{overline}</span>
+      <h1 class="display mt-md">{h1}</h1>
+      <p class="body-l mt-lg text-secondary measure">{intro}</p>
+      <div class="flex gap-md mt-2xl" style="flex-wrap:wrap;">{cta}</div>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="grid grid-3 mt-3xl">
+{body}
+    </div>
+  </div>
+</section>
+
+</main>
+
+""" + footer(lang, up))
+
+
+def article_page(lang, a, prev_a, next_a, up, tr=None):
+    t = (tr or {}).get(a["id"], {})
+    title_txt = t.get("title") or a["title"]
+    paras = t.get("paras") or [] if lang == "cn" else a["paras"]
+    imgs = a.get("images") or []
+    if lang == "en":
+        canonical = "%s/news/%s" % (SITE, a["slug"])
+        meta_date_label = a["date"]
+        back = "All news"
+        prev_l, next_l = "Previous", "Next"
+        no_text = "This entry is a photo report — the original posting carried no body text."
+        crumb_home = "Home"
+        canonical_prefix = "/news/"
+    else:
+        canonical = "%s/cn/news/%s" % (SITE, a["slug"])
+        meta_date_label = a["date"]
+        back = "返回新闻中心"
+        prev_l, next_l = "上一篇", "下一篇"
+        no_text = "本篇为图片报道，原官网发布时未附正文。"
+        crumb_home = "首页"
+        canonical_prefix = "/cn/news/"
+
+    figs, lead = [], ""
+    for i, src in enumerate(imgs):
+        u = up + src
+        if i == 0:
+            lead = f"""      <figure class="article__figure reveal">
+        <img src="{u}" alt="{esc(title_txt)}" loading="eager" decoding="async">
+      </figure>"""
+        else:
+            figs.append(f"""      <figure class="article__figure reveal reveal-d{(i % 4) + 1}">
+        <img src="{u}" alt="{esc(title_txt)}" loading="lazy" decoding="async">
+      </figure>""")
+
+    if paras:
+        body_html = "\n".join("      <p>%s</p>" % esc(p) for p in paras)
+    else:
+        body_html = '      <p class="text-secondary">%s</p>' % esc(no_text)
+
+    nav_links = []
+    if prev_a:
+        nav_links.append('<a href="%s%s">&larr; %s<br><span class="small text-secondary">%s</span></a>'
+                         % (canonical_prefix, prev_a["slug"], prev_l, esc((( tr or {}).get(prev_a["id"], {}).get("title") or prev_a["title"])[:60])))
+    else:
+        nav_links.append("<span></span>")
+    if next_a:
+        nav_links.append('<a href="%s%s" style="text-align:right">%s &rarr;<br><span class="small text-secondary">%s</span></a>'
+                         % (canonical_prefix, next_a["slug"], next_l, esc(((tr or {}).get(next_a["id"], {}).get("title") or next_a["title"])[:60])))
+    else:
+        nav_links.append("<span></span>")
+
+    if lang == "en":
+        back_link = '<a class="btn btn--secondary btn--sm" href="/news">← %s</a>' % back
+    else:
+        back_link = '<a class="btn btn--secondary btn--sm" href="/cn/news">← %s</a>' % back
+
+    desc = (paras[0][:150] if paras else title_txt)[:155]
+    return (head(lang, "%s · SEA☆STAR" % esc(title_txt), desc, canonical, up,
+                 {"News" if lang == "en" else "新闻中心"})
+            + f"""
+<main>
+
+<article class="section-tight">
+  <div class="container">
+    <nav class="hero-breadcrumb" aria-label="面包屑" style="margin-bottom:var(--space-lg);">
+      <a href="{'/' if lang == 'en' else '/cn/'}">{crumb_home}</a><span>/</span><a href="{'/news' if lang == 'en' else '/cn/news'}">{'News' if lang == 'en' else '新闻中心'}</a><span>/</span><span>{esc(title_txt)[:40]}</span>
+    </nav>
+
+    <div class="article">
+      <div class="article__meta">
+        <time datetime="{a['date']}">{meta_date_label}</time>
+        <span>·</span>
+        <span>SEA☆STAR</span>
+      </div>
+      <h1 class="h2">{esc(title_txt)}</h1>
+
+{lead}
+
+      <div class="article__body reveal">
+{body_html}
+      </div>
+
+      <div class="article__body">
+{chr(10).join(figs) if figs else ''}
+      </div>
+
+      <div class="article-nav">
+        {nav_links[0]}
+        {nav_links[1]}
+      </div>
+
+      <p class="mt-2xl">{back_link}</p>
+    </div>
+  </div>
+</article>
+
+</main>
+
+""" + footer(lang, up))
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true")
+    args = ap.parse_args()
+
+    data = json.load(io.open(os.path.join(REPO, "deploy", "news-data.json"), encoding="utf-8"))
+    trpath = os.path.join(REPO, "deploy", "cn-translations.json")
+    tr = json.load(io.open(trpath, encoding="utf-8")) if os.path.exists(trpath) else {}
+
+    data.sort(key=lambda a: a["date"], reverse=True)
+    os.makedirs(os.path.join(REPO, "news"), exist_ok=True)
+    os.makedirs(os.path.join(REPO, "cn", "news"), exist_ok=True)
+
+    n = 0
+    write(os.path.join(REPO, "news.html"), list_page("en", data, "", None)); n += 1
+    write(os.path.join(REPO, "cn", "news.html"), list_page("cn", data, "../", tr)); n += 1
+    for i, a in enumerate(data):
+        prev_a = data[i - 1] if i > 0 else None
+        next_a = data[i + 1] if i < len(data) - 1 else None
+        write(os.path.join(REPO, "news", a["slug"] + ".html"),
+              article_page("en", a, prev_a, next_a, "../", None)); n += 1
+        write(os.path.join(REPO, "cn", "news", a["slug"] + ".html"),
+              article_page("cn", a, prev_a, next_a, "../../", tr)); n += 1
+    print("生成 %d 个页面（列表 2 + 详情 %d）" % (n, 2 * len(data)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

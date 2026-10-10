@@ -25,7 +25,7 @@ KEY="$HOME/.ssh/pfc_ci"
 PORT=22
 OWNER="www-data"
 
-FILES="index.html odm.html oem.html facilities.html lighting.html grow-light.html about.html contact.html docs.html 404.html styles.css js assets cn favicon.ico apple-touch-icon.png robots.txt sitemap.xml"
+FILES="index.html odm.html oem.html facilities.html news.html lighting.html grow-light.html about.html contact.html docs.html 404.html styles.css js assets cn news favicon.ico apple-touch-icon.png robots.txt sitemap.xml"
 
 cd "$(dirname "$0")/.."
 

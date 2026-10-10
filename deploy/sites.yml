@@ -47,6 +47,8 @@ sites:
       - odm.html
       - oem.html
       - facilities.html
+      - news.html
+      - news
       - cn
       - lighting.html
       - grow-light.html
