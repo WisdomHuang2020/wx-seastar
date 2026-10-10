@@ -182,9 +182,27 @@ function ensureMediaFor(slug) {
   return r.lastInsertRowid;
 }
 
+/**
+ * ⚠️ 极少数产品的**原文摘要**（唯一例外，务必克制）
+ *
+ * 背景：老站 83 个 LED 产品页里，**82 个连一个字都没有**——规格全部"画在一张图里"
+ * （由 `deploy/build-spec-docs.py` 把原图包成 PDF 供下载，见 /docs）。
+ * **只有 `smd-strip` 这一个产品页有正文**，是下面这 3 行特性语。
+ *
+ * 这里逐字照抄老站原文（原文每行前缀的 "l" 是列表符号残留，已去掉）。
+ * **不允许**再往这张表里加任何"为了让产品页好看"而写的文案 —— 没有出处就是编造。
+ */
+const SUMMARIES = {
+  'smd-strip': {
+    en: 'SMD2835 high quality LED.\nDouble side PCB.\nVarious specifications and series optional.',
+    zh: 'SMD2835 高品质灯珠。\n双面 PCB。\n规格与系列可选。',
+  },
+};
+
 /** 通用的「写入或补图」逻辑，避免两台设备重复代码 */
 function upsert(slug, category, titleEn, sceneArr, titleZh, order, counters) {
   const exists = db.get('SELECT * FROM products WHERE slug = ?', [slug]);
+  const sm = SUMMARIES[slug];
   if (exists) {
     if (!exists.cover_media) {
       const mid = ensureMediaFor(slug);
@@ -194,20 +212,28 @@ function upsert(slug, category, titleEn, sceneArr, titleZh, order, counters) {
         counters.imaged++;
       } else counters.noimg++;
     }
+    // 已存在且原文摘要尚未写入时补上（不覆盖后台手工改过的内容）
+    if (sm && !exists.summary_en) {
+      db.run('UPDATE products SET summary_en = ?, summary_zh = ? WHERE id = ?',
+        [sm.en, sm.zh, exists.id]);
+      counters.summarised = (counters.summarised || 0) + 1;
+    }
     counters.skipped++;
     return;
   }
   const mid = ensureMediaFor(slug);
   if (!mid) counters.noimg++;
   const r = db.run(
-    `INSERT INTO products (slug, category, title_zh, title_en, specs, badges, scene,
-                           cover_media, sort_order, published)
-     VALUES (?,?,?,?,?,?,?,?,?,1)`,
+    `INSERT INTO products (slug, category, title_zh, title_en, summary_zh, summary_en,
+                           specs, badges, scene, cover_media, sort_order, published)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,1)`,
     [
       slug,
       category,
       titleZh || null,   // 中文名：优先用原厂中文站 cn.wx-seastar.com 的官方名；没有则留空
       titleEn,    // 原文照抄
+      sm ? sm.zh : null,  // 摘要：仅上面 SUMMARIES 里列出的极少数产品有出处
+      sm ? sm.en : null,
       '[]',       // 原官网无规格参数 —— 空数组，不编造
       '[]',       // 原官网无角标 —— 空数组
       JSON.stringify(SCENES.filter(s => (sceneArr || []).indexOf(s) >= 0)),  // 受控词表归一化

@@ -11,6 +11,80 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.19.0] - 2026-10-10
+
+### 🔍 第二轮核查：补齐 4 类内容缺口 + 2 处细节
+
+依 `output/oldsite-full/迁移缺口补充核查.md` 落实。方法：把老站 193 页**每一行正文**
+归一化后去新站全量语料找最长公共子串，去噪后逐条人工定性。
+
+> ⚠️ **先修了校验工具自身的一个缺陷**：上轮归一化把 HTML 标签**整体剥除**，
+> 导致**只存在于 `alt=` 属性里的图注查不到**，误报 5 个设施图注缺失
+> （实际都在 `facilities.html`）。**校验"文本是否存在"时不能把标签连同属性一起丢。**
+
+#### 1. `/contact` 补集团办公地 + 品牌微信公众号
+
+老站 CONTACT 页列有**三个法人主体**，新站此前只有无锡总部。
+
+| 主体 | 补入内容 |
+|---|---|
+| **Shenzhen Sea Star Technologies Co., Ltd.** | 地址（深圳龙岗宝龙工业城金隆路 6 号 Halcyon Office 4F）· 邮编 518000 · 电话 0755-89366668 · **Stock Code 002137 (SZ)** |
+| **Hongkong Seastar Lighting Co., Ltd.** | 地址（中国香港湾仔洛克道 301-307 号洛克中心 19C 室） |
+| **品牌微信公众号** | 二维码图片（`assets/img/wechat-qr.jpg`），已核验为真实可用的品牌码 |
+
+- 新增「Group Offices / 集团办公地」区块，EN + CN 各一
+- ⚠️ **未照搬老站给中国香港办公室写的邮编 `214028`** —— 该值与无锡/深圳均不符，
+  疑为老站复制错误，**无可核对来源故不写**，已报业主确认
+- 中国香港一份按规范写作 `Hong Kong, China` / `中国香港`
+
+#### 2. `/about` 补 4 条集团事实
+
+| 补入事实 | 位置 |
+|---|---|
+| 集团 **over 10 subsidiaries / 数千名员工** | 导语段 |
+| 集团布点 **北京、上海、深圳、无锡及马来西亚** | 导语段 |
+| 马来西亚厂选址 **Iskandar, Johor Bahru** | 2021 里程碑 |
+| 马来西亚厂 **workforce of over 80** | 2021 里程碑 |
+
+> 核查时一度把 `national high-tech enterprise`（国家高新技术企业）与
+> `Shenzhen Sea Star Technology` 也报为缺失，**复核后确认二者本就在页面上**，
+> 属我的短语匹配误判，未作改动。
+
+#### 3. 新闻列表摘要文案 11 条
+
+老站新闻列表是**「短标题 + 摘要」两行**，新站只有封面 + 日期 + 标题。已补齐 11 条：
+
+- `deploy/news-data.json` 增加 `summary` 字段（英文原文照抄）
+- `deploy/cn-translations.json` 增加对应中文译文
+- `build-news.py` 在**列表卡**与**详情页导语**两处渲染；`styles.css` 新增
+  `.news-card__summary` 与 `.lead-quote`
+
+#### 4. 产品原文摘要（唯一一个有文字的产品）
+
+老站 83 个 LED 产品页里 **82 个连一个字都没有**（规格全在图里，已由规格 PDF 承载）。
+**只有 `smd-strip` 有正文**，已逐字补入产品库 `summary_en` / `summary_zh`：
+
+```
+SMD2835 high quality LED. / Double side PCB. / Various specifications and series optional.
+```
+
+- `seed-products.js` 增加 `SUMMARIES` 白名单表，**只允许列出的极少数产品带摘要**，
+  并在注释里写明"没有出处就是编造"
+
+#### 5. 认证版本年份
+
+老站首页写 `ISO9001:2015　ISO14001:2015　IATF 16949:2016`，新站此前只有标准号。
+已在 `/about` 的「体系认证」补齐版本年。
+
+#### 6. 未作改动
+
+`PLASTIC INJECTION` / `WAVE-SOLDERING` 图注，新站作 `Injection moulding` / `Wave soldering`，
+**语义一致、属措辞差异**，按设计需要保留。
+
+---
+
+---
+
 ## [v0.18.1] - 2026-10-10
 
 ### ✏️ facilities 第 2 张图注按客户指定改为「光电测试」

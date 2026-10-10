@@ -281,8 +281,9 @@ def list_page(lang, arts, up, tr=None):
     for i, a in enumerate(arts):
         t = (tr or {}).get(a["id"], {})
         title_txt = t.get("title") or a["title"]
-        thumb = ("../" if up else "") + a["thumb"] if lang == "en" else ("../" + a["thumb"])
-        # up 已含相对前缀；thumb 存的是仓库相对路径
+        # 摘要：中文页优先取译文 summary，缺则回落英文原文
+        sm = (t.get("summary") or a.get("summary") or "").strip()
+        sm_html = ('\n          <p class="news-card__summary small text-secondary">%s</p>' % esc(sm)) if sm else ""
         thumb = up + a["thumb"]
         delay = "" if i % 3 == 0 else " reveal-d%d" % (i % 3)
         media = ('<a class="news-card__media" href="%s" aria-hidden="true" tabindex="-1"><img src="%s" alt="" loading="lazy" decoding="async"></a>'
@@ -291,7 +292,7 @@ def list_page(lang, arts, up, tr=None):
         {media}
         <div class="news-card__body">
           <div class="news-card__date">{a['date']}</div>
-          <h2 class="news-card__title h4"><a href="{card_href(a['slug'])}">{esc(title_txt)}</a></h2>
+          <h2 class="news-card__title h4"><a href="{card_href(a['slug'])}">{esc(title_txt)}</a></h2>{sm_html}
         </div>
       </article>""")
 
@@ -384,6 +385,9 @@ def article_page(lang, a, prev_a, next_a, up, tr=None):
         back_link = '<a class="btn btn--secondary btn--sm" href="/cn/news">← %s</a>' % back
 
     desc = (paras[0][:150] if paras else title_txt)[:155]
+    # 详情页导语：老站新闻列表的摘要文案（原文为口号式短句）
+    sm = ((tr or {}).get(a["id"], {}).get("summary") or a.get("summary") or "").strip()
+    summ_html = ('      <p class="body-l lead-quote">%s</p>\n' % esc(sm)) if sm else ""
     return (head(lang, "%s · SEA☆STAR" % esc(title_txt), desc, canonical, up,
                  {"News" if lang == "en" else "新闻中心"})
             + f"""
@@ -403,6 +407,7 @@ def article_page(lang, a, prev_a, next_a, up, tr=None):
       </div>
       <h1 class="h2">{esc(title_txt)}</h1>
 
+{summ_html}
 {lead}
 
       <div class="article__body reveal">

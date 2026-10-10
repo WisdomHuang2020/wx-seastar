@@ -1192,3 +1192,11 @@ body.cc-locked{ overflow:hidden; }
 }
 .article-nav a{ max-width:46%; }
 @media (max-width:600px){ .article-nav a{ max-width:100%; } }
+
+/* ── 新闻摘要（老站新闻列表的摘要文案）─────────────────────────────── */
+.news-card__summary{ margin:0; }
+.lead-quote{
+  margin-top:var(--space-lg); padding-left:var(--space-lg);
+  border-left:2px solid var(--brand-300);
+  color:var(--text-secondary); font-style:normal;
+}
