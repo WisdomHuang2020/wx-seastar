@@ -223,4 +223,37 @@
      由它 POST 到 /api/public/messages 存入后台数据库，
      这样客户留言才能在管理后台查阅与导出。
      本文件不再处理表单，避免两套逻辑抢同一个 submit 事件。 */
+
+  /* ---------- 8. 业务线卡片代表图轮播（交叉淡入） ----------
+     用法: <div class="biz-card__media biz-card__media--cycle" data-cycle="3000">
+              <img class="is-active" …><img …><img …>
+           </div>
+     · 无 JS 时由 HTML 里首图的 .is-active 兜底 —— 不做"必须有 JS 才看得见"的设计
+     · 遵循 prefers-reduced-motion：该偏好下**不自动切换**，只静态显示首图
+     · 标签页切走后暂停计时器，切回来再继续 —— 不在看不见的地方空转
+     · **鼠标悬浮 / 键盘聚焦时暂停**（客户要求）—— 便于看清当前这一张
+       hovered 标志位不能省：否则"悬浮期间切标签页再切回来"会把计时器重新启动 */
+  document.querySelectorAll('[data-cycle]').forEach(function (box) {
+    var imgs = box.querySelectorAll('img');
+    if (imgs.length < 2 || reduce) return;
+    var idx = 0;
+    var step = parseInt(box.getAttribute('data-cycle'), 10) || 5000;
+    var timer = null;
+    var hovered = false;
+    var tick = function () {
+      imgs[idx].classList.remove('is-active');
+      idx = (idx + 1) % imgs.length;
+      imgs[idx].classList.add('is-active');
+    };
+    var start = function () { if (!timer && !hovered) timer = setInterval(tick, step); };
+    var stop = function () { if (timer) { clearInterval(timer); timer = null; } };
+    box.addEventListener('mouseenter', function () { hovered = true; stop(); });
+    box.addEventListener('mouseleave', function () { hovered = false; start(); });
+    box.addEventListener('focusin', function () { hovered = true; stop(); });
+    box.addEventListener('focusout', function () { hovered = false; start(); });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { stop(); } else { start(); }
+    });
+    start();
+  });
 })();
