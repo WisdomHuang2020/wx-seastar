@@ -1,6 +1,7 @@
 'use strict';
 /**
- * Creator 设计者模式 API —— 页面模版与静态文案的可视化编辑。
+ * 页面编辑器 API —— 页面模版与静态文案的可视化编辑。
+ * （原挂在 /Creator 下，v0.25.0 起并入 /admin 的子页 /admin/pages，API 前缀改 /api/pages）
  *
  * ── 为什么编辑产物存数据库而不是文件 ───────────────────────────────────
  *   deploy/auto-deploy.sh 每次运行都会 `git reset --hard origin/main`，
@@ -29,9 +30,11 @@ const { renderPage } = require('../lib/render-page');
 
 const router = express.Router();
 
-// Creator 全站可用角色
-const R_CREATOR = ['creator', 'owner'];
-const R_ANY = ['creator', 'editor', 'owner'];
+// 谁可以用页面编辑器。
+// admin 一并纳入 —— 用户决定把内容管理统一收进 /admin，不再单开 Creator 后台，
+// 所以现有的 admin 账号本来就该能改页面内容，不该因为角色名不是 creator 而被挡。
+const R_FULL = ['creator', 'owner', 'admin'];   // 可增删模块、可发布
+const R_ANY = ['creator', 'editor', 'owner', 'admin'];  // 含只能改文案图片的 editor
 
 router.use(A.requireAuth, A.requirePasswordChanged, A.requireRole(...R_ANY));
 
@@ -76,7 +79,7 @@ function isContentOnlyEdit(oldHtml, newHtml) {
 /* ─────────────────────────  页面  ───────────────────────── */
 
 /** 列出可编辑页面（含模块数） */
-router.get('/pages', wrap(async (req, res) => {
+router.get('/', wrap(async (req, res) => {
   const rows = db.all(`
     SELECT p.id, p.slug, p.lang, p.title, p.published, p.updated_at,
            (SELECT COUNT(*) FROM page_blocks b WHERE b.page_id = p.id) AS blocks
@@ -86,7 +89,12 @@ router.get('/pages', wrap(async (req, res) => {
 }));
 
 /** 取一页的全部模块 */
-router.get('/pages/:slug', wrap(async (req, res) => {
+/** 发布队列（给前端看进度） */
+router.get('/publish-queue', wrap(async (req, res) => {
+  res.json({ ok: true, data: db.all('SELECT * FROM publish_queue ORDER BY id DESC LIMIT 30') });
+}));
+
+router.get('/:slug', wrap(async (req, res) => {
   const page = db.get('SELECT * FROM pages WHERE slug = ?', [req.params.slug]);
   if (!page) return res.status(404).json({ ok: false, error: '页面不存在' });
   const blocks = db.all(
@@ -100,8 +108,8 @@ router.get('/pages/:slug', wrap(async (req, res) => {
       caps: {
         role: req.admin.role || 'admin',
         canEditContent: true,
-        canEditStructure: R_CREATOR.includes(req.admin.role || 'admin'),
-        canPublish: R_CREATOR.includes(req.admin.role || 'admin'),
+        canEditStructure: R_FULL.includes(req.admin.role || 'admin'),
+        canPublish: R_FULL.includes(req.admin.role || 'admin'),
       },
     },
   });
@@ -115,7 +123,7 @@ router.put('/blocks/:id', wrap(async (req, res) => {
   if (!b) return res.status(404).json({ ok: false, error: '模块不存在' });
   if (b.locked) return res.status(403).json({ ok: false, error: '该模块为全局组件，不可在 Creator 中编辑' });
 
-  const isFull = R_CREATOR.includes(req.admin.role || 'admin');
+  const isFull = R_FULL.includes(req.admin.role || 'admin');
   const { content, visible, style } = req.body || {};
 
   if (typeof content === 'string') {
@@ -155,7 +163,7 @@ router.put('/blocks/:id', wrap(async (req, res) => {
 }));
 
 /** 排序（拖动） */
-router.post('/blocks/:id/move', A.requireRole(...R_CREATOR), wrap(async (req, res) => {
+router.post('/blocks/:id/move', A.requireRole(...R_FULL), wrap(async (req, res) => {
   const b = db.get('SELECT * FROM page_blocks WHERE id = ?', [req.params.id]);
   if (!b) return res.status(404).json({ ok: false, error: '模块不存在' });
   if (b.locked) return res.status(403).json({ ok: false, error: '全局组件不可移动' });
@@ -177,7 +185,7 @@ router.post('/blocks/:id/move', A.requireRole(...R_CREATOR), wrap(async (req, re
 }));
 
 /** 复制一个模块（「增加模块」的 v1：同类型复制后自行改内容） */
-router.post('/blocks/:id/duplicate', A.requireRole(...R_CREATOR), wrap(async (req, res) => {
+router.post('/blocks/:id/duplicate', A.requireRole(...R_FULL), wrap(async (req, res) => {
   const b = db.get('SELECT * FROM page_blocks WHERE id = ?', [req.params.id]);
   if (!b) return res.status(404).json({ ok: false, error: '模块不存在' });
   if (b.locked) return res.status(403).json({ ok: false, error: '全局组件不可复制' });
@@ -194,7 +202,7 @@ router.post('/blocks/:id/duplicate', A.requireRole(...R_CREATOR), wrap(async (re
 }));
 
 /** 删除一个模块 */
-router.delete('/blocks/:id', A.requireRole(...R_CREATOR), wrap(async (req, res) => {
+router.delete('/blocks/:id', A.requireRole(...R_FULL), wrap(async (req, res) => {
   const b = db.get('SELECT * FROM page_blocks WHERE id = ?', [req.params.id]);
   if (!b) return res.status(404).json({ ok: false, error: '模块不存在' });
   if (b.locked) return res.status(403).json({ ok: false, error: '全局组件不可删除' });
@@ -206,7 +214,7 @@ router.delete('/blocks/:id', A.requireRole(...R_CREATOR), wrap(async (req, res) 
 /* ─────────────────────────  版本与发布  ───────────────────────── */
 
 /** 存一个版本快照（发布前自动调用） */
-router.post('/pages/:id/snapshot', A.requireRole(...R_CREATOR), wrap(async (req, res) => {
+router.post('/:id/snapshot', A.requireRole(...R_FULL), wrap(async (req, res) => {
   const page = db.get('SELECT * FROM pages WHERE id = ?', [req.params.id]);
   if (!page) return res.status(404).json({ ok: false, error: '页面不存在' });
   const blocks = db.all('SELECT * FROM page_blocks WHERE page_id = ? ORDER BY sort_order, id', [page.id]);
@@ -222,7 +230,7 @@ router.post('/pages/:id/snapshot', A.requireRole(...R_CREATOR), wrap(async (req,
  * 真正的 git 操作由独立特权服务（持有仅限本仓库的 Deploy Key）执行，
  * 目的在于：Web 进程**不持有仓库写权限**，站点被攻破也拿不到 GitHub 写权限。
  */
-router.post('/pages/:id/publish', A.requireRole(...R_CREATOR), wrap(async (req, res) => {
+router.post('/:id/publish', A.requireRole(...R_FULL), wrap(async (req, res) => {
   const page = db.get('SELECT * FROM pages WHERE id = ?', [req.params.id]);
   if (!page) return res.status(404).json({ ok: false, error: '页面不存在' });
 
@@ -258,7 +266,7 @@ router.post('/pages/:id/publish', A.requireRole(...R_CREATOR), wrap(async (req, 
  * 页内相对路径靠注入 <base href="/"> 解决（见下方），
  * 这样 DOM 里的 src 仍是原文的相对写法，回写时不会凭空产生「改图」差异。
  */
-router.get('/pages/:slug/preview', wrap(async (req, res) => {
+router.get('/:slug/preview', wrap(async (req, res) => {
   const page = db.get('SELECT * FROM pages WHERE slug = ?', [req.params.slug]);
   if (!page) return res.status(404).send('页面不存在');
   let html;
@@ -271,16 +279,12 @@ router.get('/pages/:slug/preview', wrap(async (req, res) => {
 }));
 
 /** 版本快照列表（回滚在 Stage 4） */
-router.get('/pages/:id/revisions', wrap(async (req, res) => {
+router.get('/:id/revisions', wrap(async (req, res) => {
   const rows = db.all(
     `SELECT id, note, author_id, created_at, length(snapshot) AS bytes
        FROM page_revisions WHERE page_id = ? ORDER BY id DESC LIMIT 40`, [req.params.id]);
   res.json({ ok: true, data: rows });
 }));
 
-/** 发布队列（给前端看进度） */
-router.get('/publish-queue', wrap(async (req, res) => {
-  res.json({ ok: true, data: db.all('SELECT * FROM publish_queue ORDER BY id DESC LIMIT 30') });
-}));
 
 module.exports = { router, isContentOnlyEdit };

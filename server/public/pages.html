@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>页面内容 · SEA☆STAR 后台</title>
+<link rel="stylesheet" href="/admin/admin.css">
+<link rel="stylesheet" href="/admin/pages.css">
+</head>
+<body>
+
+<div class="app pg-app">
+
+  <header class="pg-top">
+    <a class="pg-top__back" id="btnBack" href="/admin/" title="返回后台">← 后台</a>
+    <div class="pg-top__brand">页面内容</div>
+    <div class="pg-top__sel" id="pgSel" title="切换页面">页面 <b id="pgName">—</b> <span class="caret">▾</span></div>
+    <div class="pg-lang" id="langSw">
+      <button data-lang="en">EN</button><button data-lang="zh">中文</button>
+    </div>
+    <div class="pg-top__spacer"></div>
+    <span class="pg-save" id="saveTag">已同步</span>
+    <button class="btn btn--ghost btn--sm" id="btnPreview" title="在新标签打开整页预览">预览</button>
+    <button class="btn btn--ghost btn--sm" id="btnReload" title="丢弃画布上的未保存改动，从库中重新载入">重载</button>
+    <button class="btn btn--ghost btn--sm" id="btnHist" title="版本历史">历史</button>
+    <button class="btn btn--primary btn--sm" id="btnPublish" title="提交到分支并评审合并">发布更改</button>
+    <span class="pg-who" id="whoami">—</span>
+  </header>
+
+  <div class="pg-wrap">
+    <!-- 左：模块大纲 -->
+    <aside class="pg-pane pg-pane--l">
+      <div class="pg-pane__hd">模块大纲 <span class="pg-cap" id="capL"></span></div>
+      <div class="pg-pane__bd">
+        <ul class="ol" id="ol"></ul>
+        <div class="hintbox">
+          ⠿ 拖动排序 · 点眼睛可隐藏<br>
+          改动<b>自动存草稿</b>，不影响线上<br>
+          <span class="warn" id="lockNote" hidden>🔒 灰色项为全局组件（导航/页脚），不可编辑</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 中：画布 -->
+    <section class="pg-stage">
+      <div class="pg-browser">
+        <div class="pg-browser__bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="pg-url" id="cvUrl">—</span>
+          <span class="pg-cvrole" id="cvRole">画布：当前草稿</span>
+        </div>
+        <iframe id="cv" title="页面画布"></iframe>
+      </div>
+    </section>
+
+    <!-- 右：属性面板 -->
+    <aside class="pg-pane pg-pane--r">
+      <div class="pg-pane__hd" id="panelHd">模块属性</div>
+      <div class="pg-pane__bd" id="panel">
+        <div class="empty">从左侧选一个模块，<br>或直接点画布上的模块。</div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="pg-toast" id="toast" hidden></div>
+</div>
+
+<!-- 发布确认 -->
+<div class="pg-mask" id="pubMask">
+  <div class="pg-modal">
+    <div class="pg-modal__hd"><h3>发布更改</h3><button class="btn btn--sm" id="pubX">关闭</button></div>
+    <div class="pg-modal__bd">
+      <div class="diff" id="pubDiff"></div>
+      <ol class="steps">
+        <li><b>生成静态页</b> —— 由当前草稿渲染（与画布预览同一套渲染代码）</li>
+        <li><b>安全闸门</b> —— 引用完整性、行尾、渲染确定性、变更范围；不过不给提交</li>
+        <li><b>提交到分支</b> <span class="mono" id="pubBranch">creator/…</span> —— <b>不会直接推到 main</b></li>
+        <li><b>开 Pull Request</b> —— 由你或开发评审合并，合并后自动部署上线</li>
+      </ol>
+      <div class="note warn">
+        <b>⚠️ 这是一次公开提交</b>
+        本仓库为公开仓库，推送后任何人都能看到改动内容与时间。请确认无需保密的素材再发布。
+      </div>
+      <div class="note" id="pubBase"></div>
+    </div>
+    <div class="pg-modal__ft">
+      <button class="btn" id="pubCancel">再改改</button>
+      <button class="btn btn--primary" id="pubOk">提交到分支并发起评审</button>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/pages.js"></script>
+</body>
+</html>

@@ -11,6 +11,71 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.25.0] - 2026-10-10
+
+### 🔀 编辑器并入 `/admin/`（`/Creator/` 退役）+ 全站模板化完成
+
+**用户判断**：两个后台比一个后台更难管；且"太专业了还不如直接跑源码更新"。
+→ **不再单开 Creator**，把页面内容编辑收进 `/admin/`，账号沿用现有的。
+
+#### 变化
+
+| 项 | 之前 | 现在 |
+|---|---|---|
+| 入口 | `/Creator/`（独立后台） | **`/admin/pages`**（后台的子页，侧栏有入口「页面内容 ↗」） |
+| 登录 | 自己的登录浮层 | **复用后台登录**；未登录直接跳回 `/admin/` |
+| 账号 | 需要 `creator_1` / `creator_2` | **现有 `admin` 账号直接可用**（实测 caps 全开） |
+| 接口 | `/api/creator/*` | **`/api/pages/*`** |
+| 样式 | 自带一套令牌 | 复用 `admin.css`，与后台视觉一致 |
+
+接口也顺手收干净了：不再是 `/api/pages/pages`，而是
+`/api/pages`（列表）、`/api/pages/:slug`、`/api/pages/blocks/:id`、
+`/api/pages/:slug/preview`、`/api/pages/:id/publish` 等。
+
+> **为什么是子页而不是塞进后台那个 SPA**：编辑器要独占整屏三栏，
+> 后台的内容区尺寸装不下（侧栏 + 标题栏会把它挤扁）。
+> 挂在 `/admin` 命名空间下仍是**一个后台**：同一登录、同一套账号、同一套样式。
+> Admin 的静态挂载带 `extensions:['html']`，`/admin/pages` 自动命中 `pages.html`，
+> 无需额外配置。
+
+#### 🔴 部署时踩到并暴露的 3 个问题（都不是"看起来正常"能发现的）
+
+**① scp 静默失败，服务器跑的还是旧代码。**
+批量 scp 多个文件时我把它丢进了 `>/dev/null`，**没看返回**；
+结果 `index.js` / `pages.routes.js` / 3 个 public 文件**全都没落盘**，
+而服务因为加载的还是旧代码照常运行 —— 日志里旧接口 `/api/creator/pages`
+**仍然返回 200**，这正是"旧代码还在跑"的证据。
+→ **改为逐个文件 scp 并逐条核对 md5**，这次 7 个文件全对。
+
+**② `api()` 的基址写错了两轮。** helper 是 `fetch('/api' + path)`，
+调用点写的是 `/creator/pages`；换命名空间时我先把字面量 `/api/creator/` 换掉
+（没命中，因为字面量里没有 `/api`），又改出了 `/api/pages/pages` 的重复段。
+**最终解法是改基址**（`/api/pages` + 相对路径），而不是逐个改调用点。
+
+**③ 登录态查询不能走带命名空间的 helper。** `requireLogin()` 用 `api('/auth/me')`
+变成了 `/api/pages/auth/me` → 404 → 被当成未登录踢回后台。
+登录态是 `/api/auth/me`，**必须走绝对路径**。
+
+> 这三条有一个共同点：**症状都是"页面能打开但功能静默失效"**，
+> 只有看接口响应/JS 报错才抓得到。
+
+#### 验证
+
+- `/admin/` 200、`/admin/pages` 200、`/Creator/` **404**（已退役）
+- 新接口未登录一律 401；旧命名空间 `/api/creator/*` **404**
+- **现有 `admin` 账号实测可用**：caps = `{role: admin, canEditContent: true, canEditStructure: true, canPublish: true}`
+- 无头 Chrome 实测：`/admin/pages` 页面加载正常、四个接口全 200、**无 JS 报错**
+- 全站 20 页往返仍**逐字节一致**（库内 20 页 / 134 模块）
+
+#### 待你决定
+
+`creator_1` / `creator_2` 现在已冗余（`admin` 账号直接可用）。
+**要不要删掉？** 我没有擅自删 —— 账号是你的，删除不可逆。
+
+---
+
+---
+
 ## [v0.24.1] - 2026-10-10
 
 ### 🖼 about 页「自动化产线」配图更换为客户指定的源站原图

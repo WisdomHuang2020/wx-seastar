@@ -1,11 +1,12 @@
 'use strict';
 /* ══════════════════════════════════════════════════════════════════════
-   SEA☆STAR Creator —— 设计者模式编辑器
+   SEA☆STAR 页面内容编辑器（/admin/pages）
    ──────────────────────────────────────────────────────────────────────
    架构要点（改动前请先读）：
+     原为独立后台 /Creator，v0.25.0 起并入 /admin 子页。
      · 编辑产物存**数据库**，不写文件。web 根目录是「仓库的镜像」，
        auto-deploy 每 2 分钟 `git reset --hard` + 覆盖发布，写文件会被静默冲掉。
-     · 画布是**同源 iframe**，直接加载 /api/creator/pages/:slug/preview，
+     · 画布是**同源 iframe**，直接加载 /api/pages/:slug/preview，
        与将来 build-pages 生成的是同一套渲染代码 —— 画布所见即发布所得。
      · 回写**不整段替换**：提交整段 HTML，服务端只把真正变了的文字/图片
        打补丁回原文（浏览器序列化会规范化标记，整段存回会毁掉逐字节一致性）。
@@ -38,7 +39,7 @@ function toast(msg, isErr) {
 }
 
 async function api(path, opts = {}) {
-  const r = await fetch('/api' + path, {
+  const r = await fetch('/api/pages' + path, {
     credentials: 'same-origin',
     headers: opts.body instanceof FormData ? {} : { 'Content-Type': 'application/json' },
     ...opts,
@@ -61,67 +62,28 @@ function setSave(s, cls) {
   el.className = 'save' + (cls ? ' ' + cls : '');
 }
 
-/* ───────────────  登录 / 改密  ─────────────── */
-let gateMode = 'login';   // login | changepw
-
-function showGate(mode, hint) {
-  gateMode = mode;
-  $('#gate').hidden = false;
-  $('#app').hidden = true;
-  $('#gateHint').textContent = hint;
-  $('#newPwRow').hidden = mode !== 'changepw';
-  $('#gBtn').textContent = mode === 'changepw' ? '设置新密码并继续' : '登录';
-  $('#pwLabel').textContent = mode === 'changepw' ? '当前密码' : '密码';
-  $('#gateErr').hidden = true;
-}
-
-$('#gateForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const u = $('#gUser').value.trim();
-  const p = $('#gPass').value;
-  const n = $('#gNew').value;
-  $('#gBtn').disabled = true;
+/* ───────────────  鉴权  ─────────────── */
+/* 本页不再自己做登录 —— 后台已经有登录了。未登录就回 /admin 登录页；
+   首次登录需改密的也回后台处理。**真正的权限拦截在服务端**。 */
+async function requireLogin() {
+  let me;
+  // ⚠️ 这里**不能**用 api() —— 它的基址是 /api/pages，会把这条变成
+  //    /api/pages/auth/me 而 404。登录态是 /api/auth/me，必须走绝对路径。
   try {
-    if (gateMode === 'login') {
-      await api('/auth/login', { method: 'POST', body: { username: u, password: p } });
-      await boot();
-    } else {
-      await api('/auth/password', { method: 'POST', body: { current: p, next: n } });
-      toast('密码已更新（会话已作废），请用新密码重新登录');
-      $('#gPass').value = ''; $('#gNew').value = '';
-      showGate('login', '密码已更新，请用新密码登录');
-    }
-  } catch (err) {
-    const el = $('#gateErr');
-    el.textContent = err.message;
-    el.hidden = false;
-  } finally {
-    $('#gBtn').disabled = false;
-  }
-});
+    const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
+    if (!r.ok) throw new Error('未登录');
+    me = (await r.json()).data;
+  } catch { location.href = '/admin/'; return false; }
+  if (me.must_change) { location.href = '/admin/'; return false; }
+  state.me = me;
+  return true;
+}
 
 /* ───────────────  启动  ─────────────── */
 async function boot() {
-  try {
-    const me = await api('/auth/me');
-    state.me = me.data;
-  } catch {
-    showGate('login', '请登录以进入设计者模式');
-    return;
-  }
-  if (state.me.must_change) {
-    showGate('changepw', '首次登录，请先设置新密码');
-    $('#gUser').value = state.me.username;
-    return;
-  }
-  if (state.me.role === 'admin') {
-    showGate('login', '当前账号（' + state.me.username + '）是后台账号，不能进入设计者模式。请用 creator_1 / creator_2 登录。');
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
-    return;
-  }
-  $('#gate').hidden = true;
-  $('#app').hidden = false;
-  $('#cvRole').textContent = '角色：' + state.me.role +
+  if (!await requireLogin()) return;
+  $('#whoami').textContent = state.me.display_name || state.me.username;
+  $('#cvRole').textContent = '账号：' + state.me.username +
     (state.me.role === 'editor' ? '（只能改文案与图片）' : '（可增删模块并发布）');
   if (state.me.role === 'editor') {
     $('#btnPublish').disabled = true;
@@ -132,7 +94,7 @@ async function boot() {
 }
 
 async function loadPages() {
-  const d = await api('/creator/pages');
+  const d = await api('/');
   state.pages = d.data || [];
   if (!state.pages.length) { toast('还没有接入 Creator 的页面', true); return; }
   // 记忆上次编辑的页面
@@ -142,7 +104,7 @@ async function loadPages() {
 }
 
 async function loadPage(slug) {
-  const d = await api('/creator/pages/' + encodeURIComponent(slug));
+  const d = await api('/' + encodeURIComponent(slug));
   state.slug = slug;
   state.page = d.data.page;
   state.blocks = d.data.blocks;
@@ -172,7 +134,7 @@ function loadCanvas() {
   // 用 srcdoc 而不是 src，避免 iframe 被当成独立文档走缓存；
   // 内容仍由服务端预览接口渲染（与 build-pages 同一套代码）。
   setSave('载入中…');
-  const url = '/api/creator/pages/' + encodeURIComponent(state.slug) + '/preview';
+  const url = '/api/pages/' + encodeURIComponent(state.slug) + '/preview';
   const cv = $('#cv');
   cv.onload = onCanvasLoad;
   cv.src = url + '?_t=' + Date.now();   // 同源 + 带 Cookie；加时间戳穿透缓存
@@ -309,7 +271,7 @@ async function submitSection(block, sec) {
   state.saving = true;
   setSave('保存中…', 'dirty');
   try {
-    const d = await api('/creator/blocks/' + block.id, { method: 'PUT', body: { content } });
+    const d = await api('/blocks/' + block.id, { method: 'PUT', body: { content } });
     block.content = d.data.content;
     // 同步内存里的 block，避免下次误判
     const i = state.blocks.findIndex(x => x.id === block.id);
@@ -424,7 +386,7 @@ async function moveBlock(id, targetLi) {
   const ids = un.map(b => b.id);
   ids.splice(to, 0, ids.splice(from, 1)[0]);
   try {
-    await api('/creator/blocks/' + id + '/move', { method: 'POST', body: { to } });
+    await api('/blocks/' + id + '/move', { method: 'POST', body: { to } });
     toast('已调整顺序');
     await loadPage(state.slug);
   } catch (e) { toast(e.message, true); }
@@ -433,7 +395,7 @@ async function moveBlock(id, targetLi) {
 async function toggleVisible(b) {
   if (!state.caps.canEditStructure) { toast('你的账号不能隐藏/显示模块', true); return; }
   try {
-    await api('/creator/blocks/' + b.id, { method: 'PUT', body: { visible: b.visible ? 0 : 1 } });
+    await api('/blocks/' + b.id, { method: 'PUT', body: { visible: b.visible ? 0 : 1 } });
     await loadPage(state.slug);
   } catch (e) { toast(e.message, true); }
 }
@@ -490,8 +452,8 @@ function renderPanel(b) {
 
 async function blockOp(b, op, okMsg) {
   try {
-    if (op === 'delete') await api('/creator/blocks/' + b.id, { method: 'DELETE' });
-    else await api('/creator/blocks/' + b.id + '/' + op, { method: 'POST' });
+    if (op === 'delete') await api('/blocks/' + b.id, { method: 'DELETE' });
+    else await api('/blocks/' + b.id + '/' + op, { method: 'POST' });
     toast(okMsg);
     await loadPage(state.slug);
   } catch (e) { toast(e.message, true); }
@@ -519,7 +481,7 @@ window.addEventListener('message', () => {});
 $('#btnReload').onclick = () => loadPage(state.slug);
 
 $('#btnPreview').onclick = () => {
-  window.open('/api/creator/pages/' + encodeURIComponent(state.slug) + '/preview', '_blank');
+  window.open('/api/pages/' + encodeURIComponent(state.slug) + '/preview', '_blank');
 };
 
 $('#pgSel').onclick = (e) => {
@@ -553,15 +515,12 @@ $$('#langSw button').forEach(b => b.onclick = async () => {
   await loadPage(sib.slug);
 });
 
-$('#btnLogout').onclick = async () => {
-  await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
-  location.reload();
-};
+$('#btnBack').onclick = () => { location.href = '/admin/'; };
 
 /* 历史 */
 $('#btnHist').onclick = async () => {
   try {
-    const d = await api('/creator/pages/' + state.page.id + '/revisions');
+    const d = await api('/' + state.page.id + '/revisions');
     const list = d.data || [];
     if (!list.length) { toast('还没有版本快照'); return; }
     toast('共 ' + list.length + ' 个版本，最近：' + list[0].created_at + '（回滚功能在 Stage 4）');
@@ -584,7 +543,7 @@ $('#btnPublish').onclick = async () => {
 $('#pubX').onclick = $('#pubCancel').onclick = () => $('#pubMask').classList.remove('on');
 $('#pubOk').onclick = async () => {
   try {
-    const d = await api('/creator/pages/' + state.page.id + '/publish', { method: 'POST', body: {} });
+    const d = await api('/' + state.page.id + '/publish', { method: 'POST', body: {} });
     $('#pubMask').classList.remove('on');
     toast('已提交到分支 ' + d.data.branch + '。等待特权服务处理并开 PR。');
   } catch (e) { toast(e.message, true); }

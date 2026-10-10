@@ -74,13 +74,16 @@ h1,h2,h3,h4,p{margin:0}
 .side__brand .name{font-weight:600;color:#fff;display:flex;align-items:center}
 .side__brand .sub{font-size:11px;color:#6B7787;font-family:var(--mono);letter-spacing:.08em;margin-top:4px}
 .side__nav{padding:12px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
-.side__nav button{
+.side__nav button,
+.side__nav a{
+  text-decoration:none;
   display:flex;align-items:center;gap:10px;width:100%;text-align:left;
   padding:10px 12px;border:0;background:none;color:var(--n300);
   border-radius:var(--radius);cursor:pointer;font-size:13.5px;
   transition:background .15s,color .15s;
 }
-.side__nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+.side__nav button:hover,
+.side__nav a:hover{background:rgba(255,255,255,.06);color:#fff}
 .side__nav button.is-active{background:var(--brand-600);color:#fff}
 .side__nav .cnt{
   margin-left:auto;font-family:var(--mono);font-size:11px;

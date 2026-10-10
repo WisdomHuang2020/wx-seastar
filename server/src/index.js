@@ -44,7 +44,7 @@ app.use('/api/media', require('./routes/media.routes'));
 app.use('/api/documents', require('./routes/documents.routes').router);
 app.use('/api/messages', require('./routes/messages.routes').router);
 app.use('/api/public', require('./routes/public.routes'));
-app.use('/api/creator', require('./routes/creator.routes').router);
+app.use('/api/pages', require('./routes/pages.routes').router);
 
 app.get('/api/health', (_req, res) => res.json({
   ok: true,
@@ -62,15 +62,13 @@ app.use('/admin', express.static(path.join(__dirname, '..', 'public'), {
   setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
 }));
 
-// ── Creator 设计者模式（/Creator）──────────────────────────────────────
-// 与 /admin 同样由本服务托管、不进公开 web 根 —— 这样它**不会**被
-// auto-deploy 的 `git reset --hard` + 覆盖发布冲掉。
-// 路径用大写 C 以对齐用户指定的 /Creator/。
-app.use('/Creator', express.static(path.join(__dirname, '..', 'creator'), {
-  extensions: ['html'],
-  index: 'index.html',
-  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
-}));
+// ── 页面内容编辑器（/admin/pages）──────────────────────────────────────
+// v0.25.0 起并入 /admin 命名空间：同一个登录、同一套账号、同一套样式。
+// 保留为独立页而非塞进 admin 的 SPA —— 编辑器要独占整屏三栏，
+// 后台的内容区尺寸装不下。之所以挂在 /admin 下由 Node 托管而不是放进公开
+// web 根，是因为 auto-deploy 会 `git reset --hard` + 覆盖发布，放进去活不过 2 分钟。
+// （/admin 本身已由下面那条 express.static 覆盖，无需再挂。）
+
 
 // ── 兜底 ────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ ok: false, error: '接口不存在' }));
