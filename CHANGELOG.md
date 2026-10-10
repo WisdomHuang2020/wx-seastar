@@ -11,6 +11,30 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.19.7] - 2026-10-10
+
+### 🖼️ 「电子实验室」配图自 OEM 页移至 ODM 页
+
+**用户指令**：该图应放到 ODM 页，并从 OEM 页删除。
+
+| 页 | 改动 |
+|---|---|
+| `oem.html` / `cn/oem.html` | 删除 `ems-plant.jpg` 图卡（制造图网格 6 → **5** 张） |
+| `odm.html` / `cn/odm.html` | 新增区块 **`02 / Engineering` · Electronics laboratory**，含该图与图注 |
+
+- 图注**原样随图迁移**（客户裁定文案，未改动一字）：
+  `Electronics laboratory / 电子实验室` ＋
+  `ESD-protected workstations and test instruments for electronic design, debugging and inspection.`
+  ／`防静电工位与测试仪器，承担电子组件的设计调试与检测。`
+- **配图纪律随图迁移**：OEM 页头那段「该照片是**防静电工位区**、**不是十万级洁净车间**」
+  的判据已移到 ODM 页头（`Class 100,000 clean room` 这一**事实仍有效**，由 OEM 页文字与数据块承载）；
+  OEM 页头保留一条「该图已移至 ODM 页」的指向说明，避免后续误读。
+- 版式：区块标题与图**同左轴**（`max-width:900px` 左对齐，与站内 editorial 版式一致）。
+- 校验：4 个文件 `div/section/article/main` 标签配对**全部 OK**；
+  `ems-plant.jpg` 现仅出现于 `odm.html` / `cn/odm.html`；已出渲染截图逐页核对。
+
+---
+
 ## [v0.19.6] - 2026-10-10
 
 ### ✏️ OEM 页「电子实验室」小字按客户指定加入「设计调试」
