@@ -58,6 +58,17 @@ function migrate() {
     }
   }
 
+  // 常用字段：featured_targets.find —— 要在节点内替换的原文子串。
+  // 为什么需要它：「0510-68506661」既单独成节点，又嵌在「邮编 214145 · 电话 0510-68506661」
+  // 这一行里。只能整节点替换的话，改电话时那一行不会跟着变 ——
+  // 运维会以为改好了、其实页面上还有一处是旧的。
+  if (d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='featured_targets'").get().n) {
+    const fcols = new Set(d.prepare('PRAGMA table_info(featured_targets)').all().map(c => c.name));
+    if (!fcols.has('find')) {
+      d.exec("ALTER TABLE featured_targets ADD COLUMN find TEXT");
+    }
+  }
+
   return d;
 }
 

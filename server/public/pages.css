@@ -138,3 +138,23 @@
 .menu button:hover{background:var(--brand-50)}
 .menu .lg{font-family:var(--mono);font-size:10px;color:var(--n400);border:1px solid var(--border);
           border-radius:3px;padding:1px 5px}
+
+/* ── 常用字段（运维高频入口，放最上面）─────────────────────────── */
+.fav{padding:9px 2px;border-bottom:1px dashed var(--border)}
+.fav:last-child{border-bottom:0}
+.fav__k{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--n900);
+        margin-bottom:5px}
+.fav__n{font-family:var(--mono);font-size:10px;color:var(--n400);font-weight:400;margin-left:auto}
+.fav__row{display:flex;gap:6px}
+.fav__in{flex:1;width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:var(--radius);
+         font-size:13px;font-family:inherit;color:var(--n900);background:#fff}
+.fav__in:focus{outline:none;border-color:var(--brand-500);background:var(--brand-25)}
+.fav__in.dirty{border-color:var(--warn);background:#FFFBEB}
+.fav__save{flex:none;padding:0 11px;border:0;border-radius:var(--radius);background:var(--brand-500);
+           color:#fff;font-size:12px;cursor:pointer;font-family:inherit}
+.fav__save:disabled{opacity:.35;cursor:not-allowed}
+.fav__hint{font-size:11px;color:var(--n400);line-height:1.55;margin-top:4px}
+.fav__warn{font-size:11px;color:var(--warn);line-height:1.55;margin-top:4px}
+.fav__err{font-size:11px;color:var(--danger);line-height:1.55;margin-top:4px}
+.fav__go{font-size:11px;color:var(--brand-500);cursor:pointer;text-decoration:underline;margin-top:4px;
+         display:inline-block}

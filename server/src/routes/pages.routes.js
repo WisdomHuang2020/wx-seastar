@@ -27,6 +27,7 @@ const db = require('../lib/db');
 const { wrap } = require('../lib/util');
 const { patchFragment } = require('../lib/fragment');
 const { renderPage } = require('../lib/render-page');
+const F = require('../lib/featured');
 
 const router = express.Router();
 
@@ -92,6 +93,87 @@ router.get('/', wrap(async (req, res) => {
 /** 发布队列（给前端看进度） */
 router.get('/publish-queue', wrap(async (req, res) => {
   res.json({ ok: true, data: db.all('SELECT * FROM publish_queue ORDER BY id DESC LIMIT 30') });
+}));
+
+/* ─────────────────────────  常用字段  ───────────────────────── */
+/* ⚠️ 必须注册在 `/:slug` 之前 —— Express 按注册顺序匹配，
+   否则 `/featured` 会被 `/:slug` 当成 slug 吃掉。 */
+
+/** 列出常用字段（含当前值、位置数、失效与不一致提示） */
+router.get('/featured', wrap(async (req, res) => {
+  const rows = db.all('SELECT * FROM featured_fields ORDER BY sort_order, id');
+  res.json({ ok: true, data: rows.map(F.readField) });
+}));
+
+/** 改一个常用字段 —— **所有位置一起改** */
+router.put('/featured/:id', wrap(async (req, res) => {
+  const f = db.get('SELECT * FROM featured_fields WHERE id = ?', [req.params.id]);
+  if (!f) return res.status(404).json({ ok: false, error: '字段不存在' });
+  const value = req.body && req.body.value;
+  if (typeof value !== 'string') return res.status(400).json({ ok: false, error: '缺少 value' });
+  const r = F.writeField(f, value);
+  if (!r.ok) return res.status(409).json({ ok: false, error: r.reason, code: 'STALE' });
+  A.audit(req, 'update', 'featured_fields:' + f.id,
+    f.label + '（' + r.changed + ' 处）→ ' + String(value).slice(0, 60));
+  res.json({ ok: true, data: F.readField(db.get('SELECT * FROM featured_fields WHERE id = ?', [f.id])),
+             changed: r.changed, failed: r.failed });
+}));
+
+/** 把一个位置加进常用字段；不带 field_id 就是新建一个字段 */
+router.post('/featured', A.requireRole(...R_FULL), wrap(async (req, res) => {
+  const { label, hint, kind, slug, blockHint, idx, fieldId, find } = req.body || {};
+  if (!label || !slug || idx === undefined) {
+    return res.status(400).json({ ok: false, error: '缺少 label / slug / idx' });
+  }
+  const b = F.findBlock(slug, blockHint);
+  if (!b) return res.status(404).json({ ok: false, error: '找不到指定的模块' });
+  const list = (kind === 'img')
+    ? require('../lib/fragment').imgSrcs(b.content)
+    : require('../lib/fragment').textNodes(b.content);
+  const node = list[idx];
+  if (!node) return res.status(404).json({ ok: false, error: '该模块里没有第 ' + idx + ' 个位置' });
+  const raw = kind === 'img' ? node.src : node.text;
+  // find = 节点内要替换的原文子串；不传就取整个节点（整节点替换是它的特例）
+  const findStr = typeof find === 'string' && find ? find : (kind === 'img' ? node.src : raw.trim());
+  if (!raw.includes(findStr)) {
+    return res.status(400).json({ ok: false, error: '该节点里找不到要定位的文字「' + findStr.slice(0, 40) + '」' });
+  }
+  const sample = findStr;
+
+  let fid = fieldId;
+  if (fid) {
+    const ex = db.get('SELECT * FROM featured_fields WHERE id = ?', [fid]);
+    if (!ex) return res.status(404).json({ ok: false, error: '字段不存在' });
+  } else {
+    const max = db.scalar('SELECT COALESCE(MAX(sort_order),0) FROM featured_fields') || 0;
+    fid = db.run('INSERT INTO featured_fields (label, hint, kind, sort_order) VALUES (?,?,?,?)',
+      [label, hint || null, kind === 'img' ? 'img' : 'text', max + 10]).lastInsertRowid;
+  }
+  try {
+    db.run('INSERT INTO featured_targets (field_id, slug, block_hint, idx, find, sample) VALUES (?,?,?,?,?,?)',
+      [fid, slug, F.clean(blockHint), idx, findStr, sample]);
+  } catch (e) {
+    return res.status(409).json({ ok: false, error: '这个位置已经在常用字段里了' });
+  }
+  A.audit(req, 'create', 'featured_fields:' + fid, label + ' ← ' + slug + ' / ' + blockHint + ' [' + idx + ']');
+  res.json({ ok: true, data: F.readField(db.get('SELECT * FROM featured_fields WHERE id = ?', [fid])) });
+}));
+
+/** 删字段；带 targetId 则只摘掉一个位置 */
+router.delete('/featured/:id', A.requireRole(...R_FULL), wrap(async (req, res) => {
+  const f = db.get('SELECT * FROM featured_fields WHERE id = ?', [req.params.id]);
+  if (!f) return res.status(404).json({ ok: false, error: '字段不存在' });
+  const targetId = req.query.target;
+  if (targetId) {
+    db.run('DELETE FROM featured_targets WHERE id = ? AND field_id = ?', [targetId, f.id]);
+    const left = db.scalar('SELECT COUNT(*) FROM featured_targets WHERE field_id = ?', [f.id]);
+    if (!left) db.run('DELETE FROM featured_fields WHERE id = ?', [f.id]);
+    A.audit(req, 'delete', 'featured_targets:' + targetId, f.label);
+    return res.json({ ok: true, data: { removedTarget: true, fieldRemoved: !left } });
+  }
+  db.run('DELETE FROM featured_fields WHERE id = ?', [f.id]);
+  A.audit(req, 'delete', 'featured_fields:' + f.id, f.label);
+  res.json({ ok: true });
 }));
 
 router.get('/:slug', wrap(async (req, res) => {

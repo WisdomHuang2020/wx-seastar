@@ -138,4 +138,31 @@ function patchFragment(orig, edited) {
   return { ok: true, html: out, changes: edits.map(e => ({ from: orig.slice(e.start, e.end), to: e.to })) };
 }
 
-module.exports = { patchFragment, textNodes, imgSrcs, decodeEntities };
+/**
+ * 直接把第 idx 个「非空白文字节点」换成新值（常用字段用）。
+ * 与 patchFragment 的区别：那个是"对比新旧取差异"，这个是"定点写入"。
+ * 仍然会做转义，避免运维在输入框里敲 < > & 破坏页面结构。
+ */
+function setTextNode(html, idx, value) {
+  const ts = textNodes(html);
+  if (idx < 0 || idx >= ts.length) return { ok: false, reason: `该模块只有 ${ts.length} 个文字节点，第 ${idx} 个不存在` };
+  const t = ts[idx];
+  // 保留原有的前后空白（缩进/换行是版式的一部分）
+  const lead = (t.text.match(/^\s*/) || [''])[0];
+  const tail = (t.text.match(/\s*$/) || [''])[0];
+  const body = String(value == null ? '' : value);
+  return { ok: true, html: html.slice(0, t.start) + lead + encodeText(body) + tail + html.slice(t.end) };
+}
+
+/** 直接把第 idx 张图的 src 换掉 */
+function setImgSrc(html, idx, src) {
+  const imgs = imgSrcs(html);
+  if (idx < 0 || idx >= imgs.length) return { ok: false, reason: `该模块只有 ${imgs.length} 张图，第 ${idx} 张不存在` };
+  const seg = html.slice(imgs[idx].start, imgs[idx].start + 400);
+  const mm = /\ssrc\s*=\s*"([^"]*)"/i.exec(seg);
+  if (!mm) return { ok: false, reason: '找不到 src 属性' };
+  const s = imgs[idx].start + mm.index + mm[0].indexOf('"') + 1;
+  return { ok: true, html: html.slice(0, s) + String(src) + html.slice(s + mm[1].length) };
+}
+
+module.exports = { patchFragment, textNodes, imgSrcs, decodeEntities, encodeText, setTextNode, setImgSrc };

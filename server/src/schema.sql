@@ -212,3 +212,35 @@ CREATE TABLE IF NOT EXISTS publish_queue (
   finished_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_pubq_status ON publish_queue(status, created_at);
+
+
+-- ── 常用字段（运维真正高频会改的那几十处）──────────────────────────────
+--  动机：全站 1191 处可改文字，但运维常动的只有联系方式、标语、简介这类几十处。
+--        把它们提到编辑器最上面，不用在 134 个模块里翻。
+--
+--  ⚠️ 关键设计：**一个字段可以对多个位置**。
+--     实测「联系电话 0510-68506661」在联系页出现 3 次、「邮箱」出现 2 次。
+--     若一个字段只改一处，运维会以为改好了、其实页面上还有几处没变 —— 必须一起改。
+--
+--  ⚠️ 定位用**语义坐标**（slug + 模块注释 + 序号）而不是 block_id：
+--     重新拆页会重建 block 行、block_id 全变；语义坐标能扛住重拆。
+CREATE TABLE IF NOT EXISTS featured_fields (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  label      TEXT    NOT NULL,              -- 运维看得懂的名字，如「联系电话」
+  hint       TEXT,                          -- 补充说明（显示在输入框下方）
+  kind       TEXT    NOT NULL DEFAULT 'text', -- text | img
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+
+CREATE TABLE IF NOT EXISTS featured_targets (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  field_id   INTEGER NOT NULL REFERENCES featured_fields(id) ON DELETE CASCADE,
+  slug       TEXT    NOT NULL,              -- 页面 slug，如 contact / cn/contact
+  block_hint TEXT,                          -- 模块注释（不含 ===== 装饰即可匹配）
+  idx        INTEGER NOT NULL,              -- 该模块内第 N 个非空白文字节点 / 第 N 张图
+  find       TEXT,                          -- 在该节点内要替换的**原文子串**（见下）
+  sample     TEXT,                          -- 建档时的原值，用于校验定位是否失效
+  UNIQUE(field_id, slug, block_hint, idx)
+);
+CREATE INDEX IF NOT EXISTS idx_ft_field ON featured_targets(field_id);

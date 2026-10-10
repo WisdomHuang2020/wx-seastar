@@ -90,6 +90,7 @@ async function boot() {
     $('#btnPublish').title = '你的账号没有发布权限';
     $('#lockNote').hidden = false;
   }
+  await loadFeatured();
   await loadPages();
 }
 
@@ -337,6 +338,96 @@ async function selectImage(img, block, sec) {
     box.querySelectorAll('img[data-url]').forEach(im => im.onclick = () => apply(im.dataset.url));
   } catch (e) {
     $('#imLib').innerHTML = '<div class="empty">图库载入失败</div>';
+  }
+}
+
+
+/* ───────────────  常用字段（运维高频入口）  ─────────────── */
+/**
+ * 全站 1191 处可改文字，运维常动的只有联系方式这类几十处。
+ * 把它们提到最上面，不用在 134 个模块里翻。
+ *
+ * ⚠️ 一个字段可能**对应多个位置**（电话在页面上出现 28 次）——
+ *    保存时会一次改全部，这是刻意的：只改一处的话，运维会以为改好了、
+ *    其实页面上还有二十几处是旧的。
+ */
+async function loadFeatured() {
+  const box = $('#favBox');
+  try {
+    const d = await api('/featured');
+    renderFeatured(d.data || []);
+  } catch (e) {
+    box.innerHTML = '<div class="empty" style="padding:14px 6px">载入失败：' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+function renderFeatured(list) {
+  const box = $('#favBox');
+  if (!list.length) {
+    box.innerHTML = '<div class="empty" style="padding:14px 6px">还没有常用字段</div>';
+    $('#capF').textContent = '';
+    return;
+  }
+  const stale = list.filter(f => f.stale && f.stale.length).length;
+  $('#capF').textContent = '· ' + list.length + ' 个' + (stale ? '（' + stale + ' 个待修）' : '');
+  box.innerHTML = list.map(f => {
+    const bad = f.stale && f.stale.length;
+    const inc = f.inconsistent;
+    return `
+    <div class="fav" data-id="${f.id}">
+      <div class="fav__k">${escapeHtml(f.label)}
+        <span class="fav__n">${f.live}/${f.targets} 处</span></div>
+      <div class="fav__row">
+        <input class="fav__in" data-id="${f.id}" value="${escapeHtml(f.value || '')}"
+               placeholder="${f.value == null ? '（定位失效，请重载后重新指定）' : ''}">
+        <button class="fav__save" data-id="${f.id}" disabled>保存</button>
+      </div>
+      ${f.hint ? `<div class="fav__hint">${escapeHtml(f.hint)}</div>` : ''}
+      ${bad ? `<div class="fav__err">⚠ ${f.stale.map(escapeHtml).join('；')}</div>` : ''}
+      ${inc ? `<div class="fav__warn">⚠ 各位置的值不一致：${inc.map(x => '「' + escapeHtml(String(x).slice(0, 24)) + '」').join(' / ')}</div>` : ''}
+      <span class="fav__go" data-goto="${escapeHtml(f.places && f.places[0] ? f.places[0].slug : '')}">在页面里看看 →</span>
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('.fav__in').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const btn = box.querySelector('.fav__save[data-id="' + inp.dataset.id + '"]');
+      btn.disabled = false;
+      inp.classList.add('dirty');
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); saveFeatured(inp.dataset.id); }
+    });
+  });
+  box.querySelectorAll('.fav__save').forEach(btn => {
+    btn.onclick = () => saveFeatured(btn.dataset.id);
+  });
+  box.querySelectorAll('.fav__go').forEach(a => {
+    a.onclick = () => {
+      const slug = a.dataset.goto;
+      if (slug && slug !== state.slug) loadPage(slug);
+      else toast('已在该页面，直接点画布查看');
+    };
+  });
+}
+
+async function saveFeatured(id) {
+  const box = $('#favBox');
+  const inp = box.querySelector('.fav__in[data-id="' + id + '"]');
+  const btn = box.querySelector('.fav__save[data-id="' + id + '"]');
+  const value = inp.value;
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    const d = await api('/featured/' + id, { method: 'PUT', body: { value } });
+    toast('已保存，同时更新了 ' + d.changed + ' 处' + (d.failed && d.failed.length ? '（' + d.failed.length + ' 处失败）' : ''));
+    await loadFeatured();
+    // 积木内容变了，画布要重载才看得到
+    if (state.page) loadCanvas();
+  } catch (e) {
+    toast(e.message, true);
+    btn.disabled = false;
+    btn.textContent = '保存';
   }
 }
 
