@@ -360,9 +360,15 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .nav__links a:hover{ color:var(--brand-600); }
 .nav__links a:hover::after{ transform:scaleX(1); }
-/* 当前所在栏目高亮 —— 由 js/app.js 第 9 节按 location.pathname 打上 aria-current="page"。
-   用属性选择器而非自建类名：语义化（读屏可播报"当前页"）+ 无 JS 时不误标任何项。 */
+/* 当前所在栏目高亮 —— 两条来源取并集，视觉完全一致：
+   ① HTML 里手工标注的 `.is-active`：**无 JS 也生效**。
+      全站 74 个页面早已这样标注，但此前 styles.css 里**根本没有 .is-active 的规则**
+      → 高亮从未显示过；本次补上，等于把已有标记"接上线"。
+   ② js/app.js 第 9 节按 location.pathname 打的 `aria-current="page"`：
+      语义化（读屏可播报「当前页」），作为手工标注的兜底（新增页面/标注遗漏时仍能高亮）。 */
+.nav__links a.is-active,
 .nav__links a[aria-current="page"]{ color:var(--brand-600); font-weight:600; }
+.nav__links a.is-active::after,
 .nav__links a[aria-current="page"]::after{ transform:scaleX(1); }
 .nav__right{ display:flex; align-items:center; gap:var(--space-sm); flex-shrink:0; }
 .nav__burger{
@@ -449,6 +455,7 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .drawer.is-open a:not(.btn){ opacity:1; transform:none; }
 .drawer a:not(.btn):hover{ color:var(--brand-200); }
+.drawer a.is-active,
 .drawer a[aria-current="page"]{ color:var(--brand-200); }
 .drawer__close{
   position:absolute; top:20px; right:clamp(24px,6vw,48px);
