@@ -846,7 +846,10 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .products-toolbar{ display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-md); }
 .search-box{ display:none; }
 .search-box.is-ready{ display:block; }
-.search-field{ position:relative; display:flex; align-items:center; min-width:min(320px,100%); }
+.search-field{ position:relative; display:flex; align-items:center; width:440px; max-width:100%; }
+/* ⚠️ 原用 min-width:min(320px,100%) —— 在 align-items:flex-end 的列里 `100%` 参照的是
+   被内容撑开的父列宽，会退化成 252px，扣掉 38/40px 内边距只剩 174px，提示文字被裁。
+   （实测 EN 提示文字 337px / CN 250px → 分别溢出 163px / 76px）故改为明确宽度。 */
 .search-field__icon{ position:absolute; left:12px; width:17px; height:17px; color:var(--text-tertiary); pointer-events:none; }
 .search-field__input{ padding-left:38px; padding-right:40px; }
 .search-field__input::-webkit-search-cancel-button,
@@ -861,7 +864,7 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .search-field__clear svg{ width:14px; height:14px; }
 .search-field__count{ margin:8px 0 0; color:var(--text-tertiary); min-height:1.15em; }
 @media (min-width:900px){ .products-toolbar{ align-items:flex-end; } }
-@media (max-width:700px){ .search-field{ min-width:100%; } }
+@media (max-width:520px){ .search-field{ width:100%; } }
 .dark .field label{ color:var(--text-on-dark-muted); }
 .dark .input,.dark .textarea,.dark .select{ background:var(--ink-800); border-color:var(--ink-700); color:var(--text-on-dark); }
 
