@@ -664,5 +664,85 @@
    "assets/img/news/warsaw-light-fair-on-mar-13th-15th/03.jpg"
   ],
   "thumb": "assets/img/news/thumb/warsaw-light-fair-on-mar-13th-15th.jpg"
+ },
+ {
+  "id": "114524",
+  "date": "2019-02-24",
+  "title": "You're Invited!",
+  "cover": "//resources.jsmo.xin/templates/upload/13605/201902/1550990030569.jpg",
+  "paras": [
+   "Meet Seastar in Poland Light Fair From 13th -15th Mar 2019",
+   "Dear Customers,",
+   "Thanks for reading!",
+   "We sincerely invite you to the 27th International Trade Show of Lighting Equipment Light 2019, which will take place 13-15th March 2019 in Exhibition and Trade Centre EXPO XXI in Warsaw.",
+   "You can find us at Hall 3, Stand C28.",
+   "During the trade show, we will present the latest products, including LED downlight, Panel",
+   "and Strip along with smart control.",
+   "More details please feel free to contact us!",
+   "See you there!",
+   "Wuxi Seastar Lighting Co.,Ltd."
+  ],
+  "nchar": 528,
+  "imgs": [],
+  "slug": "youre-invited",
+  "images": [
+   "assets/img/news/youre-invited/cover.jpg"
+  ],
+  "thumb": "assets/img/news/thumb/youre-invited.jpg"
+ },
+ {
+  "id": "114523",
+  "date": "2019-02-14",
+  "title": "Good-luck of beginning！",
+  "cover": "//resources.jsmo.xin/templates/upload/13605/201902/155099126059.jpg",
+  "paras": [],
+  "nchar": 0,
+  "imgs": [
+   "//resources.jsmo.xin/templates/upload/13605/201902/1550990873756.jpg"
+  ],
+  "slug": "good-luck-of-beginning",
+  "images": [
+   "assets/img/news/good-luck-of-beginning/cover.jpg",
+   "assets/img/news/good-luck-of-beginning/01.jpg"
+  ],
+  "thumb": "assets/img/news/thumb/good-luck-of-beginning.jpg"
+ },
+ {
+  "id": "114520",
+  "date": "2019-01-16",
+  "title": "Annual party！",
+  "cover": "//resources.jsmo.xin/templates/upload/13605/201902/155099295546.jpg",
+  "paras": [],
+  "nchar": 0,
+  "imgs": [
+   "//resources.jsmo.xin/templates/upload/13605/201902/1550992685735.jpg"
+  ],
+  "slug": "annual-party",
+  "images": [
+   "assets/img/news/annual-party/cover.jpg",
+   "assets/img/news/annual-party/01.jpg"
+  ],
+  "thumb": "assets/img/news/thumb/annual-party.jpg"
+ },
+ {
+  "id": "114510",
+  "date": "2018-10-18",
+  "title": "Brainstorming Meeting.",
+  "cover": "//resources.jsmo.xin/templates/upload/13605/201902/1550997618722.jpg",
+  "paras": [],
+  "nchar": 0,
+  "imgs": [
+   "//resources.jsmo.xin/templates/upload/13605/201902/1550998182606.jpg",
+   "//resources.jsmo.xin/templates/upload/13605/201902/1550998182679.jpg",
+   "//resources.jsmo.xin/templates/upload/13605/201902/1550998182757.jpg"
+  ],
+  "slug": "brainstorming-meeting",
+  "images": [
+   "assets/img/news/brainstorming-meeting/cover.jpg",
+   "assets/img/news/brainstorming-meeting/01.jpg",
+   "assets/img/news/brainstorming-meeting/02.jpg",
+   "assets/img/news/brainstorming-meeting/03.jpg"
+  ],
+  "thumb": "assets/img/news/thumb/brainstorming-meeting.jpg"
  }
 ]
