@@ -260,6 +260,99 @@
     });
   }
 
+  /* ───────────  精选产品轮播（首页专用）  ───────────
+     HTML: <div class="grid grid-3" data-featured="codes:CDX2,CDX3,…;limit:3;interval:6000">
+     · 只取 category=led-lighting（通用照明）；按**型号前缀**筛选，展示顺序 = codes 给定顺序
+     · 每 interval 把窗口整体推进 limit 个并循环
+     · 无 JS / 取数失败：**不清空**容器，页面静态兜底继续可用（与 renderProducts 同一纪律）
+     · prefers-reduced-motion：不轮换，只显示前 limit 个
+     · 鼠标悬浮 / 键盘聚焦 / 标签页隐藏 / **滚出视口**：一律暂停
+     ⚠️ 前缀匹配必须防「CDX1 命中 CDX11」—— 要求前缀后一位不是字母或数字。 */
+  function mountFeatured(el) {
+    var cfg = { limit: 3, interval: 6000, codes: [] };
+    (el.getAttribute('data-featured') || '').split(';').forEach(function (kv) {
+      var i = kv.indexOf(':');
+      if (i < 0) return;
+      var k = kv.slice(0, i).trim(), v = kv.slice(i + 1).trim();
+      if (k === 'limit') cfg.limit = parseInt(v, 10) || 3;
+      else if (k === 'interval') cfg.interval = parseInt(v, 10) || 6000;
+      else if (k === 'codes') cfg.codes = v.toUpperCase().split(',').map(function (s) {
+        return s.trim();
+      }).filter(Boolean);
+    });
+    if (!cfg.codes.length) return Promise.resolve();
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function startsWithCode(s, c) {
+      if (s.indexOf(c) !== 0) return false;
+      var nx = s.charAt(c.length);
+      return !nx || !/[A-Z0-9]/.test(nx);
+    }
+
+    return get('/products?size=500&category=led-lighting')
+      .then(function (res) {
+        var all = res.data || [];
+
+        var picked = all
+          .map(function (p) {
+            var zh = String(((p.title || {}).zh) || '').toUpperCase();
+            var en = String(((p.title || {}).en) || '').toUpperCase();
+            var hit = null;
+            for (var i = 0; i < cfg.codes.length && !hit; i++) {
+              if (startsWithCode(zh, cfg.codes[i]) || startsWithCode(en, cfg.codes[i])) hit = cfg.codes[i];
+            }
+            return { p: p, c: hit };
+          })
+          .filter(function (x) { return x.c; })
+          .sort(function (a, b) { return cfg.codes.indexOf(a.c) - cfg.codes.indexOf(b.c); })
+          .map(function (x) { return x.p; });
+
+        if (!picked.length) return;   // 一个都没匹配上：保留静态兜底，别清空
+
+        var from = 0, timer = null, paused = false;
+        // ⚠️ visible 默认 true：**默认就轮换**，IntersectionObserver 只用于"滚出视口时暂停"。
+        //    不要把"开始轮换"依赖在 IO 上 —— IO 在无头渲染等环境下可能不触发，
+        //    那样就会变成"功能看着写好了却永远不转"。
+        var visible = true;
+
+        function paint() {
+          var n = Math.min(cfg.limit, picked.length), win = [];
+          for (var i = 0; i < n; i++) win.push(picked[(from + i) % picked.length]);
+          el.innerHTML = win.map(productCardHtml).join('');
+          if (window.SeaStarReveal) window.SeaStarReveal(el);
+        }
+        function step() { from = (from + cfg.limit) % picked.length; paint(); }
+        function start() {
+          if (timer || paused || !visible || reduce || picked.length <= cfg.limit) return;
+          timer = setInterval(step, cfg.interval);
+        }
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+
+        paint();
+
+        el.addEventListener('mouseenter', function () { paused = true; stop(); });
+        el.addEventListener('mouseleave', function () { paused = false; start(); });
+        el.addEventListener('focusin', function () { paused = true; stop(); });
+        el.addEventListener('focusout', function () { paused = false; start(); });
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) { stop(); } else { start(); }
+        });
+
+        // 离屏暂停只是优化，不承担"启动"职责（见上）
+        if (!reduce && 'IntersectionObserver' in window) {
+          new IntersectionObserver(function (es) {
+            es.forEach(function (e) { visible = e.isIntersecting; if (visible) { start(); } else { stop(); } });
+          }, { threshold: 0.15 }).observe(el);
+        }
+
+        start();
+      })
+      .catch(function (err) {
+        console.warn('[site] 精选产品加载失败，保留页面静态内容：', err.message);
+      });
+  }
+
   /**
    * 客户端筛选：绑在 pills 上，按产品的「应用场景」多选标签过滤已取回的数据（零请求）。
    * pillsSel 里的按钮用 data-filter="home|commercial|outdoor"（空值 = 显示全部）。
@@ -566,6 +659,10 @@
       });
       grids.push(el);
       renderProducts(el, cfg);
+    });
+    // 精选产品轮播（首页）：data-featured="codes:CDX2,CDX3,…;limit:3;interval:6000"
+    document.querySelectorAll('[data-featured]').forEach(function (el) {
+      mountFeatured(el);
     });
     // 与之配对的客户端筛选器：data-products-filter="<grid 选择器>"
     document.querySelectorAll('[data-products-filter]').forEach(function (pills) {

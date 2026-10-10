@@ -11,6 +11,37 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.21.0] - 2026-10-10
+
+### 🎠 首页「精选产品」改为按客户指定型号轮播
+
+**用户指令**：精选产品区从**通用照明**产品中选 **18 个型号**
+（CDX2 CDX3 CDX5 CDX8 CDX11 RDX3 RDX5 FMX6 FMX9 FMX11 FMX15 WPX2 BPX3 BPX9 GBX2 VNTX2 WRPX3 CLDX3）轮询播放。
+
+| 层 | 改动 |
+|---|---|
+| `index.html` / `cn/index.html` | 该区容器 `data-products="limit:3"` → `data-featured="codes:…;limit:3;interval:6000"` |
+| `js/site.js` | 新增 `mountFeatured()`：按型号前缀筛选 + 窗口轮换；`autoMount` 挂载 `[data-featured]` |
+
+**实测命中 20 个产品**（18 个型号全覆盖）：**CDX2 与 FMX11 各命中 2 个产品**
+（`cdx2-mesh-ble` + `cdx2-commercial-downlight`；`fmx11-pro-surface` + `fmx11-regress-surface`）。
+展示顺序**严格按客户给的型号顺序**，每屏 3 个 → 共 7 屏；**20 张封面图线上均 200**。
+
+**四条硬约束（均已实测）**：
+1. **前缀匹配必须防误命中** —— 要求型号后一位**不是 `A-Z0-9`**，否则 `CDX1` 会吃掉 `CDX11`。
+   ⚠️ 边界判定**不能**用"是否字母数字"这种模糊说法：Python 里 `"系".isalnum()` 为 True，
+   而 JS 的 `/[A-Z0-9]/` 对汉字为 false —— 站点统一用后者。
+2. 🔴 **默认就轮换，绝不把"启动"依赖在 `IntersectionObserver` 上** —— IO 在无头渲染等环境下
+   **可能不触发**，那样会变成"代码看着写好了却永远不转"。IO 只承担"滚出视口时暂停"，不承担启动。
+   （本条是**开发中实测踩到**：首版把启动挂在 IO 上，无头下恒定不动。）
+3. **`prefers-reduced-motion` 下不轮换** —— 实测恒为首屏 3 张。
+4. **渐进增强**：取数失败 / 一个都没匹配上 → **不清空**容器，静态兜底继续可用。
+
+**校验手法**：本地起「静态服务 + `/api` 反代到线上」联调（该 API 无 CORS 头，`file://` 无法直联），
+再用注入探针采样轮换序列 —— 实测 `[CDX2×2, CDX3]` → `[CDX5, CDX8, CDX11]`，顺序正确、间隔 6s。
+
+---
+
 ## [v0.20.2] - 2026-10-10
 
 ### ➕ OEM 页「产线构成」补第 6 格：十万级洁净车间
@@ -58,8 +89,6 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 **补一张十万级洁净车间的实拍照片**，到位后把占位替换为真图即可
 （替换时仍须目视核对照片内容确实是洁净车间）。
-
----
 
 ---
 
