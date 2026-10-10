@@ -838,6 +838,30 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   box-shadow:0 0 0 3px rgba(0,112,192,.14);
 }
 .helper{ font-family:var(--font-mono); font-size:.75rem; color:var(--text-tertiary); }
+
+/* ───────────  型号 / 描述检索（通用照明 · 资料中心）  ───────────
+   · **默认隐藏**：无 JS 时露出一个点了没反应的输入框，比不显示更糟；靠 .is-ready 由 JS 露出
+   · 底样式复用既有 .input，这里只加图标定位与自绘清除按钮
+   · 清除按钮用 class 控制显隐（不用 hidden 属性，避免被 .input 的块级样式覆盖） */
+.products-toolbar{ display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-md); }
+.search-box{ display:none; }
+.search-box.is-ready{ display:block; }
+.search-field{ position:relative; display:flex; align-items:center; min-width:min(320px,100%); }
+.search-field__icon{ position:absolute; left:12px; width:17px; height:17px; color:var(--text-tertiary); pointer-events:none; }
+.search-field__input{ padding-left:38px; padding-right:40px; }
+.search-field__input::-webkit-search-cancel-button,
+.search-field__input::-webkit-search-decoration{ -webkit-appearance:none; appearance:none; }
+.search-field__clear{
+  position:absolute; right:6px; display:none; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:var(--radius-full); color:var(--text-secondary);
+  transition:background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.search-field__clear.is-shown{ display:flex; }
+.search-field__clear:hover{ background:var(--surface-sunken); color:var(--text-primary); }
+.search-field__clear svg{ width:14px; height:14px; }
+.search-field__count{ margin:8px 0 0; color:var(--text-tertiary); min-height:1.15em; }
+@media (min-width:900px){ .products-toolbar{ align-items:flex-end; } }
+@media (max-width:700px){ .search-field{ min-width:100%; } }
 .dark .field label{ color:var(--text-on-dark-muted); }
 .dark .input,.dark .textarea,.dark .select{ background:var(--ink-800); border-color:var(--ink-700); color:var(--text-on-dark); }
 

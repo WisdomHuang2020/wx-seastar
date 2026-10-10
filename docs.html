@@ -107,13 +107,27 @@
   <div class="container">
     <div class="flex justify-between items-center gap-lg" style="flex-wrap:wrap;margin-bottom:var(--space-xl)">
       <h2 class="h3" id="list-title">All</h2>
-      <div class="pills" data-doc-filter>
-        <button class="pill is-active" data-kind="">All</button>
-        <button class="pill" data-kind="spec">Datasheet</button>
-        <button class="pill" data-kind="manual">Manual</button>
-        <button class="pill" data-kind="ies">IES file</button>
-        <button class="pill" data-kind="drawing">Drawing</button>
-        <button class="pill" data-kind="other">Other</button>
+      <!-- 右侧工具列：筛选 Tab + 型号/描述检索（同一列，窄屏自动堆叠） -->
+      <div class="products-toolbar reveal">
+  <div class="pills" data-doc-filter>
+    <button class="pill is-active" data-kind="">All</button>
+    <button class="pill" data-kind="spec">Datasheet</button>
+    <button class="pill" data-kind="manual">Manual</button>
+    <button class="pill" data-kind="ies">IES file</button>
+    <button class="pill" data-kind="drawing">Drawing</button>
+    <button class="pill" data-kind="other">Other</button>
+  </div>
+  <div class="search-box" data-search-box>
+    <div class="search-field">
+      <svg class="search-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <label class="sr-only" for="docSearch">Search documents by model, product or file name</label>
+      <input class="input search-field__input" id="docSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Search model, product or file name (e.g. CDX3)" data-search="docs" data-search-target="[data-documents]" data-search-pills="[data-doc-filter]">
+      <button type="button" class="search-field__clear" data-search-clear aria-label="Clear search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <p class="small search-field__count" data-search-count role="status" aria-live="polite"></p>
+  </div>
       </div>
     </div>
 

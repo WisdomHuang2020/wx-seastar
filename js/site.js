@@ -58,6 +58,8 @@
       downloadSpec: '规格书 (PDF)',
       noProduct: '该分类下暂无产品',
       noDoc: '该分类下暂无资料',
+      searchNone: '未找到匹配项 —— 换个型号或关键词试试',
+      searchHits: '匹配 {n} 条（共 {total} 条）',
       techDocs: '技术资料',
       docScopeFiltered: '已筛选',
       docScopeShowing: '正在显示该产品的技术资料',
@@ -87,6 +89,8 @@
       downloadSpec: 'Datasheet (PDF)',
       noProduct: 'No products in this category yet',
       noDoc: 'No documents in this category yet',
+      searchNone: 'No matches — try another model or keyword',
+      searchHits: 'Showing {n} of {total}',
       techDocs: 'Technical data',
       docScopeFiltered: 'Filtered',
       docScopeShowing: 'Showing technical data for this product',
@@ -221,17 +225,18 @@
         el.__products = list;                 // 缓存，供客户端筛选复用
         paintProducts(el, list);
         applySceneFilter();                   // URL ?scene=xxx 自动激活对应筛选
+        if (window.__SeaStarSearchRefresh) window.__SeaStarSearchRefresh();
       })
       .catch(function (err) {
         console.warn('[site] 产品加载失败，保留页面静态内容：', err.message);
       });
   }
 
-  function paintProducts(el, list) {
+  function paintProducts(el, list, q) {
     if (!list.length) {
       el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:52px 0;color:var(--text-tertiary)">' +
         '<span class="brand-star" style="width:26px;height:26px;display:block;margin:0 auto 12px;opacity:.4"></span>' +
-        esc(t('noProduct')) + '</div>';
+        esc(q ? t('searchNone') : t('noProduct')) + '</div>';
       return;
     }
     el.innerHTML = list.map(productCardHtml).join('');
@@ -371,11 +376,7 @@
       if (!btn) return;
       pills.querySelectorAll('[data-filter]').forEach(function (b) { b.classList.remove('is-active'); });
       btn.classList.add('is-active');
-      var f = btn.getAttribute('data-filter') || '';
-      var all = grid.__products || [];
-      paintProducts(grid, f ? all.filter(function (p) {
-        return (p.scene || []).indexOf(f) >= 0;
-      }) : all);
+      applyGridFilter(pills, grid);
     });
   }
 
@@ -434,12 +435,16 @@
   }
 
   function paintDocs(el, list, kind) {
-    var filtered = kind ? list.filter(function (d) { return d.kind === kind; }) : list;
+    var q = el.__q || '';                              // 检索词挂在容器上，pills 与检索共用一套状态
+    var filtered = list.filter(function (d) {
+      if (kind && d.kind !== kind) return false;
+      return !q || matchTokens(docHay(d), q);
+    });
     if (!filtered.length) {
       el.innerHTML = '<div style="text-align:center;padding:52px 0;color:var(--text-tertiary)">' +
         '<span class="brand-star" style="width:26px;height:26px;display:block;margin:0 auto 12px;opacity:.4"></span>' +
-        esc(t('noDoc')) + '</div>';
-      return;
+        esc(q ? t('searchNone') : t('noDoc')) + '</div>';
+      return 0;                                        // ⚠️ 必须返回条数：调用方用它判断"是否命中"
     }
     el.innerHTML = '<div class="table-wrap"><table class="tech-table">' +
       '<thead><tr>' +
@@ -460,6 +465,7 @@
           '</a></td>' +
         '</tr>';
       }).join('') + '</tbody></table></div>';
+    return filtered.length;
   }
 
   /** 资料中心：按类型筛选（pills 复用站点样式） */
@@ -475,6 +481,92 @@
       paintDocs(table, window.__SeaStarDocs || [], btn.getAttribute('data-kind'));
     });
   }
+
+  /* ───────────  型号 / 描述检索（通用照明 · 资料中心）  ───────────
+     HTML：<div data-search-box>
+             <input type="search" data-search="products|docs"
+                    data-search-target="#productGrid" data-search-pills="[data-products-filter]">
+           </div>
+     · **纯客户端、零请求**：在已取回的数据上过滤，不打后端
+     · 与既有筛选（场景 / 资料类型 pills）**取交集**：任一变化都重算
+     · 匹配字段：型号(slug) / 标题 / 描述 / 系列 / 规格 / 标签 / 归类（资料另含文件名与所属产品）
+     · 多词查询按 **AND** —— 每个词都要命中，且可分别落在不同字段
+     · 归一化：忽略大小写与空格、连字符、斜杠，使 "CDX-3" / "cdx 3" / "CDX3" 等价
+     · Esc 清空；自绘清除按钮；结果数 aria-live 播报
+     · **无 JS 时整块不显示**（CSS 默认 display:none，靠 .is-ready 露出）——
+       不做"露出却不可用"的假控件 */
+  function normKey(s) { return String(s == null ? '' : s).toLowerCase().replace(/[\s\-_/·、，,.]+/g, ''); }
+  function matchTokens(hay, q) {
+    var ts = String(q || '').toLowerCase().split(/[\s\-_/·、，,.]+/).filter(Boolean);
+    if (!ts.length) return true;
+    for (var i = 0; i < ts.length; i++) { if (hay.indexOf(normKey(ts[i])) < 0) return false; }
+    return true;
+  }
+  function productHay(p) {
+    var parts = [p.slug, p.series, p.category];
+    if (p.title) parts.push(p.title.zh, p.title.en);
+    if (p.summary) parts.push(p.summary.zh, p.summary.en);
+    (p.specs || []).forEach(function (s) { parts.push(s.k, s.v); });
+    (p.badges || []).forEach(function (b) { parts.push(b); });
+    (p.scene || []).forEach(function (s) { parts.push(s); });
+    return normKey(parts.join(' '));
+  }
+  function docHay(d) {
+    var parts = [d.title, d.filename, d.kind, kindLabel(d)];
+    if (d.product) parts.push(d.product.title, d.product.slug);
+    return normKey(parts.join(' '));
+  }
+  /** 网格筛选：场景 pills × 检索词 取交集。pills 与检索都走这里，避免两套逻辑打架 */
+  function applyGridFilter(pills, grid) {
+    var all = grid.__products || [];
+    if (!all.length) return 0;                        // 数据未到：**不动 DOM**，保留静态兜底
+    var btn = pills ? pills.querySelector('[data-filter].is-active') : null;
+    var scene = btn ? (btn.getAttribute('data-filter') || '') : '';
+    var q = grid.__q || '';
+    var out = all.filter(function (p) {
+      if (scene && (p.scene || []).indexOf(scene) < 0) return false;
+      return !q || matchTokens(productHay(p), q);
+    });
+    paintProducts(grid, out, q);
+    return out.length;
+  }
+  function currentKind(pills) {
+    var b = pills ? pills.querySelector('[data-kind].is-active') : null;
+    return b ? (b.getAttribute('data-kind') || '') : '';
+  }
+  function initSearches() {
+    document.querySelectorAll('input[data-search]').forEach(function (input) {
+      var box = input.closest ? input.closest('[data-search-box]') : null;
+      if (box) box.classList.add('is-ready');         // 露出（无 JS 时保持隐藏）
+      var kind = input.getAttribute('data-search');
+      var target = document.querySelector(input.getAttribute('data-search-target') || '');
+      if (!target) return;
+      var pills = document.querySelector(input.getAttribute('data-search-pills') || '');
+      var clearBtn = box ? box.querySelector('[data-search-clear]') : null;
+      var countEl = box ? box.querySelector('[data-search-count]') : null;
+      var run = function () {
+        var q = input.value.trim();
+        var n = 0;
+        if (kind === 'products') { target.__q = q; n = applyGridFilter(pills, target); }
+        else { target.__q = q; n = paintDocs(target, window.__SeaStarDocs || [], currentKind(pills)) || 0; }
+        if (clearBtn) clearBtn.classList.toggle('is-shown', !!q);
+        if (countEl) {
+          var total = (kind === 'products' ? (target.__products || []) : (window.__SeaStarDocs || [])).length;
+          countEl.textContent = !q ? '' : (n ? t('searchHits').replace('{n}', n).replace('{total}', total) : t('searchNone'));
+        }
+      };
+      input.__run = run;
+      var deb = null;
+      input.addEventListener('input', function () { clearTimeout(deb); deb = setTimeout(run, 160); });
+      input.addEventListener('keydown', function (e) { if (e.key === 'Escape') { input.value = ''; run(); } });
+      if (clearBtn) clearBtn.addEventListener('click', function () { input.value = ''; run(); input.focus(); });
+      run();                                          // 初始化（数据已到时计数立即正确）
+    });
+  }
+  /* 数据到达后刷新检索计数（由 renderProducts / renderDocuments 完成后调用） */
+  window.__SeaStarSearchRefresh = function () {
+    document.querySelectorAll('input[data-search]').forEach(function (i) { if (i.__run) i.__run(); });
+  };
 
   /* ───────────  产品详情（可选：在产品页展开完整信息）  ─────────── */
   function renderProductDetail(slug, container) {
@@ -673,7 +765,10 @@
     // 资料中心：data-documents 指定表格容器
     var docBox = document.querySelector('[data-documents]');
     if (docBox) {
-      renderDocuments(docBox).then(function () { mountDocFilter('[data-doc-filter]', docBox); });
+      renderDocuments(docBox).then(function () {
+        mountDocFilter('[data-doc-filter]', docBox);
+        if (window.__SeaStarSearchRefresh) window.__SeaStarSearchRefresh();
+      });
     }
     // 产品详情：data-product-detail="slug"
     var detail = document.querySelector('[data-product-detail]');
@@ -682,6 +777,8 @@
     if (document.querySelector('[data-copy-text]')) {
       mountCopyButtons('[data-copy-text]');
     }
+    // 型号 / 描述检索：input[data-search]
+    if (document.querySelector('input[data-search]')) initSearches();
   }
 
   if (document.readyState === 'loading') {

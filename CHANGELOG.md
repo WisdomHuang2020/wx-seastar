@@ -11,6 +11,51 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.25.1] - 2026-10-10
+
+### 🔍 「通用照明」与「资料中心」新增型号 / 描述检索
+
+**需求**：两页增加搜索，便于**按型号、描述**检索产品（资料中心同理）。
+
+**实现（纯客户端、零请求）**：
+
+| 层 | 改动 |
+|---|---|
+| `js/site.js` | 新增检索模块：`normKey` / `matchTokens` / `productHay` / `docHay` / `applyGridFilter` / `initSearches`；`paintDocs` 支持检索并**返回命中条数** |
+| `styles.css` | `.search-box`（默认隐藏，`.is-ready` 由 JS 露出）/ `.search-field`（复用既有 `.input` + 图标 + 自绘清除按钮）/ `.products-toolbar`（筛选 Tab 与检索同列排布） |
+| 4 个页面 | `lighting.html` / `cn/lighting.html` / `docs.html` / `cn/docs.html`：筛选 pills 与检索框并入 `.products-toolbar` |
+
+**关键设计**：
+
+- **匹配字段**：型号（`slug`，如 `cdx3-commercial-downlight`）/ 标题（中英）/ 描述 / 系列 / 规格 / 标签 / 归类；
+  资料另含**文件名**与**所属产品**（标题 + slug）
+- **多词 AND**，且各词可落在不同字段 —— 「CDX3 筒灯」能同时命中
+- **归一化**：忽略大小写与空格、连字符、斜杠 → `CDX-3` / `cdx 3` / `CDX3` 等价
+- **与既有筛选取交集**：场景 pills × 检索词；清空检索后**回到该 pill 的筛选态**，两边状态互不破坏
+- **渐进增强**：无 JS 时整块**不显示**（CSS 默认 `display:none`）—— 不做"露出却点了没反应"的假控件；
+  清除按钮用 class 控制显隐而非 `hidden` 属性（避免被 `.input` 的块级样式覆盖）
+- Esc 清空 / 自绘清除按钮 / 结果数 `aria-live` 播报 / 160ms 防抖
+
+**实测（真实派发 `input` 事件 · 正反双向；本地干净 URL 服务 + `/api` 快照 + 无头 Chrome 读回 iframe DOM）**：
+
+| 场景 | 结果 |
+|---|---|
+| **HEAD（反面对照）** `/lighting` 输入 CDX3 | `hasInput:false`、83 → 83（**无任何检索能力**，断言可失败） |
+| `/lighting` CDX3 | 83 → **1**，`Showing 1 of 83`，清除按钮出现，Esc 复原 83 |
+| `/cn/lighting` 筒灯 | 83 → **18**，`匹配 18 条（共 83 条）` |
+| `/lighting` 无匹配词 | 0 + 「No matches」空态 |
+| `/lighting` `downlight` × commercial 场景 | 83 →（pill）69 → **19**（交集生效），Esc 后回到 69（**pill 状态保留**） |
+| `/docs` CDX3 ／ `/cn/docs` cdx3 | 76 → **1**，计数正确 |
+| `/docs` 无匹配词 | 0 + 空态 |
+
+🔴 **验证抓到 1 个真 bug 并已修**：`paintDocs` 原本**没有返回值**，而调用方写的是 `paintDocs(...) || 0`
+→ 资料明明筛出 1 条，计数却显示「未找到匹配项」。已让 `paintDocs` 返回命中条数（空态返回 0）。
+
+**顺带观察**：资料中心现有 **76 份资料全部是 `kind=spec`（规格书）**，
+故「说明书 / IES / 图纸 / 其他」四个类型 Tab 目前必然为空 —— 属**数据尚未上传**，不是筛选坏了。
+
+---
+
 ## [v0.25.0] - 2026-10-10
 
 ### 🔀 编辑器并入 `/admin/`（`/Creator/` 退役）+ 全站模板化完成

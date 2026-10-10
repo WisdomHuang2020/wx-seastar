@@ -141,11 +141,25 @@
         <p class="body-l">For datasheets or photometric files, please visit the <a href="/docs" class="link-arrow" style="display:inline-flex">Technical Documents</a>.</p>
       </div>
       <!-- 场景筛选 Tab：对应后台产品的「应用场景」字段（可多选，与业务线 category 无关） -->
-      <div class="pills reveal" data-products-filter="#productGrid" style="gap:var(--space-sm);">
-        <button class="pill is-active" data-filter="">All</button>
-        <button class="pill" data-filter="home">Residential</button>
-        <button class="pill" data-filter="commercial">Commercial</button>
-        <button class="pill" data-filter="outdoor">Outdoor</button>
+      <!-- 右侧工具列：筛选 Tab + 型号/描述检索（同一列，窄屏自动堆叠） -->
+      <div class="products-toolbar reveal">
+  <div class="pills" data-products-filter="#productGrid" style="gap:var(--space-sm);">
+    <button class="pill is-active" data-filter="">All</button>
+    <button class="pill" data-filter="home">Residential</button>
+    <button class="pill" data-filter="commercial">Commercial</button>
+    <button class="pill" data-filter="outdoor">Outdoor</button>
+  </div>
+  <div class="search-box" data-search-box>
+    <div class="search-field">
+      <svg class="search-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <label class="sr-only" for="productSearch">Search products by model or description</label>
+      <input class="input search-field__input" id="productSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Search model or description (e.g. CDX3, downlight)" data-search="products" data-search-target="#productGrid" data-search-pills="[data-products-filter]">
+      <button type="button" class="search-field__clear" data-search-clear aria-label="Clear search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <p class="small search-field__count" data-search-count role="status" aria-live="polite"></p>
+  </div>
       </div>
 
     </div>

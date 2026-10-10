@@ -88,13 +88,24 @@ chown -R www-data:www-data "$WEB_ROOT"
 printf '%s\n' "$(cat "$REPO_DIR/VERSION" 2>/dev/null || echo unknown)" > "$WEB_ROOT/.deployed-version"
 log "哨兵 → $(cat "$WEB_ROOT/.deployed-version")"
 
-# ── 5) 后端代码有变化则同步并重启 ──
+# ── 5) 后端代码或后台界面有变化则同步并重启 ──
+#
+# ⚠️ 必须同时看 src 与 public：
+#   初版只 diff 了 server/src，于是**只改 server/public/（后台界面本身）时
+#   NEED_SYNC 恒为 0，rsync 根本不跑** —— 后台的 JS/CSS 改了不生效，
+#   而服务照常运行、没有任何报错。另外 rsync 带 --delete，
+#   不跑也就不会清掉仓库里已删除的目录（曾留下一个废弃的 server/creator）。
 NEED_SYNC=0
 if [ ! -f "$SERVER_DIR/src/index.js" ]; then
   NEED_SYNC=1
-elif ! diff -rq --exclude=node_modules --exclude='*.db*' \
-        "$REPO_DIR/server/src" "$SERVER_DIR/src" >/dev/null 2>&1; then
-  NEED_SYNC=1
+else
+  for d in src public; do
+    if [ ! -d "$SERVER_DIR/$d" ] || ! diff -rq --exclude=node_modules --exclude='*.db*' \
+          "$REPO_DIR/server/$d" "$SERVER_DIR/$d" >/dev/null 2>&1; then
+      NEED_SYNC=1
+      break
+    fi
+  done
 fi
 
 if [ "$NEED_SYNC" = "1" ]; then

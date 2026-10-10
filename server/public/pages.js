@@ -3,7 +3,7 @@
    SEA☆STAR 页面内容编辑器（/admin/pages）
    ──────────────────────────────────────────────────────────────────────
    架构要点（改动前请先读）：
-     原为独立后台 /Creator，v0.25.0 起并入 /admin 子页。
+     原为独立后台，v0.25.0 起并入 /admin 子页。
      · 编辑产物存**数据库**，不写文件。web 根目录是「仓库的镜像」，
        auto-deploy 每 2 分钟 `git reset --hard` + 覆盖发布，写文件会被静默冲掉。
      · 画布是**同源 iframe**，直接加载 /api/pages/:slug/preview，
@@ -96,7 +96,7 @@ async function boot() {
 async function loadPages() {
   const d = await api('/');
   state.pages = d.data || [];
-  if (!state.pages.length) { toast('还没有接入 Creator 的页面', true); return; }
+  if (!state.pages.length) { toast('还没有可编辑的页面', true); return; }
   // 记忆上次编辑的页面
   const last = localStorage.getItem('creator.slug');
   state.slug = (last && state.pages.some(p => p.slug === last)) ? last : state.pages[0].slug;
@@ -427,7 +427,7 @@ function renderPanel(b) {
     <div class="fld"><div class="fld__k">内容</div>
       <div class="fld__v">${b.content.length.toLocaleString()} 字节 · 含 ${imgs} 张图</div></div>
 
-    ${b.locked ? `<div class="note warn"><b>全局组件</b>导航与页脚不进 Creator，避免改一处影响全站。</div>` : `
+    ${b.locked ? `<div class="note warn"><b>全局组件</b>导航与页脚不在本页维护，避免改一处影响全站。</div>` : `
     <div class="note"><b>怎么改</b>
       双击画布上的文字即可就地编辑；<br>
       点画布上的图片可换图；<br>
