@@ -11,6 +11,32 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.21.3] - 2026-10-10
+
+### 🔁 首页「客户定制开发」卡轮播图源更正为 ODM 页（客户指正）
+
+**客户指正**：该卡原先用的 `ems-smt` / `ems-assembly` **取自 OEM 页**，不对 ——
+定制开发业务线的轮播图必须来自 **ODM 页**。
+
+**ODM 页的真实用图**（`odm.html` / `cn/odm.html`）：
+
+| 来源 | 图 |
+|---|---|
+| 页面静态配图 | `ems-plant.jpg`（电子实验室） |
+| 产品网格 `data-products="category:driver-odm"` | 6 块驱动 / 控制板：`drv-triac-120v` / `drv-0-10v` / `drv-tri-mode` / `drv-ble-wireless` / `drv-sensor-pacb` / `drv-uv-bms` |
+
+**改动**：左卡由 3 帧（ODM 与 OEM 混用）改为 **7 帧、全部来自 ODM 页** ——
+`ems-plant` → TRIAC → 0-10V → Tri-mode → BLE → 传感器控制 → UV BMS，
+顺序与卡片文案的枚举一致。两页 `alt` 同步（英文页英文、中文页中文）。
+**右卡（自研标准灯具，6 图 LED 产品）未变。**
+
+**验证**：中英两页各 13 张引用文件**全部存在**；两卡 `data-cycle="3000"`；CRLF 0。
+
+**体积提示**：左卡 7 帧合计约 **525 KB**（`ems-plant` 225 KB + 6 块板各约 50 KB），
+首屏多约 0.5 MB 图片。若需减重，可裁到 4~5 帧。
+
+---
+
 ## [v0.21.2] - 2026-10-10
 
 ### 🖼 OEM 产线构成第 6 格改为「旋压」实景（替换上一版的占位卡）
