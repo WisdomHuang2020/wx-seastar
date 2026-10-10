@@ -11,6 +11,36 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.19.1] - 2026-10-10
+
+### 🔀 首页「两条业务线」按「业务模式」重构 + 首页口径同步（中英共 6 处）
+
+**用户指令**：两条业务线由「LED 照明灯具 / 驱动控制板」（按**产品类型**分）
+改为「**客户定制开发**」与「**自研标准灯具**」（按**业务模式**分）。
+客户明确：**客户定制开发 = ODM + OEM 全含**。
+
+| 位置 | 旧 | 新 |
+|---|---|---|
+| 业务线区块标题 | Two product lines | **Two business lines** |
+| 左卡 | ODM Design / Driver and Control Board | **Custom Development / 客户定制开发** |
+| 右卡 | General Lighting / 通用照明灯具 | **Standard Lighting / 自研标准灯具** |
+| 首页 Hero 正文 | …LED luminaires and driver & control boards | …**two business lines: custom development … standard lighting** |
+| 首页 meta / og 描述 | general lighting / ODM / OEM 三分法 | **custom development (ODM/OEM) + in-house standard lighting** |
+| 首页 CTA | ODM custom development / 通用照明选型 | **custom development / 自研标准灯具选型** |
+
+- 卡片链接**未变**：客户定制开发 → `/odm`；自研标准灯具 → `/lighting`。
+- 驱动/控制板型号清单与 OEM 能力表述**均有出处**（原官网 / `/odm` / `/oem`），未新增任何未溯源参数。
+- 植物照明（`/grow-light`）**未并入**「自研标准灯具」，待业主确认。
+- 导航栏与页脚仍为 General Lighting / ODM / OEM（用户选定：本次不改，影响约 70 个前台页）。
+
+> ⚠️ **版本追溯说明（如实记录）**：本重构的**卡片代码**已随 **v0.19.0**
+> （提交 `a5d5520`，因该次用 `git add -A` 提交而被一并卷入）先行入库，
+> 但 v0.19.0 的 CHANGELOG **未记录**此事。本条目补齐记录，
+> 并完成 Hero / meta / CTA 三处（中英共 6 处）口径同步 ——
+> **同一逻辑变更分两次入库，特此说明。**
+
+---
+
 ## [v0.19.0] - 2026-10-10
 
 ### 🔍 第二轮核查：补齐 4 类内容缺口 + 2 处细节
