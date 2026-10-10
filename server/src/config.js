@@ -33,6 +33,9 @@ module.exports = {
   // 上传限制
   maxImageMB: Number(env('MAX_IMAGE_MB', 12)),
   maxDocMB: Number(env('MAX_DOC_MB', 80)),
+  // 视频体积远大于文档：默认 300MB（env MAX_VIDEO_MB 覆盖）。
+  // ⚠️ nginx 的 client_max_body_size 必须 ≥ 本值 + multipart 余量，否则请求还没到后端就被 413。
+  maxVideoMB: Number(env('MAX_VIDEO_MB', 300)),
 
   // 站点
   siteName: env('SITE_NAME', 'SEA☆STAR 实益达'),

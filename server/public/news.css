@@ -1,0 +1,61 @@
+/* ══════════════════════════════════════════════════════════════════════
+   新闻管理（/admin/news）—— 只写 admin.css 里没有的部分
+   设计令牌与 .btn / .tbl / .card / .drawer 等基础件全部复用，保证与后台一致。
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ⚠️ 必须显式兜住 [hidden]：HTML 的 hidden 只靠 UA 样式表的 display:none，
+   特异性极低；本文件给浮层设了 display，会把它盖掉 ——
+   结果 JS 明明设了 hidden，浮层却仍盖在页面上（DOM 断言还是 true）。 */
+[hidden]{display:none !important}
+
+/* ── 中英段落成对编辑 ──────────────────────────────────────────── */
+/* 这一块是整个界面最关键的地方：生成器按 paras[i] ↔ paras_zh[i] 逐段渲染，
+   中英段落数不一致会让两边错位，而**页面上完全看不出来**。
+   所以界面上把它们**并排成对**呈现，并在数目不等时立刻标红。 */
+.paras{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.para{display:grid;grid-template-columns:26px 1fr 1fr 26px;gap:8px;align-items:stretch}
+.para__no{display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+          font-size:11px;color:var(--n400);padding-top:8px}
+.para textarea{width:100%;min-height:76px;padding:9px 11px;border:1px solid var(--border);
+               border-radius:var(--radius);font-size:13.5px;font-family:inherit;line-height:1.6;
+               resize:vertical;color:var(--n900);background:#fff}
+.para textarea:focus{outline:none;border-color:var(--brand-500);background:var(--brand-25)}
+.para textarea.zh{background:var(--n25)}
+.para textarea.zh:focus{background:var(--brand-25)}
+.para__x{display:flex;align-items:flex-start;justify-content:center;padding-top:6px}
+.para__x button{width:22px;height:22px;border:0;border-radius:5px;background:var(--n100);
+                color:var(--n500);cursor:pointer;font-size:14px;line-height:1}
+.para__x button:hover{background:var(--danger);color:#fff}
+.para__hd{display:grid;grid-template-columns:26px 1fr 1fr 26px;gap:8px;margin-top:8px}
+.para__hd span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--n400);
+               font-family:var(--mono)}
+.paras--bad{border:1px solid var(--warn);border-radius:var(--radius);padding:10px;
+            background:#FFFBEB}
+
+/* 不匹配时的横幅 —— 要让运维一眼看到"中英不一样多" */
+.banner{padding:11px 14px;border-radius:var(--radius);font-size:13px;line-height:1.7;margin-bottom:14px}
+.banner--warn{background:#FFFBEB;border:1px solid #FDE68A;color:#8A6A12}
+.banner--err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.banner--info{background:var(--brand-50);border:1px solid var(--brand-100);color:var(--brand-700)}
+.banner b{display:block;margin-bottom:3px}
+
+/* ── 配图列表 ──────────────────────────────────────────────── */
+.imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:8px}
+.imgcell{position:relative;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+         background:var(--n50)}
+.imgcell img{width:100%;height:88px;object-fit:cover;display:block}
+.imgcell__x{position:absolute;top:5px;right:5px;width:22px;height:22px;border:0;border-radius:5px;
+            background:rgba(15,22,32,.62);color:#fff;cursor:pointer;font-size:13px;line-height:1}
+.imgcell__x:hover{background:var(--danger)}
+.imgcell__p{font-family:var(--mono);font-size:10px;color:var(--n500);padding:4px 6px;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imgadd{display:flex;align-items:center;justify-content:center;min-height:88px;border:1px dashed var(--border);
+        border-radius:var(--radius);cursor:pointer;color:var(--n400);font-size:12.5px;background:var(--n25)}
+.imgadd:hover{border-color:var(--brand-500);color:var(--brand-600);background:var(--brand-25)}
+
+/* 段落里的两个字段各占一半，窄屏下改上下排 */
+@media (max-width:900px){
+  .para,.para__hd{grid-template-columns:22px 1fr 22px}
+  .para textarea.zh{grid-column:2}
+  .para > textarea:first-of-type{grid-column:2}
+}

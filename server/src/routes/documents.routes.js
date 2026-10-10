@@ -17,6 +17,7 @@ const KINDS = {
   manual:  '说明书 / 安装指南',
   ies:     'IES 光度文件',
   drawing: '图纸 / 尺寸图',
+  video:   '视频',
   other:   '其他资料',
 };
 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>新闻管理 · SEA☆STAR 后台</title>
+<link rel="stylesheet" href="/admin/admin.css">
+<link rel="stylesheet" href="/admin/news.css">
+</head>
+<body>
+
+<div id="loginView" class="login-wrap">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px">SEA☆STAR</div>
+    <div class="muted" style="margin-bottom:20px">内容管理后台</div>
+    <div class="field"><label>账号</label><input class="inp" id="lgUser" name="username" autocomplete="username" required autofocus></div>
+    <div class="field"><label>密码</label><input class="inp" id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
+    <div id="lgErr" class="hidden" style="margin-top:14px;padding:10px 12px;background:#FEE2E2;color:#991B1B;border-radius:6px;font-size:13px"></div>
+    <button class="btn btn--lg" type="submit" style="width:100%;margin-top:20px;justify-content:center" id="lgBtn">登录</button>
+  </form>
+</div>
+
+<div id="appView" class="app hidden">
+  <aside class="side">
+    <div class="side__brand"><span>SEA☆STAR</span><small>CONTENT ADMIN</small></div>
+    <nav class="side__nav" id="nav">
+      <a href="/admin/">产品管理</a>
+      <a href="/admin/">资料文件</a>
+      <a href="/admin/">客户留言</a>
+      <a href="/admin/">图片库</a>
+      <a href="/admin/pages">页面内容 ↗</a>
+      <a href="/admin/news" class="is-active">新闻管理 ↗</a>
+    </nav>
+    <div class="side__foot">
+      <div class="who" id="whoami">—</div>
+      <a href="/admin/">返回主后台</a>
+      <a href="#" id="btnLogout">退出登录</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h2 id="viewTitle">新闻管理</h2>
+      <div id="viewActions" class="toolbar"></div>
+    </div>
+    <div class="content" id="viewBody"></div>
+  </main>
+</div>
+
+<div id="drawerRoot"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="/admin/news.js"></script>
+</body>
+</html>

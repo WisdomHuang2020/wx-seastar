@@ -153,12 +153,31 @@ router.get('/download/:id', wrap(async (req, res) => {
 
   db.run('UPDATE documents SET downloads = downloads + 1 WHERE id = ?', [d.id]);
 
+  const isVideo = d.kind === 'video' || /^video\//i.test(d.mime || '');
+  const size = fs.statSync(abs).size;
   res.setHeader('Content-Type', d.mime || 'application/octet-stream');
-  res.setHeader('Content-Length', fs.statSync(abs).size);
+  res.setHeader('Accept-Ranges', 'bytes');
   // ASCII 回退名 + RFC 5987 的 UTF-8 名，保证各浏览器都能拿到正确中文名
   const ascii = d.original_name.replace(/[^\x20-\x7e]/g, '_');
+  // 视频用 inline：浏览器直接播放；其余仍 attachment（避免 PDF/图纸被"预览"而非下载）
   res.setHeader('Content-Disposition',
-    `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(d.original_name)}`);
+    `${isVideo ? 'inline' : 'attachment'}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(d.original_name)}`);
+
+  // Range 支持：视频拖动进度条必需（也为大文件断点续传留路）
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+  if (m && (m[1] || m[2])) {
+    const start = m[1] ? parseInt(m[1], 10) : Math.max(0, size - parseInt(m[2], 10));
+    const end = (m[1] && m[2]) ? Math.min(parseInt(m[2], 10), size - 1) : size - 1;
+    if (Number.isNaN(start) || start > end || start >= size) {
+      res.status(416).setHeader('Content-Range', `bytes */${size}`);
+      return res.end();
+    }
+    res.status(206);
+    res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`);
+    res.setHeader('Content-Length', end - start + 1);
+    return fs.createReadStream(abs, { start, end }).pipe(res);
+  }
+  res.setHeader('Content-Length', size);
   return fs.createReadStream(abs).pipe(res);
 }));
 

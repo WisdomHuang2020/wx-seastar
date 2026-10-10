@@ -23,12 +23,16 @@ const IMG_EXT = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif']);
 const IMG_MIME = /^image\//i;
 
 // 文档：产品资料类为主（IES 的 MIME 在多数系统里是 application/octet-stream，故主要靠扩展名）
+// 视频：技术资料里的安装/维护视频（单文件上限见 cfg.maxVideoMB）
+const VIDEO_EXT = new Set(['mp4', 'm4v', 'mov', 'webm', 'avi', 'mkv']);
+
 const DOC_EXT = new Set([
   'pdf', 'ies', 'ldt',           // 光度文件
   'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
   'dwg', 'dxf', 'step', 'stp', 'igs', 'iges',   // 图纸/模型（照明行业常见）
   'zip', 'rar', '7z',
   'txt', 'csv',
+  ...VIDEO_EXT,                  // mp4/m4v/mov/webm/avi/mkv
 ]);
 
 function extOf(name) {
@@ -64,7 +68,9 @@ const uploadImage = multer({
 /** 文档上传：单文件字段名 `file` */
 const uploadDoc = multer({
   storage: makeStorage(DOC_DIR),
-  limits: { fileSize: cfg.maxDocMB * 1024 * 1024, files: 1 },
+  // 资料与视频共用同一入口（上传前还不知道文件类型），故取两者较大的上限；
+  // 类型仍由下方 fileFilter 按扩展名把关。
+  limits: { fileSize: Math.max(cfg.maxDocMB, cfg.maxVideoMB) * 1024 * 1024, files: 1 },
   fileFilter: (_req, file, cb) => {
     const ext = extOf(file.originalname);
     if (!DOC_EXT.has(ext)) return cb(new Error(`不支持的文件类型 .${ext}`));
@@ -105,5 +111,5 @@ function removeUpload(filename) {
 
 module.exports = {
   uploadImage, uploadDoc, runUpload, urlOf, removeUpload,
-  IMG_DIR, DOC_DIR, IMG_EXT, DOC_EXT, extOf,
+  IMG_DIR, DOC_DIR, IMG_EXT, DOC_EXT, VIDEO_EXT, extOf,
 };

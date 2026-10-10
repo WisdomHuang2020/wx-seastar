@@ -625,7 +625,7 @@ async function openProductEditor(p) {
 }
 
 // ───────────────────────────  资料文件  ───────────────────────────
-const KIND_LABEL = { spec: '规格书', manual: '说明书', ies: 'IES 光度文件', drawing: '图纸', other: '其他资料' };
+const KIND_LABEL = { spec: '规格书', manual: '说明书', ies: 'IES 光度文件', drawing: '图纸', video: '视频', other: '其他资料' };
 
 async function renderDocuments() {
   const body = $('#viewBody');
@@ -721,7 +721,7 @@ async function openDocUploader({ productId = null, onDone } = {}) {
       <div class="modal__bd">
         <div class="drop" id="docDrop">
           点击选择文件，或把文件拖到这里<br>
-          <span class="small">支持 PDF / IES / LDT / Office / 图纸 / 压缩包，单个不超过 ${window.__MAXDOC || 80} MB</span>
+          <span class="small">支持 PDF / IES / LDT / Office / 图纸 / 压缩包 / <b>视频(mp4·mov·webm·avi·mkv)</b>，单个不超过 ${window.__MAXUPLOAD || 300} MB</span>
           <div class="progress hidden" id="docProg"><i></i></div>
           <div id="docPicked" class="small" style="margin-top:8px"></div>
         </div>
