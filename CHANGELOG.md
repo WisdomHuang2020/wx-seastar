@@ -11,6 +11,31 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.28.2] - 2026-10-10
+
+### 🖼 about 页第 2 格改为「组装车间全景」+ 源站 ASSEMBLY 段原图（客户指定）
+
+**客户指令**：图注改为「组装车间全景」，并换成源站 **Facilities 页「ASSEMBLY」段**的
+`微信图片_20221228163657(1).jpg`（图片 id `1685003128650`）。
+
+| 项 | 内容 |
+|---|---|
+| 新素材 | `assets/img/scene-assembly-line.jpg` —— **新增文件**（独立于 OEM 页的 `ems-assembly.jpg`） |
+| 来源 | 源站 Facilities 页「**ASSEMBLY**」段，id `1685003128650`（1600×899） |
+| 画面 | 组装车间**总装线**：长装配台 + 工位工人（蓝防静电服）+ 料柜 + 地面黄线 |
+| 裁切 | 该格容器为 **4:3**，源图为 16:9 → 已**中心裁切为 1198×899**；裁切后**目视核对**，装配线 / 工人 / 料柜 / 黄线均在画面内 |
+| 图注 | EN `Production floor` → **`Assembly workshop`**；CN「车间全景」→ **「组装车间全景」** |
+| `alt` | EN `Final assembly line in the assembly workshop` ／ CN「组装车间的总装线」 |
+
+**替换后三格**：`SMT产线`（`scene-auto-line`）→ **`组装车间全景`（`scene-assembly-line`）** → `可靠性实验室`
+
+⚠️ **同一张照片被两处使用**：`scene-assembly-line.jpg` 与 OEM 页的 `ems-assembly.jpg`
+**是同一张照片**（灰度比对差值 0.1，仅尺寸不同）。属客户明确指定，已按指令执行并在此留档。
+
+**验证**：两页真实 `<img>` 顺序与图注已核对（中英各 3 格）。
+
+---
+
 ## [v0.28.1] - 2026-10-10
 
 ### 🏷 about 页第 1 格图注改为「SMT产线」（客户指令的换图部分存在冲突，已提出待确认）
