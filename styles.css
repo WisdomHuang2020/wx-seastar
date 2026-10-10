@@ -947,7 +947,8 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .footer__col a{ font-size:.875rem; color:rgba(255,255,255,.72); transition:color var(--duration-fast) var(--ease-standard); }
 .footer__col a:hover{ color:var(--brand-200); }
 .footer__bottom{
-  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  /* 内容居中（客户 2026-10-10：删掉重复公司名后剩下的居中） */
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; text-align:center;
   gap:var(--space-md); padding-top:var(--space-lg);
   border-top:1px solid var(--ink-700);
   font-size:.8125rem; color:var(--text-on-dark-muted);
@@ -1007,7 +1008,7 @@ ul,ol{ margin:0; padding:0; list-style:none; }
   .section-lg{ padding-block:var(--space-3xl); }
   .grid-2,.grid-3,.grid-4{ grid-template-columns:minmax(0,1fr); }
   .footer__grid{ grid-template-columns:minmax(0,1fr); }
-  .footer__bottom{ flex-direction:column; align-items:flex-start; }
+  .footer__bottom{ flex-direction:column; align-items:center; }
   .timeline__step{ padding-left:var(--space-2xl); }
   .hero-home{ min-height:auto; padding-top:calc(var(--nav-h) + 40px); }
   .btn{ height:46px; padding:0 20px; }

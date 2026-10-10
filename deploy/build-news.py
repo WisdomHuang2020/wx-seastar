@@ -193,7 +193,7 @@ def footer(lang, up):
     </div>
     <div class="footer__bottom">
       <span>© 2026 Wuxi Seastar Lighting Co., Ltd. All rights reserved.</span>
-      <span class="mono">Wuxi Seastar Lighting Co., Ltd. · SEA☆STAR</span>
+      <span class="mono">SEA☆STAR</span>
       <button type="button" class="footer__cc" data-cookie-settings>Cookie settings</button>
     </div>
   </div>
@@ -239,7 +239,7 @@ def footer(lang, up):
     </div>
     <div class="footer__bottom">
       <span>© 2026 无锡市益明光电有限公司 保留所有权利。</span>
-      <span class="mono">无锡市益明光电有限公司 · SEA☆STAR 实益达</span>
+      <span class="mono">SEA☆STAR 实益达</span>
       <button type="button" class="footer__cc" data-cookie-settings>Cookie 设置</button>
     </div>
   </div>

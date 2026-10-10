@@ -11,6 +11,35 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.28.13] - 2026-10-10
+
+### 🧹 页脚底部：删掉重复的公司名，剩余内容居中
+
+**客户**（附截图）：「底部这里删除（红线覆盖部分），剩下的居中。」
+
+| 项 | 旧 → 新 |
+|---|---|
+| 中文页脚中段 | `无锡市益明光电有限公司 · SEA☆STAR 实益达` → **`SEA☆STAR 实益达`** |
+| 英文页脚中段 | `Wuxi Seastar Lighting Co., Ltd. · SEA☆STAR` → **`SEA☆STAR`** |
+| 桌面布局 | `.footer__bottom{ justify-content:space-between }` → **`justify-content:center; text-align:center`** |
+| 移动端 | `flex-direction:column; align-items:flex-start` → **`align-items:center`** |
+
+**信息无损**：删掉的中段内容正是**与左侧版权行重复**的公司名（左侧已完整写着 `© 2026 <公司名>`），
+删后不丢任何信息 ✓。
+
+**覆盖面**：**80 个页面**（英中各 40）+ **生成器 `deploy/build-news.py`**（新闻页由它生成；不同步改会被重新生成覆盖 —— 项目铁律「页面文案在生成器里的要同步改」）。
+
+**验证**：
+
+| 检查 | 结果 |
+|---|---|
+| 全站残留 | 旧文案 **0 处**（中/英各查一遍）✓ |
+| 抽样四类页面 | `cn/index.html`／`index.html`／`cn/news/annual-party.html`／`news/annual-party.html` 均已是新写法 ✓ |
+| 行尾 | CRLF 0 ✓ |
+| **目视** | 真实渲染截图（中英各一张）：三项**整体居中**、中段只剩 `SEA☆STAR 实益达` / `SEA☆STAR` ✓ |
+
+---
+
 ## [v0.28.12] - 2026-10-10
 
 ### 🔧 页脚「Residential / Commercial / Outdoor」又粗又亮 —— 根因是一个从未定义的 CSS 变量
