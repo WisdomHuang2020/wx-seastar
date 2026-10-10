@@ -947,8 +947,14 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .footer__col a{ font-size:.875rem; color:rgba(255,255,255,.72); transition:color var(--duration-fast) var(--ease-standard); }
 .footer__col a:hover{ color:var(--brand-200); }
 .footer__bottom{
-  /* 内容居中（客户 2026-10-10：删掉重复公司名后剩下的居中） */
-  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; text-align:center;
+  /* 三块内容（版权 / 品牌 / Cookie 设置）在底部**均匀分布**（v0.28.14）：
+     · 之前是 justify-content:center + gap:16 —— 三块挤在正中一小团；
+     · space-between 会贴住容器左右边缘（"太靠边"）；
+     · 取 space-evenly：三条块之间的**间隙与两侧留白完全相等**，
+       两侧各留约 1/4 自由空间，既不挤中间也不贴边。
+       注：中间那块不是几何正中（两侧块宽度不等），这是"间隙相等"的必然结果，
+       比强行把中间块钉在正中更显得均匀。 */
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-evenly; text-align:center;
   gap:var(--space-md); padding-top:var(--space-lg);
   border-top:1px solid var(--ink-700);
   font-size:.8125rem; color:var(--text-on-dark-muted);
