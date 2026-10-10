@@ -499,12 +499,25 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .drawer__close svg{ width:20px; height:20px; }
 .drawer__cta{ margin-top:var(--space-md); }
-.drawer__sub{
-  font-size:1.125rem !important; font-weight:500 !important;
-  padding-left:24px !important; color:var(--text-muted) !important;
-  border-bottom:none !important;
+/* 二级（场景）链接：Residential / Commercial / Outdoor
+   ⚠️ v0.28.12 修：原写法 `color:var(--text-muted)` 引用的变量**全站从未定义**
+   （styles.css 里 84 个令牌中没有它），无兜底值 → 该声明在计算值阶段失效，
+   color 退化为「继承」：
+     · 抽屉里继承到 body 的 --text-primary #14171C，压在 #0B1015 抽屉底上
+       对比度只有 1.06:1 —— 三条链接在手机菜单里**几乎不可见**；
+     · 页脚复用了同一个类，继承到近纯白 #F1F3F5，再叠加 18px/500，
+       于是比同级链接（14px/400/72%白）又粗又亮，像三行加粗小标题。
+   改为已定义的 --text-on-dark-muted（深底 8.0:1），并去掉全部 !important ——
+   用 `.drawer a.drawer__sub` 的同等具体度压过 `.drawer a:not(.btn)`
+   （源序在后即可胜出），这样页脚就不再被这一组规则牵连。 */
+.drawer a.drawer__sub{
+  font-size:1.125rem; font-weight:500;
+  padding-left:24px; color:var(--text-on-dark-muted);
+  border-bottom:none;
 }
-.drawer__sub:hover{ color:var(--brand-200) !important; }
+.drawer a.drawer__sub:hover{ color:var(--brand-200); }
+/* 页脚里的二级链接：字号/字重/颜色一律随同级链接，仅保留 14px 缩进表达从属关系 */
+.footer__col a.drawer__sub{ padding-left:14px; }
 
 /* ───────────────────────────  8. Hero  ─────────────────────────── */
 /* 满幅实景图 + 图上叠字 */

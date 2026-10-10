@@ -11,6 +11,30 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.28.12] - 2026-10-10
+
+### 🔧 页脚「Residential / Commercial / Outdoor」又粗又亮 —— 根因是一个从未定义的 CSS 变量
+
+用户截图：英文页脚 BUSINESS LINES 栏目里，这三条比同级链接明显更粗更亮，
+像三行加粗小标题。实测定位到根因，**并牵出一个更严重、用户还没发现的问题**：
+
+`.drawer__sub`（移动端抽屉的二级链接样式）里写着
+`color:var(--text-muted) !important`，而 **`--text-muted` 在 styles.css 的 84 个令牌中
+根本不存在、也没有兜底值** → 该声明在计算值阶段失效，`color` 退化为「继承」：
+
+| 场景 | 修复前 | 修复后 |
+|---|---|---|
+| **移动端抽屉**（手机菜单） | 继承到 body 的 `#14171C`，压在 `#0B1015` 抽屉底上 —— **对比度 1.06:1，三条链接几乎不可见** | `--text-on-dark-muted` —— **7.48:1** |
+| **英文页脚** | 继承到近纯白 `#F1F3F5` + `18px/500!important`，vs 同级 14px/400/72% 白 —— 又粗又亮 | 14px/400/`rgba(255,255,255,.72)`，与同级**完全一致**（对比度 19.1），仅保留 14px 缩进表达从属关系 |
+
+改法（**只动 `styles.css`，不碰 HTML** → 无需 re-seed / 重跑抽屉同步）：
+把 `.drawer__sub` 收紧为 `.drawer a.drawer__sub`（同等具体度、源序在后即胜出）
+并**去掉全部 5 处 `!important`** —— 页脚不再被这组规则牵连；
+另加 `.footer__col a.drawer__sub{ padding-left:14px }` 保留层级缩进。
+
+顺带全仓扫描「引用了未定义变量」：`--ink-600`、`--radius-pill` 都带内联兜底值，
+**只有 `--text-muted` 是真空缺**，已修正，全站再无此类引用。
+
 ## [v0.28.11] - 2026-10-10
 
 ### 🧭 英文站导航「General Lighting / About Us / Contact Us」折成两行
