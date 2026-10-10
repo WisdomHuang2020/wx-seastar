@@ -33,7 +33,8 @@ jobs:
         with:
           fetch-depth: 0    # 需要拿到全部 tag
 
-      - name: 自检（凭据有效性 + 写权限）
+      - name: 自检（凭据有效性 + 写权限；仅诊断，不阻断）
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 deploy/release-create.py --check

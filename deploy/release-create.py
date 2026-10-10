@@ -129,42 +129,36 @@ def main():
         if not token:
             print('✘ 未检测到 GITHUB_TOKEN', file=sys.stderr)
             return 2
+        # 1) 身份 —— 信息性即可。
+        #    ⚠️ Actions 内置的 GITHUB_TOKEN 是**安装令牌**，调 GET /user 可能返回 403
+        #    （Resource not accessible by integration），这**不代表凭据无效**，不能据此判失败。
         st, me = api('/user', token=token)
-        if st != 200:
-            print('✘ 凭据无效（GET /user → HTTP %s）：%s' % (st, str(me)[:160]), file=sys.stderr)
-            return 2
-        print('✓ 凭据有效，身份 : %s' % me.get('login'))
+        if st == 200 and isinstance(me, dict):
+            print('✓ 凭据有效，身份 : %s' % me.get('login'))
+        else:
+            print('ℹ️ GET /user → HTTP %s（Actions 内置 token 属正常，继续）' % st)
+        # 2) 仓库可达性
         st, repo = api('/repos/%s' % REPO, token=token)
-        if st != 200:
-            print('✘ 读不到仓库 %s（HTTP %s）—— fine-grained token 需把该仓库加入 Repository access' % (REPO, st),
-                  file=sys.stderr)
+        if st != 200 or not isinstance(repo, dict):
+            print('✘ 读不到仓库 %s（HTTP %s）：%s' % (REPO, st, str(repo)[:200]), file=sys.stderr)
             return 2
-        perm = repo.get('permissions') or {}
         print('✓ 可访问仓库     : %s' % repo.get('full_name'))
-        print('  账号权限 push : %s   admin : %s（注意：这是**你账号**的权限，不等于 token 的）'
-              % (perm.get('push'), perm.get('admin')))
-
-        # ── 写能力探针 ──────────────────────────────────────────────
-        # 用一个 **非法 ref 名**（含空格，git 不接受）去 POST /releases：
-        #   有写权限 → GitHub 返回 422（校验失败）；无写权限 → 403。
-        # 两种都不会创建任何东西。这是唯一能真正验证"token 能否建 Release"的办法。
+        # 3) 写能力探针
         st, body = api('/repos/%s/releases' % REPO, 'POST', token, {
             'tag_name': 'invalid ref with spaces', 'name': 'permission probe'})
+        print('  写能力探针       : HTTP %s' % st)
         if st == 422:
-            print('✓ 写权限正常     : token 可创建 Release（探针被 422 校验拒绝，符合预期）')
-        elif st in (200, 201):
-            # 理论上不会发生（空格不是合法 ref 名）；万一发生就立刻删掉，不留垃圾
+            print('✓ 写权限正常     : 可以创建 Release')
+            return 0
+        if st in (200, 201):
             rid = (body or {}).get('id')
             api('/repos/%s/releases/%s' % (REPO, rid), 'DELETE', token)
-            print('⚠️ 探针意外成功，已自动删除（id=%s）' % rid, file=sys.stderr)
-        elif st == 403:
-            print('✘ token 缺写权限：fine-grained 需把「Contents」从 Read-only 改成 '
-                  '**Read and write**（改完 token 值不变，无需重新生成）', file=sys.stderr)
-            return 2
-        else:
-            print('✘ 写权限探针返回意外状态：HTTP %s %s' % (st, str(body)[:160]), file=sys.stderr)
-            return 2
-        return 0
+            print('⚠️ 探针意外成功，已自动删除（id=%s）' % rid)
+            return 0
+        print('✘ 写权限不足（HTTP %s）：%s' % (st, str(body)[:300]), file=sys.stderr)
+        print('  · 若在 Actions 里：确认本工作流声明了 permissions: contents: write；\n'
+              '    并检查仓库 Settings → Actions → General → Workflow permissions。', file=sys.stderr)
+        return 2
 
     cl = parse_changelog()
     tags = list_tags()
