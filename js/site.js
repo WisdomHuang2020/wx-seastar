@@ -580,7 +580,10 @@
     var inner;
     if (v === 'pdf') inner = '<iframe class="docview__frame" src="' + esc(d.url) + '" title="' + esc(d.title) + '"></iframe>';
     else if (v === 'image') inner = '<img class="docview__img" src="' + esc(d.url) + '" alt="' + esc(d.title) + '">';
-    else if (v === 'video') inner = '<video class="docview__video" src="' + esc(d.url) + '" controls playsinline preload="metadata"></video>';
+    // 视频：**点一次就直接播放**（用户要的是"点播放就弹出来直接放"，不该再点第二次）
+    // autoplay + 下方显式 play()：本次是由点击触发的用户手势，未静音播放通常被允许；
+    // 万一被浏览器策略拦下（NotAllowedError）→ 退回静音自动播放，至少画面在动、控件可手动开声。
+    else if (v === 'video') inner = '<video class="docview__video" src="' + esc(d.url) + '" controls playsinline autoplay preload="auto"></video>';
     else if (v === 'text') inner = '<pre class="docview__text">' + esc(t('loading')) + '</pre>';
     else inner = '<div class="docview__fallback">' + esc(t('cantPreview')) + '</div>';
     var box = document.createElement('div');
@@ -607,6 +610,13 @@
     box.addEventListener('click', function (e) {
       if (e.target && e.target.hasAttribute && e.target.hasAttribute('data-doc-close')) close();
     });
+    if (v === 'video') {                      // 立刻起播，不要求用户再点一次
+      var vid = box.querySelector('.docview__video');
+      if (vid) {
+        var pr = vid.play();
+        if (pr && pr.catch) pr.catch(function () { vid.muted = true; vid.play().catch(function () {}); });
+      }
+    }
     if (v === 'text') {                       // IES/LDT/TXT/CSV：取回纯文本直接看
       fetch(d.url).then(function (r) { return r.text(); }).then(function (txt) {
         var pre = box.querySelector('.docview__text');

@@ -11,6 +11,33 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.28.9] - 2026-10-10
+
+### ▶️ 视频资料「点一次即播」（不再要求点第二次）
+
+**客户反馈**：「视频点击播放就直接弹出页面播放，不要在点一次播放。」
+
+**改动**（`js/site.js` 的 `openDocViewer`）：
+
+- `<video>` 加 **`autoplay` + `preload="auto"`**（原为 `preload="metadata"` 且无 `autoplay`）
+- 弹层插入 DOM 后**显式调用 `video.play()`** —— 本次由**点击**触发，属用户手势，未静音播放通常被允许
+- 万一被浏览器自动播放策略拦下（`NotAllowedError`）→ **退回静音自动播放**
+  （画面照常动，用原生控件可手动开声），**不把"再点一次"甩回给用户**
+
+**实测（打桩验证：覆写 `HTMLMediaElement.play` 计数，走真实点击路径打开弹层）**：
+
+| 页面 | 结果 |
+|---|---|
+| `/docs` | `viewerOpened:true`、`videoExists:true`、`hasAutoplayAttr:true`、`autoplayProp:true`、`preload:"auto"`、**`playCalled:1`**、`controls:true` ✓ |
+| `/cn/docs` | 同上 ✓ |
+
+—— 即「点『播放』→ 弹层出现的同时就发起了播放」，全程**只需一次点击**。
+
+⚠️ **验证边界**：真实视频文件尚未入库（等客户在 `/admin` 上传），故本次验证的是
+**"是否发起了播放"**，而非"画面确实在动"。文件到位后补一次端到端验证。
+
+---
+
 ## [v0.28.8] - 2026-10-10
 
 ### 📖 技术资料可**直接在网页上打开**（规格书 / 图纸 / IES / 视频）
