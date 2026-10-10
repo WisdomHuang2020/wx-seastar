@@ -11,6 +11,54 @@ SEA☆STAR 实益达官网（`https://www.wx-seastar.cn`）。
 
 ---
 
+## [v0.25.2] - 2026-10-10
+
+### 📝 补记：三项本应独立成篇的改动（被并入了 v0.25.1 的提交）
+
+> 起因：用户问「`/Creator/` 该可以删了吧」。
+> 清理过程中做的三件事**被并入了 `d37ca55 feat(search): v0.25.1 …检索`**，
+> 提交信息里完全没提。内容是对的，但**从提交历史里查不到**，
+> 故在此补记 —— 尤其第 1 条是个不容易发现的真缺陷。
+
+#### 1. 🔴 修好部署脚本的隐性缺陷：变化检测漏了 `server/public/`
+
+`deploy/auto-deploy.sh` 判断"要不要重新同步后端代码"时**只 diff 了 `server/src`**：
+
+```bash
+elif ! diff -rq ... "$REPO_DIR/server/src" "$SERVER_DIR/src"   # ← 只看 src
+```
+
+两个后果，**都不报错**：
+
+1. **只改 `server/public/`（后台界面本身）时 `NEED_SYNC` 恒为 0，rsync 根本不跑**
+   —— 后台的 JS/CSS 改了不生效，而服务照常运行、页面照常 200。
+2. rsync 带 `--delete`，不跑也就**不会清掉仓库里已删除的目录**——
+   这正是 `server/creator/` 被删除后仍在服务器上"复活"的原因。
+
+→ 改为同时 diff `src` 与 `public`。
+> ⚠️ **`auto-deploy.sh` 在服务器上跑、不随 git 更新**，改完必须手工 scp 到
+> `/opt/wx-seastar/deploy/`，否则改了等于没改。（已同步，两份 md5 一致。）
+
+#### 2. 清除 `/Creator/` 的全部残留
+
+| 残留 | 处理 |
+|---|---|
+| `/Creator/` 页面本身 | 早已在 v0.25.0 移除（404） |
+| nginx 的 `location ^~ /Creator` 反代规则 | **已撤**（一直代理到一个 404，属死配置） |
+| `/opt/wx-seastar/server/creator/` 目录 | 已删（仓库早已移除，是部署副本残留） |
+| `deploy/patch-nginx-creator.py` | 已删（唯一作用就是加那条已撤的规则） |
+| `pages.js` 里 3 处用户可见的「Creator」字样 | 改为中性表述（0 处残留） |
+
+#### 3. 验证
+
+- `/Creator/` **404**；nginx 配置中 "Creator" 出现 **0** 次；`server/creator` 已删
+- 部署脚本两份副本 md5 一致、`bash -n` 通过
+- 全站页面 200；后端与发布 timer 均 active
+
+---
+
+---
+
 ## [v0.25.1] - 2026-10-10
 
 ### 🔍 「通用照明」与「资料中心」新增型号 / 描述检索
