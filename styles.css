@@ -377,10 +377,14 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 }
 .nav__logo{ display:flex; align-items:center; flex-shrink:0; }
 .nav__links{
-  display:flex; align-items:center; gap:clamp(14px,2.2vw,34px); margin-inline:auto;
+  display:flex; align-items:center; gap:clamp(10px,1.6vw,26px); margin-inline:auto;
 }
 .nav__links a{
   position:relative; font-size:.9375rem; font-weight:500;
+  /* 导航项是**标签**，任何宽度下都不允许折行（v0.28.11）——
+     此前无此声明，容器一紧就把「General Lighting / About Us / Contact Us」
+     按空格拆成两行，导航高度虽固定，视觉上却成了两行文字。 */
+  white-space:nowrap;
   color:var(--text-primary); padding-block:6px;
   transition:color var(--duration-fast) var(--ease-standard);
 }
@@ -954,9 +958,25 @@ ul,ol{ margin:0; padding:0; list-style:none; }
 .sheen{ position:relative; }
 
 /* ───────────────────────────  14. 响应式  ─────────────────────────── */
-@media (max-width:1080px){
+/* 导航单行保障（v0.28.11）：
+   九个栏目 + Logo(151) + 中文按钮 + CTA 的固定开销约 391px，
+   15px 字号下栏目文字总宽约 605px（实测，非估算）。
+   → 1180px 以下容器放不下（1081~1199 实测整体溢出 15~65px），
+     故横向导航的断点由 1080px 上移到 1200px，以下交给汉堡抽屉；
+   → 1200~1439px 用 14px 字号 + 14px 间距（内容 1051px ≤ 可用 1120px，余量 69px）；
+   → ≥1440px 回到 15px 字号 + 自适应间距（最大 26px，内容 1180~1204px ≤ 1260px）。
+   原 `clamp(14px,2.2vw,34px)` 在这两档都会把「General Lighting / About Us /
+   Contact Us」挤成两行 —— 且 1440 附近恰卡在临界值上，随字体度量微抖就折行。 */
+@media (max-width:1439px){
+  .nav__inner{ gap:var(--space-lg); }
+  .nav__links{ gap:14px; }
+  .nav__links a{ font-size:.875rem; }
+}
+@media (max-width:1199px){
   .nav__links{ display:none; }
   .nav__burger{ display:inline-flex; }
+}
+@media (max-width:1080px){
   .footer__grid{ grid-template-columns:1fr 1fr; gap:var(--space-xl); }
   .grid-4{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
