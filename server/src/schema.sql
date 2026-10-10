@@ -139,3 +139,74 @@ CREATE TABLE IF NOT EXISTS audit_log (
   ip         TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
 );
+
+
+-- ══════════════════════════════════════════════════════════════════════════
+--  Creator 设计者模式（页面模版与静态文案的可视化编辑）
+--
+--  为什么编辑产物落在数据库而不是文件：
+--    deploy/auto-deploy.sh 每次运行都会 `git reset --hard` 并把仓库文件**覆盖**
+--    到 /var/www/wx-seastar。所以 web 根目录是「仓库的镜像」，不是可写工作区 ——
+--    编辑器若直接改那里的 .html，改动会在 2 分钟内被静默冲掉。
+--    故：**数据库负责「改」，Git 负责「发」**，两边都不碰 web 根目录。
+-- ══════════════════════════════════════════════════════════════════════════
+
+-- ── 页面清单 ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS pages (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug        TEXT    NOT NULL,             -- 'oem' / 'cn/oem'（含语言前缀，全站唯一）
+  lang        TEXT    NOT NULL,             -- 'en' | 'zh'
+  title       TEXT,                         -- <title>
+  description TEXT,                         -- meta description
+  og_image    TEXT,
+  published   INTEGER NOT NULL DEFAULT 0,   -- 是否已有发布过的版本
+  base_sha    TEXT,                         -- 上次发布时所基于的仓库提交（基线校验）
+  updated_at  TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pages_slug ON pages(slug);
+
+-- ── 页面模块（页面 = 有序的模块列表；每个模块存一段 HTML 片段）──────────
+--  采用「片段」而非「结构化字段」是**刻意的**：现有 78 个页面是手工排版的，
+--  拆成结构化字段必然产生视觉回归。片段模型能保证**原样拼回**，
+--  同时通过 data-cf 标记把「可改的文字/图片」暴露给编辑器。
+CREATE TABLE IF NOT EXISTS page_blocks (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  page_id    INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+  sort_order INTEGER NOT NULL,
+  kind       TEXT    NOT NULL,              -- hero/section/dark/cta/footer/header …
+  tag        TEXT    NOT NULL DEFAULT 'section',
+  attrs      TEXT    NOT NULL DEFAULT '',   -- 标签属性（原样保留）
+  comment    TEXT,                          -- 标签前的 <!-- --> 注释（模块名）
+  content    TEXT    NOT NULL DEFAULT '',   -- 标签内部 HTML
+  visible    INTEGER NOT NULL DEFAULT 1,
+  locked     INTEGER NOT NULL DEFAULT 0,    -- 全局组件（导航/页脚）不可编辑
+  style      TEXT    NOT NULL DEFAULT '{}', -- 布局档位（列数/间距/比例/对齐）
+  updated_at TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_blocks_page ON page_blocks(page_id, sort_order);
+
+-- ── 版本快照（发布与回滚）───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS page_revisions (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  page_id    INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+  snapshot   TEXT    NOT NULL,              -- 该页全部 blocks 的 JSON
+  author_id  INTEGER,
+  note       TEXT,
+  created_at TEXT    NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_rev_page ON page_revisions(page_id, created_at DESC);
+
+-- ── 发布队列（Web 进程只写任务；真正的 git push 由特权服务执行）─────────
+--  Web 进程**不持有仓库写权限** —— 即使站点被攻破也拿不到 GitHub 写权限。
+CREATE TABLE IF NOT EXISTS publish_queue (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  page_id    INTEGER NOT NULL,
+  branch     TEXT    NOT NULL,              -- creator/<slug>-<时间戳>
+  base_sha   TEXT,                          -- 提交时 main 的 SHA（基线）
+  status     TEXT    NOT NULL DEFAULT 'pending', -- pending|running|done|failed|conflict
+  log        TEXT,
+  author_id  INTEGER,
+  created_at TEXT    NOT NULL DEFAULT (datetime('now','localtime')),
+  finished_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_pubq_status ON publish_queue(status, created_at);

@@ -41,6 +41,13 @@ function migrate() {
     d.exec('ALTER TABLE products ADD COLUMN scene TEXT');
   }
 
+  // Creator 设计者模式：账号角色（admin=现有后台 / creator=可增删模块并发布 /
+  // editor=只能改文案图片 / owner=超管）。存量账号一律视为 admin，权限不变。
+  const acols = new Set(d.prepare('PRAGMA table_info(admins)').all().map(c => c.name));
+  if (!acols.has('role')) {
+    d.exec("ALTER TABLE admins ADD COLUMN role TEXT NOT NULL DEFAULT 'admin'");
+  }
+
   return d;
 }
 

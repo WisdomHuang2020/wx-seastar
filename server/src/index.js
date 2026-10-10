@@ -44,6 +44,7 @@ app.use('/api/media', require('./routes/media.routes'));
 app.use('/api/documents', require('./routes/documents.routes').router);
 app.use('/api/messages', require('./routes/messages.routes').router);
 app.use('/api/public', require('./routes/public.routes'));
+app.use('/api/creator', require('./routes/creator.routes').router);
 
 app.get('/api/health', (_req, res) => res.json({
   ok: true,
@@ -56,6 +57,16 @@ app.get('/api/health', (_req, res) => res.json({
 // 后台是零构建的原生 HTML/JS，直接由本服务托管；
 // 不放进公开 web 根，避免与其静态发布流程搅在一起。
 app.use('/admin', express.static(path.join(__dirname, '..', 'public'), {
+  extensions: ['html'],
+  index: 'index.html',
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
+}));
+
+// ── Creator 设计者模式（/Creator）──────────────────────────────────────
+// 与 /admin 同样由本服务托管、不进公开 web 根 —— 这样它**不会**被
+// auto-deploy 的 `git reset --hard` + 覆盖发布冲掉。
+// 路径用大写 C 以对齐用户指定的 /Creator/。
+app.use('/Creator', express.static(path.join(__dirname, '..', 'creator'), {
   extensions: ['html'],
   index: 'index.html',
   setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),

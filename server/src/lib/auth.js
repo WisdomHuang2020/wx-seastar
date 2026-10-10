@@ -54,7 +54,11 @@ function createSession(adminId, ip, ua) {
 function getSession(token) {
   if (!token) return null;
   return db.get(
-    `SELECT s.token, s.expires_at, a.id AS admin_id, a.username, a.display_name, a.must_change
+    // ⚠️ 必须带出 a.role —— Creator 的角色鉴权依赖它。
+    //    漏了会让 req.admin.role 恒为 undefined（被当成 admin），
+    //    结果所有 Creator 账号都被 403 挡住。
+    `SELECT s.token, s.expires_at, a.id AS admin_id, a.username, a.display_name,
+            a.must_change, a.role
        FROM sessions s JOIN admins a ON a.id = s.admin_id
       WHERE s.token = ? AND s.expires_at > datetime('now','localtime')`,
     [token]
@@ -86,6 +90,26 @@ function requirePasswordChanged(req, res, next) {
     return res.status(403).json({ ok: false, error: '请先修改初始密码', code: 'MUST_CHANGE_PASSWORD' });
   }
   next();
+}
+
+/**
+ * 角色白名单 —— 必须放在 requireAuth 与 requirePasswordChanged 之后。
+ *
+ * 角色定义（Creator 设计者模式）：
+ *   owner   超管，全部权限
+ *   creator 可增删模块、可发布（对应 creator_1）
+ *   editor  只能改文案与图片（对应 creator_2）—— 结构性改动由路由层拒绝
+ *   admin   现有后台（产品/资料/留言），不进 Creator
+ */
+function requireRole(...roles) {
+  const allow = new Set(roles);
+  return (req, res, next) => {
+    const role = req.admin?.role || 'admin';
+    if (!allow.has(role)) {
+      return res.status(403).json({ ok: false, error: '当前账号无权进行此操作', code: 'ROLE_DENIED' });
+    }
+    next();
+  };
 }
 
 /** 写操作留痕 */
@@ -144,6 +168,7 @@ function clearSessionCookie(res) {
 module.exports = {
   hashPassword, verifyPassword, generatePassword,
   createSession, getSession, destroySession, destroyAdminSessions,
-  requireAuth, requirePasswordChanged, audit, clientIp,
+  requireAuth, requirePasswordChanged,
+  requireRole, audit, clientIp,
   cookieParser, setSessionCookie, clearSessionCookie,
 };
